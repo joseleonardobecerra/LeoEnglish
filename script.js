@@ -1,7 +1,7 @@
 // --- ESTILO DINÁMICO PARA LOS JUEGOS NUEVOS ---
 const extraStyles = document.createElement('style');
 extraStyles.innerHTML = `
-    .order-zone { min-height: 80px; border: 2px dashed #CBD5E0; border-radius: 12px; padding: 16px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; align-items: center; margin-bottom: 24px; background: white; }
+    .order-zone { min-height: 80px; border: 2px dashed #CBD5E0; border-radius: 12px; padding: 16px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; align-items: center; margin-bottom: 24px; background: white; transition: all 0.3s; }
     .order-word { padding: 10px 16px; background: white; border: 2px solid #E2E8F0; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
     .order-word:hover { border-color: #5A67D8; color: #5A67D8; transform: translateY(-2px); }
     .order-word.selected { background: #5A67D8; color: white; border-color: #5A67D8; }
@@ -12,20 +12,22 @@ extraStyles.innerHTML = `
 `;
 document.head.appendChild(extraStyles);
 
-// --- ESTADO INICIAL ---
+// --- ESTADO INICIAL (Modificado para soportar 0% reales) ---
 let state = {
     xp: 0,
     level: 1,
     streak: 1,
     scores: {
-        prepositions: 0,
-        numbers: 0,
-        verbs: 0,
-        vocabulary: 0,
-        reading: 0,
-        sentences: 0
+        prepositions: null,
+        numbers: null,
+        verbs: null,
+        vocabulary: null,
+        reading: null,
+        sentences: null
     }
 };
+
+let isChecking = false; // Bloqueo para evitar doble-clic
 
 // --- DATOS DE LOS 6 MÓDULOS COMPLETOS ---
 const modulesData = {
@@ -201,7 +203,6 @@ function setPhase(phase) {
             </div>
         `;
         
-        // Inicializar Flashcards si existen
         if (mod.flashcards) {
             const fcContainer = document.getElementById('fc-container');
             fcContainer.innerHTML = mod.flashcards.map((fc, i) => `
@@ -246,6 +247,9 @@ function renderQuiz(questions) {
 }
 
 function checkAnswer(val, correct, btn) {
+    if (isChecking) return;
+    isChecking = true;
+
     if (val === correct) {
         btn.classList.add('correct');
         currentQuizScore++;
@@ -256,13 +260,14 @@ function checkAnswer(val, correct, btn) {
     }
     
     setTimeout(() => {
+        isChecking = false;
         currentQuizIdx++;
         if(currentQuizIdx < modulesData[currentModuleId].quiz.length) {
             renderQuiz(modulesData[currentModuleId].quiz);
         } else {
             finishModule(modulesData[currentModuleId].quiz.length);
         }
-    }, 1000);
+    }, 1200);
 }
 
 // --- JUEGO 2: MATCH (CONECTAR PALABRAS) ---
@@ -303,7 +308,7 @@ function selectMatch(btn, val, side, pairVal) {
             matchSelected = { btn, val, side, pairVal };
             btn.classList.add('selected');
         } else {
-            if (matchSelected.pairVal === val) { // MATCH CORRECTO
+            if (matchSelected.pairVal === val) { 
                 btn.classList.add('matched');
                 matchSelected.btn.classList.remove('selected');
                 matchSelected.btn.classList.add('matched');
@@ -311,10 +316,10 @@ function selectMatch(btn, val, side, pairVal) {
                 showToast("+10 XP");
                 
                 if (matchMatched.length === modulesData[currentModuleId].pairs.length) {
-                    currentQuizScore = matchMatched.length; // Max score
+                    currentQuizScore = matchMatched.length; 
                     setTimeout(() => finishModule(matchMatched.length), 1000);
                 }
-            } else { // ERROR
+            } else { 
                 btn.style.borderColor = "red";
                 matchSelected.btn.style.borderColor = "red";
                 setTimeout(() => {
@@ -342,7 +347,6 @@ function renderOrderGame(questions) {
 }
 
 function drawOrderUI() {
-    const q = modulesData[currentModuleId].quiz[currentQuizIdx];
     const content = document.getElementById('phase-content');
     
     content.innerHTML = `
@@ -351,7 +355,7 @@ function drawOrderUI() {
             <h3 class="mb-6">Ordena las palabras para formar la oración</h3>
             
             <div class="order-zone" id="order-zone-selected">
-                ${orderSelected.length === 0 ? '<span style="color:#A0AEC0">La frase aparecerá aquí...</span>' : ''}
+                ${orderSelected.length === 0 ? '<span style="color:#A0AEC0">Toca las palabras para formar la frase...</span>' : ''}
                 ${orderSelected.map((w, i) => `<div class="order-word selected" onclick="moveWord(${i}, 'to-available')">${w}</div>`).join('')}
             </div>
 
@@ -359,7 +363,7 @@ function drawOrderUI() {
                 ${orderAvailable.map((w, i) => `<div class="order-word" onclick="moveWord(${i}, 'to-selected')">${w}</div>`).join('')}
             </div>
 
-            <button class="nav-btn active mx-auto" style="width: auto; background: ${orderAvailable.length === 0 ? 'var(--accent)' : '#CBD5E0'}; padding: 12px 24px; border-radius: 8px; font-weight: bold; color: white;" 
+            <button class="nav-btn active mx-auto" style="width: auto; background: ${orderAvailable.length === 0 ? 'var(--accent)' : '#CBD5E0'}; padding: 12px 24px; border-radius: 8px; font-weight: bold; color: white; transition: 0.3s;" 
                     onclick="checkOrder()" ${orderAvailable.length > 0 ? 'disabled' : ''}>
                 Comprobar Frase
             </button>
@@ -377,17 +381,26 @@ function moveWord(index, direction) {
 }
 
 function checkOrder() {
+    if (isChecking) return;
+    isChecking = true;
+
     const q = modulesData[currentModuleId].quiz[currentQuizIdx];
-    const userSentence = orderSelected.join(" ");
+    const userSentence = orderSelected.join(" ").trim();
+    const orderZone = document.getElementById('order-zone-selected');
     
-    if (userSentence === q.q) {
+    if (userSentence === q.q.trim()) {
         currentQuizScore++;
+        orderZone.style.borderColor = "#48BB78";
+        orderZone.style.backgroundColor = "#F0FFF4";
         showToast("+15 XP ¡Perfecto!");
     } else {
+        orderZone.style.borderColor = "#F56565";
+        orderZone.style.backgroundColor = "#FFF5F5";
         showToast("Orden incorrecto.");
     }
 
     setTimeout(() => {
+        isChecking = false;
         currentQuizIdx++;
         if(currentQuizIdx < modulesData[currentModuleId].quiz.length) {
             renderOrderGame(modulesData[currentModuleId].quiz);
@@ -421,9 +434,13 @@ function updateUI() {
     document.getElementById('level-display').innerText = "Nivel " + state.level;
     document.getElementById('xp-fill').style.width = (state.xp % 100) + "%";
     
-    // Cálculo preciso de las 4 Habilidades del Marco Europeo
-    const grammarScore = Math.round(((state.scores.prepositions || 0) + (state.scores.verbs || 0)) / 2) || 0;
-    const vocabScore = Math.round(((state.scores.vocabulary || 0) + (state.scores.numbers || 0)) / 2) || 0;
+    const pScore = state.scores.prepositions || 0;
+    const vScore = state.scores.verbs || 0;
+    const nScore = state.scores.numbers || 0;
+    const vocScore = state.scores.vocabulary || 0;
+    
+    const grammarScore = Math.round((pScore + vScore) / 2) || 0;
+    const vocabScore = Math.round((vocScore + nScore) / 2) || 0;
     const readingScore = state.scores.reading || 0;
     const writingScore = state.scores.sentences || 0;
 
@@ -434,7 +451,6 @@ function updateUI() {
         { name: 'Writing', val: writingScore, color: '#D85A30' }
     ];
     
-    // Promedio total para la barra global
     const totalAvg = Math.round((grammarScore + vocabScore + readingScore + writingScore) / 4);
     
     document.getElementById('skills-bars').innerHTML = skills.map(s => `
@@ -447,13 +463,16 @@ function updateUI() {
     document.getElementById('total-progress-pct').innerText = totalAvg + "%";
     document.getElementById('total-progress-fill').style.width = totalAvg + "%";
 
-    // Actualizar badges en el dashboard (Pendiente vs Porcentaje)
+    // Actualización de estado en el Dashboard (Ahora reconoce el 0%)
     Object.keys(modulesData).forEach(id => {
         const statusEl = document.getElementById(`status-${id}`);
         if(statusEl) {
-            if(state.scores[id] > 0) {
+            if(state.scores[id] !== null) {
                 statusEl.innerText = `Completado: ${state.scores[id]}%`;
-                statusEl.style.color = '#38A169'; // Verde
+                statusEl.style.color = '#38A169'; 
+            } else {
+                statusEl.innerText = `Pendiente`;
+                statusEl.style.color = '#A0AEC0';
             }
         }
     });
@@ -472,7 +491,6 @@ function init() {
     const statusGrid = document.getElementById('modules-status-grid');
     
     Object.values(modulesData).forEach(m => {
-        // Botones Sidebar
         const btn = document.createElement('button');
         btn.className = 'nav-btn';
         btn.innerHTML = `<i data-lucide="${m.icon}"></i> ${m.title}`;
@@ -483,7 +501,6 @@ function init() {
         };
         menu.appendChild(btn);
 
-        // Status Cards Dashboard
         const card = document.createElement('div');
         card.className = 'mod-card';
         card.innerHTML = `

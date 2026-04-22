@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LeoEnglish | Plataforma de Aprendizaje</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- SIDEBAR -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-top">
+                <div class="logo-section">
+                    <div class="logo-icon"><i data-lucide="book-open"></i></div>
+                    <h1>Leo<span>English</span></h1>
+                </div>
+                <button class="sidebar-toggle" onclick="toggleSidebar()" title="Colapsar menú">
+                    <i data-lucide="panel-left-close" id="toggle-icon"></i>
+                </button>
+            </div>
+
+            <div class="streak-card">
+                <i data-lucide="flame" class="streak-icon"></i>
+                <div class="streak-info">
+                    <span class="streak-label">Racha</span>
+                    <span class="streak-val" id="streak-display">1 Día</span>
+                </div>
+                <div class="xp-pill" id="xp-pill">0 XP</div>
+            </div>
+
+            <div class="nav-links">
+                <button class="nav-btn active" onclick="showScreen('dashboard'); setActiveNav(this)">
+                    <i data-lucide="layout-dashboard"></i> <span class="nav-label">Tablero</span>
+                </button>
+                <button class="nav-btn" onclick="showScreen('reading-hub'); setActiveNav(this)">
+                    <i data-lucide="book-marked"></i> <span class="nav-label">Reading</span>
+                </button>
+                <button class="nav-btn" onclick="showScreen('writing-hub'); setActiveNav(this)">
+                    <i data-lucide="pen-line"></i> <span class="nav-label">Writing</span>
+                </button>
+                <button class="nav-btn" onclick="showScreen('vocab-hub'); setActiveNav(this)">
+                    <i data-lucide="layers"></i> <span class="nav-label">Vocabulario</span>
+                </button>
+                <div class="nav-sep"><span>Gramática</span></div>
+                <div id="module-menu"></div>
+            </div>
+
+            <div class="user-profile">
+                <div class="profile-header">
+                    <div class="avatar" id="avatar-initials">E</div>
+                    <div class="user-info">
+                        <span class="user-name" id="user-name-display">Estudiante</span>
+                        <span class="user-level" id="level-display">Nivel 1 · A1</span>
+                    </div>
+                </div>
+                <div class="xp-progress-container">
+                    <div class="xp-bar-wrap">
+                        <div class="xp-bar"><div class="xp-fill" id="xp-fill"></div></div>
+                        <span class="xp-text" id="xp-display">0 / 100 XP</span>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- MAIN -->
+        <main class="main-content" id="main-content">
+
+            <!-- PANTALLA: DASHBOARD -->
+            <section id="screen-dashboard" class="screen active">
+                <header class="page-header">
+                    <div>
+                        <h2 id="greeting-text">¡Buenos días, Estudiante!</h2>
+                        <p>Aquí tienes tu resumen de progreso según el Marco Europeo de Lenguas.</p>
+                    </div>
+                    <div class="header-actions">
+                        <button class="icon-btn" onclick="showScreen('settings')" title="Configuración">
+                            <i data-lucide="settings"></i>
+                        </button>
+                    </div>
+                </header>
+
+                <!-- STATS ROW -->
+                <div class="stats-row">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background:#EEEDFE;color:#534AB7"><i data-lucide="zap"></i></div>
+                        <div><div class="stat-num" id="stat-xp">0</div><div class="stat-lbl">XP Total</div></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background:#E1F5EE;color:#1D9E75"><i data-lucide="check-circle"></i></div>
+                        <div><div class="stat-num" id="stat-done">0</div><div class="stat-lbl">Completados</div></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background:#FAEEDA;color:#854F0B"><i data-lucide="flame"></i></div>
+                        <div><div class="stat-num" id="stat-streak">1</div><div class="stat-lbl">Días racha</div></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background:#FAECE7;color:#993C1D"><i data-lucide="target"></i></div>
+                        <div><div class="stat-num" id="stat-accuracy">—</div><div class="stat-lbl">Precisión</div></div>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <!-- SKILLS -->
+                    <div class="skills-card">
+                        <h3><i data-lucide="bar-chart-2"></i> Habilidades (MCER)</h3>
+                        <div class="skill-bars-container" id="skills-bars"></div>
+                        <div class="course-progress">
+                            <div class="progress-lbl-row">
+                                <span class="progress-lbl">Progreso Total del Curso</span>
+                                <span class="total-pct" id="total-progress-pct">0%</span>
+                            </div>
+                            <div class="total-bar"><div class="total-fill" id="total-progress-fill"></div></div>
+                        </div>
+                    </div>
+
+                    <!-- FEEDBACK -->
+                    <div class="feedback-card">
+                        <h3><i data-lucide="message-circle"></i> Feedback del Profesor IA</h3>
+                        <div class="feedback-content" id="teacher-feedback">
+                            <div class="fb-item fb-info">
+                                <i data-lucide="info"></i>
+                                <span>¡Bienvenido! Completa tu primer módulo para recibir feedback personalizado.</span>
+                            </div>
+                        </div>
+                        <div class="rank-section">
+                            <div class="rank-badge">
+                                <span class="rank-lbl">Rango Actual</span>
+                                <span class="rank-val" id="rank-display">Explorador Novato</span>
+                            </div>
+                            <div class="cefr-badge" id="cefr-badge">A1</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MÓDULOS -->
+                <div class="section-header">
+                    <h3>Módulos de Gramática</h3>
+                    <span class="section-sub">Haz clic para comenzar</span>
+                </div>
+                <div class="modules-grid" id="modules-status-grid"></div>
+
+                <!-- ACTIVIDAD RECIENTE -->
+                <div class="section-header" style="margin-top:32px">
+                    <h3>Actividad Reciente</h3>
+                </div>
+                <div id="activity-log" class="activity-log">
+                    <div class="activity-empty">Aún no hay actividad. ¡Empieza una lección!</div>
+                </div>
+            </section>
+
+            <!-- PANTALLA: MÓDULO -->
+            <section id="screen-module" class="screen">
+                <div id="module-content"></div>
+            </section>
+
+            <!-- PANTALLA: READING HUB -->
+            <section id="screen-reading-hub" class="screen">
+                <header class="page-header">
+                    <div>
+                        <h2>Reading</h2>
+                        <p>Comprensión lectora con textos graduados por nivel</p>
+                    </div>
+                </header>
+                <div id="reading-hub-content"></div>
+            </section>
+
+            <!-- PANTALLA: WRITING HUB -->
+            <section id="screen-writing-hub" class="screen">
+                <header class="page-header">
+                    <div>
+                        <h2>Writing</h2>
+                        <p>Practica la escritura desde frases simples hasta párrafos</p>
+                    </div>
+                </header>
+                <div id="writing-hub-content"></div>
+            </section>
+
+            <!-- PANTALLA: VOCAB HUB -->
+            <section id="screen-vocab-hub" class="screen">
+                <header class="page-header">
+                    <div>
+                        <h2>Vocabulario</h2>
+                        <p>Tarjetas, juegos y quiz por temáticas</p>
+                    </div>
+                </header>
+                <div id="vocab-hub-content"></div>
+            </section>
+
+            <!-- PANTALLA: SETTINGS -->
+            <section id="screen-settings" class="screen">
+                <header class="page-header">
+                    <div><h2>Configuración</h2><p>Personaliza tu experiencia de aprendizaje</p></div>
+                </header>
+                <div class="settings-grid">
+                    <div class="settings-card">
+                        <h3><i data-lucide="user"></i> Perfil</h3>
+                        <label class="setting-label">Tu nombre</label>
+                        <input type="text" id="setting-name" class="setting-input" placeholder="Escribe tu nombre..." value="Estudiante">
+                        <label class="setting-label">Meta diaria de XP</label>
+                        <div class="goal-options">
+                            <button class="goal-btn active" data-goal="50" onclick="setGoal(this)">Básico<br><small>50 XP/día</small></button>
+                            <button class="goal-btn" data-goal="100" onclick="setGoal(this)">Regular<br><small>100 XP/día</small></button>
+                            <button class="goal-btn" data-goal="200" onclick="setGoal(this)">Intensivo<br><small>200 XP/día</small></button>
+                        </div>
+                        <button class="btn-primary-full" onclick="saveSettings()">Guardar cambios</button>
+                    </div>
+                    <div class="settings-card">
+                        <h3><i data-lucide="refresh-ccw"></i> Progreso</h3>
+                        <p style="color:#718096;font-size:14px;margin-bottom:16px">Reinicia tu progreso para empezar desde cero. Esta acción no se puede deshacer.</p>
+                        <button class="btn-danger-full" onclick="confirmReset()">Reiniciar progreso</button>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <div id="toast" class="toast"></div>
+    <div id="modal-overlay" class="modal-overlay" onclick="closeModal()">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <div id="modal-content"></div>
+        </div>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

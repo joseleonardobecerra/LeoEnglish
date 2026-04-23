@@ -1,4 +1,4 @@
-// app.js v2.0 — MOTOR COMPLETO LEOENGLISH
+// app.js v3.0 — MOTOR COMPLETO LEOENGLISH (Integración IA & XP Avanzado)
 
 // ============================================================
 // ESTADO GLOBAL
@@ -84,6 +84,7 @@ function showScreen(screenId) {
     else if (screenId === 'reading-hub') renderReadingHub();
     else if (screenId === 'writing-hub') renderWritingHub();
     else if (screenId === 'vocab-hub') renderVocabHub();
+    else if (screenId === 'practice-hub') renderPracticeHub(); // <--- INTEGRACIÓN LABORATORIO IA
     else if (screenId === 'settings') renderSettings();
     lucide.createIcons();
 }
@@ -131,7 +132,7 @@ function renderDashboard() {
 
     // Skills
     const grammarScores = ['prepositions','present_simple','present_cont','simple_vs_cont'].map(k => state.scores[k] || 0);
-    const grammar = Math.round(grammarScores.reduce((a,b)=>a+b,0) / grammarScores.length);
+    const grammar = Math.round(grammarScores.reduce((a,b)=>a+b,0) / grammarScores.length) || 0;
     const reading = Object.values(state.readingScores).length ? Math.round(Object.values(state.readingScores).reduce((a,b)=>a+b,0) / Object.values(state.readingScores).length) : 0;
     const writing = Object.values(state.writingDone).length ? Math.round(Object.values(state.writingDone).reduce((a,b)=>a+b,0) / Object.values(state.writingDone).length) : 0;
     const vocab = Object.values(state.vocabScores).length ? Math.round(Object.values(state.vocabScores).reduce((a,b)=>a+b,0) / Object.values(state.vocabScores).length) : 0;
@@ -172,7 +173,7 @@ function renderDashboard() {
         grid.innerHTML = '';
         Object.values(modulesData).forEach(m => {
             const score = state.scores[m.id];
-            const done = score !== null;
+            const done = score != null;
             const div = document.createElement('div');
             div.className = 'mod-card' + (done ? ' mod-done' : '');
             div.innerHTML = `
@@ -1054,6 +1055,61 @@ function checkVocabQ(val, correct, btn) {
 }
 
 // ============================================================
+// PRACTICE HUB (LABORATORIO IA & JUEGOS)
+// ============================================================
+function renderPracticeHub() {
+    const el = document.getElementById('practice-hub-content');
+    if (!el) return;
+
+    let html = '';
+    // Verifica que los datos estén cargados desde data.js
+    if (typeof practiceLabData !== 'undefined') {
+        practiceLabData.forEach(cat => {
+            html += `<div class="lab-section-label">${cat.category}</div>
+                     <div class="lab-card-grid">`;
+            cat.items.forEach(item => {
+                const tagsHtml = item.tags.map(t => `<span class="lab-tag ${t.c}">${t.l}</span>`).join('');
+                html += `
+                <div class="lab-card" onclick="openLabExercise('${item.title}')">
+                    <div class="lab-card-header">
+                        <div class="lab-icon" style="background:${item.bg};">${item.icon}</div>
+                        <span class="lab-card-title">${item.title}</span>
+                    </div>
+                    <p class="lab-card-desc">${item.desc}</p>
+                    <div class="lab-tag-row">${tagsHtml}</div>
+                    <div class="lab-impact-bar">
+                        <span class="lab-impact-label">Impacto IA</span>
+                        <div class="lab-bar-track"><div class="lab-bar-fill" style="width:${item.impact}%;background:${item.color};"></div></div>
+                    </div>
+                </div>`;
+            });
+            html += `</div>`;
+        });
+    } else {
+        html = '<p style="color:#718096">Los datos del laboratorio no se han cargado aún.</p>';
+    }
+
+    el.innerHTML = html;
+}
+
+function openLabExercise(title) {
+    openModal(`
+        <div style="text-align:center; padding: 10px;">
+            <div style="font-size:40px;margin-bottom:16px">🚀</div>
+            <h3 style="font-size:20px;font-weight:700;margin-bottom:8px">${title}</h3>
+            <p style="color:#718096;font-size:14px;margin-bottom:24px">
+                Este ejercicio formará parte del nuevo motor de Inteligencia Artificial que conectaremos en la próxima actualización. <br><br>
+                ¿Quieres establecer un recordatorio para ser el primero en probarlo?
+            </p>
+            <div style="display:flex;gap:10px;justify-content:center">
+                <button onclick="closeModal()" style="padding:10px 24px;border:1.5px solid #E2E8F0;border-radius:10px;background:white;cursor:pointer;font-weight:600">Cerrar</button>
+                <button onclick="closeModal(); showToast('¡Anotado! Te avisaremos.', 'success')" style="padding:10px 24px;background:#534AB7;color:white;border:none;border-radius:10px;cursor:pointer;font-weight:700">Notificarme</button>
+            </div>
+        </div>
+    `);
+}
+
+// ============================================================
 // SETTINGS
 // ============================================================
 function renderSettings() {
@@ -1114,31 +1170,55 @@ function closeModal() {
 }
 
 // ============================================================
-// XP, NIVELES Y ACTIVIDAD
+// XP, NIVELES Y ACTIVIDAD (NUEVO SISTEMA MATEMÁTICO)
 // ============================================================
-function addXP(val, showMsg) {
-    state.xp += val;
-    state.dailyXP += val;
-    const xpForNext = state.level * 100;
-    if (state.xp >= xpForNext) {
+function addXP(baseVal, showMsg) {
+    // 1. Multiplicador de racha: +5% extra de XP por cada día seguido (Máximo +50%)
+    const streakBonus = Math.min(state.streak * 0.05, 0.50); 
+    const totalXP = Math.round(baseVal * (1 + streakBonus));
+
+    state.xp += totalXP;
+    state.dailyXP += totalXP;
+
+    // 2. Curva Exponencial: Requiere más esfuerzo cada nivel
+    let xpForNext = Math.floor(100 * Math.pow(state.level, 1.5));
+
+    while (state.xp >= xpForNext) {
         state.level++;
+        xpForNext = Math.floor(100 * Math.pow(state.level, 1.5));
         showToast('¡NIVEL SUBIDO! 🎉 Nivel ' + state.level, 'success');
     }
+
     updateHeaderUI();
     saveState();
-    if (showMsg && val > 0) showToast('+' + val + ' XP', 'success');
+    
+    if (showMsg && totalXP > 0) {
+        showToast(`+${totalXP} XP ${streakBonus > 0 ? '🔥' : ''}`, 'success');
+    }
 }
 
 function updateHeaderUI() {
-    const xpForNext = state.level * 100;
-    const xpInLevel = state.xp % xpForNext;
-    const pct = Math.round((xpInLevel / xpForNext) * 100);
+    // Calculamos el progreso del nivel actual usando la curva exponencial
+    const xpCurrentLevelBase = state.level === 1 ? 0 : Math.floor(100 * Math.pow(state.level - 1, 1.5));
+    const xpNextLevelBase = Math.floor(100 * Math.pow(state.level, 1.5));
+    
+    const xpInLevel = state.xp - xpCurrentLevelBase;
+    const xpRequiredForNext = xpNextLevelBase - xpCurrentLevelBase;
+    
+    const pct = Math.min(100, Math.max(0, Math.round((xpInLevel / xpRequiredForNext) * 100)));
+    
     const fill = document.getElementById('xp-fill');
     if (fill) fill.style.width = pct + '%';
-    safeSet('xp-display', `${xpInLevel} / ${xpForNext} XP`);
-    safeSet('level-display', `Nivel ${state.level} · ${getrank(0).cefr}`);
+    
+    safeSet('xp-display', `${xpInLevel} / ${xpRequiredForNext} XP`);
+    
+    // Obtenemos el nombre del rango según un aproximado (o lo dejamos base para el diseño)
+    const rankInfo = getrank(0); 
+    safeSet('level-display', `Nivel ${state.level} · ${rankInfo.cefr}`);
+    
     safeSet('xp-pill', `${state.xp} XP`);
     safeSet('streak-display', `${state.streak} Día${state.streak !== 1 ? 's' : ''}`);
+    
     const init = document.getElementById('avatar-initials');
     if (init) init.textContent = state.userName.charAt(0).toUpperCase();
     const nameEl = document.getElementById('user-name-display');

@@ -130,13 +130,22 @@ async function loadState(uid) {
         
         if (docSnap.exists()) {
             state = { ...state, ...docSnap.data() };
-        } else {
-            // SI ES UN USUARIO NUEVO
-            if (auth.currentUser && auth.currentUser.email === 'joseleonardobecerrac@gmail.com') {
-                state.role = 'admin';
-            }
-            await saveState();
+        } 
+        
+        // ==========================================
+        // OVERRIDE DE SEGURIDAD PARA EL ADMIN
+        // Forzamos el rol admin si el correo coincide, 
+        // sin importar lo que diga Firebase.
+        // ==========================================
+        if (auth.currentUser && auth.currentUser.email === 'joseleonardobecerrac@gmail.com') {
+            state.role = 'admin';
+        } else if (!docSnap.exists()) {
+            // Si es un usuario nuevo y no es el admin, nos aseguramos de que sea student
+            state.role = 'student';
         }
+        
+        // Siempre guardamos el estado para actualizar Firebase si el rol cambió
+        await saveState();
         
         updateHeaderUI();
         
@@ -145,8 +154,8 @@ async function loadState(uid) {
         // ==========================================
         const adminZone = document.getElementById('admin-zone');
         if (adminZone && auth.currentUser) {
-            // Si el rol guardado es admin, o el correo coincide, mostramos la zona
-            if (state.role === 'admin' || auth.currentUser.email === 'joseleonardobecerrac@gmail.com') {
+            // Si el rol es admin (que acabamos de forzar arriba) mostramos la zona
+            if (state.role === 'admin') {
                 adminZone.style.display = 'block';
             } else {
                 adminZone.style.display = 'none';

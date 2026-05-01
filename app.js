@@ -1,4 +1,4 @@
-// app.js v3.3 — MOTOR COMPLETO LEOENGLISH (Firebase, Roles, Admin Mode & Guided Route)
+// app.js v3.4 — MOTOR COMPLETO LEOENGLISH (Firebase, Roles, Admin Preview & Guided Route)
 
 import { auth, db, googleProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, doc, setDoc, getDoc, collection, getDocs } from './firebase-config.js';
 
@@ -6,7 +6,8 @@ import { auth, db, googleProvider, signInWithPopup, signInWithEmailAndPassword, 
 // ESTADO GLOBAL
 // ============================================================
 let state = {
-    role: 'student', // <-- Por defecto todos son estudiantes
+    role: 'student', 
+    adminView: false, // <-- NUEVO: Controla si el admin tiene los candados apagados
     xp: 0,
     level: 1,
     streak: 1,
@@ -103,7 +104,7 @@ window.handleEmailRegister = async function() {
 window.handleLogout = async function() {
     try {
         await signOut(auth);
-        state = { role: 'student', xp: 0, level: 1, streak: 1, dailyXP: 0, dailyGoal: 50, totalAnswers: 0, correctAnswers: 0, modulesCompleted: 0, activityLog: [], scores: {}, readingScores: {}, writingDone: {}, vocabScores: {}, userName: 'Estudiante' };
+        state = { role: 'student', adminView: false, xp: 0, level: 1, streak: 1, dailyXP: 0, dailyGoal: 50, totalAnswers: 0, correctAnswers: 0, modulesCompleted: 0, activityLog: [], scores: {}, readingScores: {}, writingDone: {}, vocabScores: {}, userName: 'Estudiante' };
         document.getElementById('auth-email').value = '';
         document.getElementById('auth-password').value = '';
         window.showScreen('dashboard');
@@ -132,29 +133,19 @@ async function loadState(uid) {
             state = { ...state, ...docSnap.data() };
         } 
         
-        // ==========================================
         // OVERRIDE DE SEGURIDAD PARA EL ADMIN
-        // Forzamos el rol admin si el correo coincide, 
-        // sin importar lo que diga Firebase.
-        // ==========================================
         if (auth.currentUser && auth.currentUser.email === 'joseleonardobecerrac@gmail.com') {
             state.role = 'admin';
         } else if (!docSnap.exists()) {
-            // Si es un usuario nuevo y no es el admin, nos aseguramos de que sea student
             state.role = 'student';
         }
         
-        // Siempre guardamos el estado para actualizar Firebase si el rol cambió
         await saveState();
-        
         updateHeaderUI();
         
-        // ==========================================
         // LÓGICA PARA MOSTRAR/OCULTAR MODO ADMIN
-        // ==========================================
         const adminZone = document.getElementById('admin-zone');
         if (adminZone && auth.currentUser) {
-            // Si el rol es admin (que acabamos de forzar arriba) mostramos la zona
             if (state.role === 'admin') {
                 adminZone.style.display = 'block';
             } else {
@@ -234,7 +225,6 @@ window.renderDashboard = function() {
     safeSet('stat-streak', state.streak);
     safeSet('stat-accuracy', acc);
 
-    // Filter to only count modules that actually exist in modulesData for the progress bar
     const validModuleKeys = Object.keys(modulesData);
     const grammarScores = validModuleKeys.map(k => state.scores[k] || 0);
     const grammar = grammarScores.length ? Math.round(grammarScores.reduce((a,b)=>a+b,0) / grammarScores.length) : 0;
@@ -276,7 +266,6 @@ window.renderDashboard = function() {
     if (grid) {
         grid.innerHTML = '';
         
-        // NUEVA ARQUITECTURA: Currículo dividido por niveles
         const curriculum = [
             {
                 levelName: 'Nivel A1: Fundamentos',
@@ -301,30 +290,34 @@ window.renderDashboard = function() {
         let globalModuleIndex = 1;
 
         curriculum.forEach(level => {
-            // Crear el encabezado del nivel
             const levelHeader = document.createElement('div');
             levelHeader.className = 'level-divider';
             levelHeader.innerHTML = `<h4 style="color:${level.color}; font-size:18px; font-weight:800; margin: 24px 0 16px 0; border-bottom: 2px solid ${level.color}30; padding-bottom: 8px;">${level.levelName}</h4>`;
             grid.appendChild(levelHeader);
 
-            // Contenedor para las tarjetas de este nivel
             const levelGrid = document.createElement('div');
             levelGrid.className = 'modules-grid';
             levelGrid.style = 'margin-bottom: 32px;';
 
             level.modules.forEach(modId => {
-                // Validación para evitar errores si aún no has escrito el módulo en data.js
                 if(!modulesData[modId]) return; 
 
                 const m = modulesData[modId];
                 const score = state.scores[m.id];
                 const isPassed = score !== null && score >= 80;
+                
+                // Lógica de visualización con el Modo Administrador
+                let visualLocked = isLocked;
+                if (state.role === 'admin' && state.adminView) {
+                    visualLocked = false; // El admin rompe visualmente el candado
+                }
+
                 const isCurrent = !isPassed && !isLocked;
 
                 const div = document.createElement('div');
-                div.className = `mod-card ${isPassed ? 'mod-done' : ''} ${isCurrent ? 'mod-current' : ''} ${isLocked ? 'mod-locked' : ''}`;
+                div.className = `mod-card ${isPassed ? 'mod-done' : ''} ${(!isPassed && !visualLocked) ? 'mod-current' : ''} ${visualLocked ? 'mod-locked' : ''}`;
 
-                if (isLocked) {
+                if (visualLocked) {
                     div.innerHTML = `
                         <div class="mod-icon-wrap">
                             <i data-lucide="lock"></i>
@@ -346,16 +339,25 @@ window.renderDashboard = function() {
                         </div>`;
                     div.onclick = () => window.openModule(m.id);
                 } else {
+                    // Diseño desbloqueado (o Current normal)
+                    const isAdminBypassed = state.adminView && !isCurrent;
+                    
                     div.innerHTML = `
                         <div class="mod-icon-wrap" style="background:${m.color};color:white">
-                            <i data-lucide="play"></i>
+                            <i data-lucide="${isAdminBypassed ? 'unlock' : 'play'}"></i>
                         </div>
                         <div style="flex:1;min-width:0">
                             <div class="mod-title">${globalModuleIndex}. ${m.title}</div>
-                            <div class="mod-status" style="color:var(--primary-mid);font-weight:800;">Siguiente lección</div>
+                            <div class="mod-status" style="color:var(--primary-mid);font-weight:800;">
+                                ${isAdminBypassed ? 'Admin: Desbloqueado' : 'Siguiente lección'}
+                            </div>
                             ${score !== null ? `<div style="font-size:11px; color:#E53E3E; margin-top:4px;">Último intento: ${score}% (Necesitas 80%)</div>` : ''}
                         </div>`;
                     div.onclick = () => window.openModule(m.id);
+                }
+                
+                // El motor real sigue bloqueando el resto si no has superado este
+                if (!isPassed) {
                     isLocked = true; 
                 }
                 
@@ -1333,7 +1335,7 @@ window.confirmReset = function() {
 
 window.doReset = async function() {
     window.closeModal();
-    state = { role: state.role, xp: 0, level: 1, streak: 1, dailyXP: 0, dailyGoal: 50, totalAnswers: 0, correctAnswers: 0, modulesCompleted: 0, activityLog: [], scores: {}, readingScores: {}, writingDone: {}, vocabScores: {}, userName: state.userName };
+    state = { role: state.role, adminView: false, xp: 0, level: 1, streak: 1, dailyXP: 0, dailyGoal: 50, totalAnswers: 0, correctAnswers: 0, modulesCompleted: 0, activityLog: [], scores: {}, readingScores: {}, writingDone: {}, vocabScores: {}, userName: state.userName };
     await saveState();
     location.reload();
 };
@@ -1446,40 +1448,10 @@ function safeSet(id, val) {
 }
 
 // ============================================================
-// MODO ADMINISTRADOR (TESTING)
+// MODO VISTA PREVIA (ADMINISTRADOR)
 // ============================================================
-window.activateAdminMode = async function() {
-    // 1. Confirmamos que el usuario está seguro
-    if (!confirm('¿Estás seguro de activar el Modo Administrador? Esto sobrescribirá todo tu progreso actual y desbloqueará todos los módulos al 100%.')) {
-        return;
-    }
-
-    // 2. Modificamos el estado global
-    state.xp = 5000;
-    state.level = 10;
-    state.streak = 30;
-    state.dailyXP = 500;
-    state.totalAnswers = 500;
-    state.correctAnswers = 480;
-    state.modulesCompleted = Object.keys(modulesData).length;
-
-    // 3. Asignamos 100% a TODOS los módulos que existan en data.js
-    Object.keys(modulesData).forEach(modId => {
-        state.scores[modId] = 100;
-    });
-
-    // 4. Asignamos puntuaciones perfectas a Reading, Writing y Vocabulario (Simulado)
-    if (typeof readingTexts !== 'undefined') readingTexts.forEach(r => state.readingScores[r.id] = 100);
-    if (typeof writingExercises !== 'undefined') writingExercises.forEach(w => state.writingDone[w.id] = 100);
-    if (typeof vocabTopics !== 'undefined') vocabTopics.forEach(v => state.vocabScores[v.id] = 100);
-
-    // 5. Guardamos en Firebase y actualizamos la interfaz
-    await saveState();
-    window.showToast('¡Modo Administrador Activado! Todo desbloqueado.', 'success');
-    
-    // 6. Recargamos la interfaz
-    updateHeaderUI();
-    if (document.getElementById('screen-dashboard').classList.contains('active')) {
-        window.renderDashboard();
-    }
+window.toggleAdminView = function() {
+    state.adminView = !state.adminView;
+    window.showToast(state.adminView ? 'Modo Vista Previa: Candados desactivados' : 'Candados activados nuevamente', 'success');
+    window.renderDashboard();
 };

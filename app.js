@@ -1,4 +1,4 @@
-// app.js v3.1 — MOTOR COMPLETO LEOENGLISH (Firebase, Leaderboard & Web Speech API)
+// app.js v3.2 — MOTOR COMPLETO LEOENGLISH (Firebase, Leaderboard, Web Speech API & Guided Route)
 
 import { auth, db, googleProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, doc, setDoc, getDoc, collection, getDocs } from './firebase-config.js';
 
@@ -18,7 +18,10 @@ let state = {
     scores: {
         articles: null, prepositions: null, pronouns: null, verbs: null,
         present_simple: null, present_cont: null, simple_vs_cont: null,
-        numbers: null, past_simple: null, future_will: null, can_could: null
+        numbers: null, past_simple: null, future_will: null, can_could: null,
+        // Agregamos espacios para futuros modulos A2 aquí (puedes dejarlos en null)
+        comparisons: null, quantifiers: null, past_continuous: null, present_perfect: null,
+        future_mixed: null, modals_obligation: null, conditionals: null, phrasal_gerunds: null
     },
     readingScores: {},
     writingDone: {},
@@ -140,7 +143,7 @@ async function loadState(uid) {
 // INICIALIZACIÓN
 // ============================================================
 window.onload = function() {
-    buildNavigation();
+    // Ya no reconstruimos el nav con los modulos aqui.
     lucide.createIcons();
 };
 
@@ -188,19 +191,6 @@ window.toggleSidebar = function() {
     lucide.createIcons();
 };
 
-function buildNavigation() {
-    const menu = document.getElementById('module-menu');
-    if(!menu) return;
-    menu.innerHTML = '';
-    Object.values(modulesData).forEach(m => {
-        const btn = document.createElement('button');
-        btn.className = 'nav-btn';
-        btn.dataset.modId = m.id;
-        btn.innerHTML = `<i data-lucide="${m.icon}"></i> <span class="nav-label">${m.title}</span>`;
-        btn.onclick = () => { window.setActiveNav(btn); window.openModule(m.id); };
-        menu.appendChild(btn);
-    });
-}
 
 // ============================================================
 // DASHBOARD & LEADERBOARD
@@ -215,8 +205,11 @@ window.renderDashboard = function() {
     safeSet('stat-streak', state.streak);
     safeSet('stat-accuracy', acc);
 
-    const grammarScores = Object.keys(modulesData).map(k => state.scores[k] || 0);
+    // Filter to only count modules that actually exist in modulesData for the progress bar
+    const validModuleKeys = Object.keys(modulesData);
+    const grammarScores = validModuleKeys.map(k => state.scores[k] || 0);
     const grammar = grammarScores.length ? Math.round(grammarScores.reduce((a,b)=>a+b,0) / grammarScores.length) : 0;
+    
     const reading = Object.values(state.readingScores).length ? Math.round(Object.values(state.readingScores).reduce((a,b)=>a+b,0) / Object.values(state.readingScores).length) : 0;
     const writing = Object.values(state.writingDone).length ? Math.round(Object.values(state.writingDone).reduce((a,b)=>a+b,0) / Object.values(state.writingDone).length) : 0;
     const vocab = Object.values(state.vocabScores).length ? Math.round(Object.values(state.vocabScores).reduce((a,b)=>a+b,0) / Object.values(state.vocabScores).length) : 0;
@@ -254,69 +247,98 @@ window.renderDashboard = function() {
     if (grid) {
         grid.innerHTML = '';
         
-        // 1. El orden estricto de tu Ruta de Aprendizaje (Paso a paso)
-        const courseRoute = [
-            'articles', 'prepositions', 'pronouns', 'verbs', 
-            'present_simple', 'present_cont', 'simple_vs_cont', 
-            'numbers', 'past_simple', 'future_will', 'can_could'
+        // NUEVA ARQUITECTURA: Currículo dividido por niveles
+        const curriculum = [
+            {
+                levelName: 'Nivel A1: Fundamentos',
+                color: '#38A169',
+                modules: [
+                    'articles', 'prepositions', 'pronouns', 'verbs', 
+                    'present_simple', 'present_cont', 'simple_vs_cont', 
+                    'numbers', 'past_simple', 'future_will', 'can_could'
+                    // TODO: Agregaremos 'to_be_pronouns', 'articles_dem', etc. aqui cuando los crees en data.js
+                ]
+            }
+            // TODO: Descomenta esto cuando agregues los modulos A2 en data.js
+            // {
+            //     levelName: 'Nivel A2: Explorador Avanzado',
+            //     color: '#3182CE',
+            //     modules: [
+            //         'comparisons', 'quantifiers', 'past_continuous', 'present_perfect',
+            //         'future_mixed', 'modals_obligation', 'conditionals', 'phrasal_gerunds'
+            //     ]
+            // }
         ];
 
-        let isLocked = false; // Se activa al encontrar el primer módulo no superado
+        let isLocked = false; 
+        let globalModuleIndex = 1;
 
-        courseRoute.forEach((modId, index) => {
-            const m = modulesData[modId];
-            const score = state.scores[m.id];
-            
-            // LA REGLA DE ORO: Exigir 80% o más para aprobar
-            const isPassed = score !== null && score >= 80;
-            const isCurrent = !isPassed && !isLocked;
+        curriculum.forEach(level => {
+            // Crear el encabezado del nivel
+            const levelHeader = document.createElement('div');
+            levelHeader.className = 'level-divider';
+            levelHeader.innerHTML = `<h4 style="color:${level.color}; font-size:18px; font-weight:800; margin: 24px 0 16px 0; border-bottom: 2px solid ${level.color}30; padding-bottom: 8px;">${level.levelName}</h4>`;
+            grid.appendChild(levelHeader);
 
-            const div = document.createElement('div');
-            div.className = `mod-card ${isPassed ? 'mod-done' : ''} ${isCurrent ? 'mod-current' : ''} ${isLocked ? 'mod-locked' : ''}`;
+            // Contenedor para las tarjetas de este nivel
+            const levelGrid = document.createElement('div');
+            levelGrid.className = 'modules-grid';
+            levelGrid.style = 'margin-bottom: 32px;';
 
-            if (isLocked) {
-                // DISEÑO: Módulo Bloqueado
-                div.innerHTML = `
-                    <div class="mod-icon-wrap">
-                        <i data-lucide="lock"></i>
-                    </div>
-                    <div style="flex:1;min-width:0">
-                        <div class="mod-title">${index + 1}. ${m.title}</div>
-                        <div class="mod-status" style="color:#A0AEC0">Bloqueado</div>
-                    </div>`;
-                div.onclick = () => window.showToast('Debes aprobar la lección anterior con 80% o más.', 'warn');
-            
-            } else if (isPassed) {
-                // DISEÑO: Módulo Superado
-                div.innerHTML = `
-                    <div class="mod-icon-wrap" style="background:${m.color}18;color:${m.color}">
-                        <i data-lucide="check-circle"></i>
-                    </div>
-                    <div style="flex:1;min-width:0">
-                        <div class="mod-title">${index + 1}. ${m.title}</div>
-                        <div class="mod-status" style="color:#38A169">✓ Aprobado: ${score}%</div>
-                        <div class="mod-score-bar"><div class="mod-score-fill" style="width:${score}%;background:${m.color}"></div></div>
-                    </div>`;
-                div.onclick = () => window.openModule(m.id); // Pueden repasar
-            
-            } else {
-                // DISEÑO: Módulo Actual (El Reto de Hoy)
-                div.innerHTML = `
-                    <div class="mod-icon-wrap" style="background:${m.color};color:white">
-                        <i data-lucide="play"></i>
-                    </div>
-                    <div style="flex:1;min-width:0">
-                        <div class="mod-title">${index + 1}. ${m.title}</div>
-                        <div class="mod-status" style="color:var(--primary-mid);font-weight:800;">Siguiente lección</div>
-                        ${score !== null ? `<div style="font-size:11px; color:#E53E3E; margin-top:4px;">Último intento: ${score}% (Necesitas 80%)</div>` : ''}
-                    </div>`;
-                div.onclick = () => window.openModule(m.id);
+            level.modules.forEach(modId => {
+                // Validación para evitar errores si aún no has escrito el módulo en data.js
+                if(!modulesData[modId]) return; 
+
+                const m = modulesData[modId];
+                const score = state.scores[m.id];
+                const isPassed = score !== null && score >= 80;
+                const isCurrent = !isPassed && !isLocked;
+
+                const div = document.createElement('div');
+                div.className = `mod-card ${isPassed ? 'mod-done' : ''} ${isCurrent ? 'mod-current' : ''} ${isLocked ? 'mod-locked' : ''}`;
+
+                if (isLocked) {
+                    div.innerHTML = `
+                        <div class="mod-icon-wrap">
+                            <i data-lucide="lock"></i>
+                        </div>
+                        <div style="flex:1;min-width:0">
+                            <div class="mod-title">${globalModuleIndex}. ${m.title}</div>
+                            <div class="mod-status" style="color:#A0AEC0">Bloqueado</div>
+                        </div>`;
+                    div.onclick = () => window.showToast('Debes aprobar la lección anterior con 80% o más.', 'warn');
+                } else if (isPassed) {
+                    div.innerHTML = `
+                        <div class="mod-icon-wrap" style="background:${m.color}18;color:${m.color}">
+                            <i data-lucide="check-circle"></i>
+                        </div>
+                        <div style="flex:1;min-width:0">
+                            <div class="mod-title">${globalModuleIndex}. ${m.title}</div>
+                            <div class="mod-status" style="color:#38A169">✓ Aprobado: ${score}%</div>
+                            <div class="mod-score-bar"><div class="mod-score-fill" style="width:${score}%;background:${m.color}"></div></div>
+                        </div>`;
+                    div.onclick = () => window.openModule(m.id);
+                } else {
+                    div.innerHTML = `
+                        <div class="mod-icon-wrap" style="background:${m.color};color:white">
+                            <i data-lucide="play"></i>
+                        </div>
+                        <div style="flex:1;min-width:0">
+                            <div class="mod-title">${globalModuleIndex}. ${m.title}</div>
+                            <div class="mod-status" style="color:var(--primary-mid);font-weight:800;">Siguiente lección</div>
+                            ${score !== null ? `<div style="font-size:11px; color:#E53E3E; margin-top:4px;">Último intento: ${score}% (Necesitas 80%)</div>` : ''}
+                        </div>`;
+                    div.onclick = () => window.openModule(m.id);
+                    isLocked = true; 
+                }
                 
-                isLocked = true; // Todo lo que sigue se bloquea
-            }
-            
-            grid.appendChild(div);
+                levelGrid.appendChild(div);
+                globalModuleIndex++;
+            });
+
+            grid.appendChild(levelGrid);
         });
+        
         lucide.createIcons();
     }
 

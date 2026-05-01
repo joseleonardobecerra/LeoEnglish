@@ -1,4 +1,4 @@
-// app.js v3.2 — MOTOR COMPLETO LEOENGLISH (Firebase, Leaderboard, Web Speech API & Guided Route)
+// app.js v3.3 — MOTOR COMPLETO LEOENGLISH (Firebase, Roles, Admin Mode & Guided Route)
 
 import { auth, db, googleProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, doc, setDoc, getDoc, collection, getDocs } from './firebase-config.js';
 
@@ -6,6 +6,7 @@ import { auth, db, googleProvider, signInWithPopup, signInWithEmailAndPassword, 
 // ESTADO GLOBAL
 // ============================================================
 let state = {
+    role: 'student', // <-- Por defecto todos son estudiantes
     xp: 0,
     level: 1,
     streak: 1,
@@ -16,10 +17,10 @@ let state = {
     modulesCompleted: 0,
     activityLog: [],
     scores: {
-        articles: null, prepositions: null, pronouns: null, verbs: null,
+        to_be_pronouns: null, articles_dem: null, possessives: null, there_is_are: null,
         present_simple: null, present_cont: null, simple_vs_cont: null,
-        numbers: null, past_simple: null, future_will: null, can_could: null,
-        // Agregamos espacios para futuros modulos A2 aquí (puedes dejarlos en null)
+        numbers: null, past_to_be: null, past_simple: null, future_going_to: null, 
+        prepositions: null, imperatives: null, can_could: null, future_will: null,
         comparisons: null, quantifiers: null, past_continuous: null, present_perfect: null,
         future_mixed: null, modals_obligation: null, conditionals: null, phrasal_gerunds: null
     },
@@ -102,7 +103,7 @@ window.handleEmailRegister = async function() {
 window.handleLogout = async function() {
     try {
         await signOut(auth);
-        state = { xp: 0, level: 1, streak: 1, dailyXP: 0, dailyGoal: 50, totalAnswers: 0, correctAnswers: 0, modulesCompleted: 0, activityLog: [], scores: {}, readingScores: {}, writingDone: {}, vocabScores: {}, userName: 'Estudiante' };
+        state = { role: 'student', xp: 0, level: 1, streak: 1, dailyXP: 0, dailyGoal: 50, totalAnswers: 0, correctAnswers: 0, modulesCompleted: 0, activityLog: [], scores: {}, readingScores: {}, writingDone: {}, vocabScores: {}, userName: 'Estudiante' };
         document.getElementById('auth-email').value = '';
         document.getElementById('auth-password').value = '';
         window.showScreen('dashboard');
@@ -126,12 +127,32 @@ async function loadState(uid) {
     try {
         const userRef = doc(db, "users", uid);
         const docSnap = await getDoc(userRef);
+        
         if (docSnap.exists()) {
             state = { ...state, ...docSnap.data() };
         } else {
+            // SI ES UN USUARIO NUEVO
+            if (auth.currentUser && auth.currentUser.email === 'joseleonardobecerrac@gmail.com') {
+                state.role = 'admin';
+            }
             await saveState();
         }
+        
         updateHeaderUI();
+        
+        // ==========================================
+        // LÓGICA PARA MOSTRAR/OCULTAR MODO ADMIN
+        // ==========================================
+        const adminZone = document.getElementById('admin-zone');
+        if (adminZone && auth.currentUser) {
+            // Si el rol guardado es admin, o el correo coincide, mostramos la zona
+            if (state.role === 'admin' || auth.currentUser.email === 'joseleonardobecerrac@gmail.com') {
+                adminZone.style.display = 'block';
+            } else {
+                adminZone.style.display = 'none';
+            }
+        }
+        
         window.renderDashboard();
         lucide.createIcons();
     } catch(e) {
@@ -143,7 +164,6 @@ async function loadState(uid) {
 // INICIALIZACIÓN
 // ============================================================
 window.onload = function() {
-    // Ya no reconstruimos el nav con los modulos aqui.
     lucide.createIcons();
 };
 
@@ -253,21 +273,19 @@ window.renderDashboard = function() {
                 levelName: 'Nivel A1: Fundamentos',
                 color: '#38A169',
                 modules: [
-                    'articles', 'prepositions', 'pronouns', 'verbs', 
-                    'present_simple', 'present_cont', 'simple_vs_cont', 
-                    'numbers', 'past_simple', 'future_will', 'can_could'
-                    // TODO: Agregaremos 'to_be_pronouns', 'articles_dem', etc. aqui cuando los crees en data.js
+                    'to_be_pronouns', 'articles_dem', 'possessives', 'there_is_are',
+                    'present_simple', 'present_cont', 'prepositions', 'imperatives',
+                    'can_could', 'past_to_be', 'past_simple', 'future_going_to'
+                ]
+            },
+            {
+                levelName: 'Nivel A2: Explorador Avanzado',
+                color: '#3182CE',
+                modules: [
+                    'comparisons', 'quantifiers', 'past_continuous', 'present_perfect',
+                    'future_mixed', 'modals_obligation', 'conditionals', 'phrasal_gerunds'
                 ]
             }
-            // TODO: Descomenta esto cuando agregues los modulos A2 en data.js
-            // {
-            //     levelName: 'Nivel A2: Explorador Avanzado',
-            //     color: '#3182CE',
-            //     modules: [
-            //         'comparisons', 'quantifiers', 'past_continuous', 'present_perfect',
-            //         'future_mixed', 'modals_obligation', 'conditionals', 'phrasal_gerunds'
-            //     ]
-            // }
         ];
 
         let isLocked = false; 
@@ -1306,7 +1324,7 @@ window.confirmReset = function() {
 
 window.doReset = async function() {
     window.closeModal();
-    state = { xp: 0, level: 1, streak: 1, dailyXP: 0, dailyGoal: 50, totalAnswers: 0, correctAnswers: 0, modulesCompleted: 0, activityLog: [], scores: {}, readingScores: {}, writingDone: {}, vocabScores: {}, userName: state.userName };
+    state = { role: state.role, xp: 0, level: 1, streak: 1, dailyXP: 0, dailyGoal: 50, totalAnswers: 0, correctAnswers: 0, modulesCompleted: 0, activityLog: [], scores: {}, readingScores: {}, writingDone: {}, vocabScores: {}, userName: state.userName };
     await saveState();
     location.reload();
 };
@@ -1417,3 +1435,42 @@ function safeSet(id, val) {
     const el = document.getElementById(id);
     if (el) el.textContent = val;
 }
+
+// ============================================================
+// MODO ADMINISTRADOR (TESTING)
+// ============================================================
+window.activateAdminMode = async function() {
+    // 1. Confirmamos que el usuario está seguro
+    if (!confirm('¿Estás seguro de activar el Modo Administrador? Esto sobrescribirá todo tu progreso actual y desbloqueará todos los módulos al 100%.')) {
+        return;
+    }
+
+    // 2. Modificamos el estado global
+    state.xp = 5000;
+    state.level = 10;
+    state.streak = 30;
+    state.dailyXP = 500;
+    state.totalAnswers = 500;
+    state.correctAnswers = 480;
+    state.modulesCompleted = Object.keys(modulesData).length;
+
+    // 3. Asignamos 100% a TODOS los módulos que existan en data.js
+    Object.keys(modulesData).forEach(modId => {
+        state.scores[modId] = 100;
+    });
+
+    // 4. Asignamos puntuaciones perfectas a Reading, Writing y Vocabulario (Simulado)
+    if (typeof readingTexts !== 'undefined') readingTexts.forEach(r => state.readingScores[r.id] = 100);
+    if (typeof writingExercises !== 'undefined') writingExercises.forEach(w => state.writingDone[w.id] = 100);
+    if (typeof vocabTopics !== 'undefined') vocabTopics.forEach(v => state.vocabScores[v.id] = 100);
+
+    // 5. Guardamos en Firebase y actualizamos la interfaz
+    await saveState();
+    window.showToast('¡Modo Administrador Activado! Todo desbloqueado.', 'success');
+    
+    // 6. Recargamos la interfaz
+    updateHeaderUI();
+    if (document.getElementById('screen-dashboard').classList.contains('active')) {
+        window.renderDashboard();
+    }
+};

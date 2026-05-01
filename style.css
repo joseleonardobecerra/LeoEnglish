@@ -1,5 +1,5 @@
 /* ============================================
-   LEOENGLISH — style.css v3.1 (Firebase & Audio Edition)
+   LEOENGLISH — style.css v3.2 (Master Edition)
    ============================================ */
 
 :root {
@@ -252,59 +252,29 @@ body {
     border-radius: var(--radius-lg); padding: 24px;
     box-shadow: var(--shadow-sm);
 }
-
-.leaderboard-card h3 {
-    font-size: 15px; font-weight: 700; margin-bottom: 16px;
-    display: flex; align-items: center; gap: 8px; color: #4A5568;
-}
-
+.leaderboard-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; color: #4A5568; }
 .leaderboard-list { display: flex; flex-direction: column; gap: 10px; }
-
-.leaderboard-item {
-    display: flex; align-items: center; gap: 12px;
-    padding: 10px 14px; border-radius: var(--radius);
-    background: var(--bg); border: 1px solid var(--border);
-    transition: var(--transition);
-}
-
-.leaderboard-item:hover { 
-    transform: translateX(4px); 
-    border-color: var(--primary-light); 
-}
-
-/* Destacar al usuario actual */
-.leaderboard-item.lb-me {
-    background: #F0F4FF; 
-    border-color: var(--primary-mid);
-}
-
-.lb-rank { 
-    font-size: 16px; font-weight: 900; color: var(--text-light); 
-    width: 24px; text-align: center; 
-}
+.leaderboard-item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: var(--radius); background: var(--bg); border: 1px solid var(--border); transition: var(--transition); }
+.leaderboard-item:hover { transform: translateX(4px); border-color: var(--primary-light); }
+.leaderboard-item.lb-me { background: #F0F4FF; border-color: var(--primary-mid); }
+.lb-rank { font-size: 16px; font-weight: 900; color: var(--text-light); width: 24px; text-align: center; }
 .lb-rank.rank-1 { font-size: 20px; } 
-
-.lb-avatar { 
-    width: 36px; height: 36px; border-radius: 50%; 
-    display: flex; align-items: center; justify-content: center; 
-    color: white; font-weight: 700; 
-    background: linear-gradient(135deg, var(--primary-mid), var(--primary)); 
-}
-
+.lb-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; background: linear-gradient(135deg, var(--primary-mid), var(--primary)); }
 .lb-info { flex: 1; display: flex; flex-direction: column; }
 .lb-name { font-size: 14px; font-weight: 700; color: var(--text); }
 .lb-level { font-size: 11px; color: var(--text-light); }
-
 .lb-xp { font-weight: 800; color: var(--primary); font-size: 14px; }
 .lb-me .lb-name, .lb-me .lb-xp { color: var(--primary-mid); }
 
-/* ============ SECTION HEADER ============ */
+/* ============ SECTION HEADER & LEVEL DIVIDER ============ */
 .section-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 14px; }
 .section-header h3 { font-size: 16px; font-weight: 700; color: #2D3748; }
 .section-sub { font-size: 12px; color: var(--text-light); }
+.level-divider { width: 100%; grid-column: 1 / -1; }
 
-/* ============ MODULES GRID ============ */
+/* ============ MODULES GRID & GUIDED ROUTE ============ */
 .modules-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
+
 .mod-card {
     background: var(--white); padding: 18px;
     border-radius: var(--radius); border: 1px solid var(--border);
@@ -313,7 +283,33 @@ body {
     box-shadow: var(--shadow-sm);
 }
 .mod-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); border-color: #C3D0FF; }
+
+/* Módulo Superado */
 .mod-card.mod-done { border-color: #9AE6B4; }
+
+/* Módulo Actual (El reto de hoy) */
+.mod-card.mod-current {
+    border: 2px solid var(--primary-mid);
+    background: #F0F4FF;
+    transform: scale(1.02);
+    box-shadow: 0 8px 20px rgba(83, 74, 183, 0.15);
+}
+
+/* Módulo Bloqueado (Candado) */
+.mod-card.mod-locked {
+    background: #F7FAFC;
+    border: 1px dashed #CBD5E0;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+.mod-card.mod-locked:hover {
+    transform: none;
+    box-shadow: none;
+    border-color: #CBD5E0;
+}
+.mod-locked .mod-icon-wrap { background: #EDF2F7 !important; color: #A0AEC0 !important; }
+.mod-locked .mod-title { color: #A0AEC0; }
+
 .mod-icon-wrap { padding: 10px; border-radius: 10px; flex-shrink: 0; }
 .mod-icon-wrap i { width: 20px; height: 20px; }
 .mod-title { font-weight: 700; font-size: 13.5px; color: #2D3748; }
@@ -745,33 +741,4 @@ body {
     .sidebar .profile-header { justify-content: center; }
     .sidebar .logo-section { justify-content: center; }
     .main-content { padding: 20px 16px; }
-}
-/* ============ ESTILOS DE RUTA GUIADA (CANDADOS) ============ */
-.mod-card.mod-current {
-    border: 2px solid var(--primary-mid);
-    background: #F0F4FF;
-    transform: scale(1.02);
-    box-shadow: 0 8px 20px rgba(83, 74, 183, 0.15);
-}
-
-.mod-card.mod-locked {
-    background: #F7FAFC;
-    border: 1px dashed #CBD5E0;
-    cursor: not-allowed;
-    opacity: 0.7;
-}
-
-.mod-card.mod-locked:hover {
-    transform: none;
-    box-shadow: none;
-    border-color: #CBD5E0;
-}
-
-.mod-locked .mod-icon-wrap {
-    background: #EDF2F7 !important;
-    color: #A0AEC0 !important;
-}
-
-.mod-locked .mod-title {
-    color: #A0AEC0;
 }

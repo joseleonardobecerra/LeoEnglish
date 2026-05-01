@@ -253,23 +253,68 @@ window.renderDashboard = function() {
     const grid = document.getElementById('modules-status-grid');
     if (grid) {
         grid.innerHTML = '';
-        Object.values(modulesData).forEach(m => {
+        
+        // 1. El orden estricto de tu Ruta de Aprendizaje (Paso a paso)
+        const courseRoute = [
+            'articles', 'prepositions', 'pronouns', 'verbs', 
+            'present_simple', 'present_cont', 'simple_vs_cont', 
+            'numbers', 'past_simple', 'future_will', 'can_could'
+        ];
+
+        let isLocked = false; // Se activa al encontrar el primer módulo no superado
+
+        courseRoute.forEach((modId, index) => {
+            const m = modulesData[modId];
             const score = state.scores[m.id];
-            const done = score != null;
+            
+            // LA REGLA DE ORO: Exigir 80% o más para aprobar
+            const isPassed = score !== null && score >= 80;
+            const isCurrent = !isPassed && !isLocked;
+
             const div = document.createElement('div');
-            div.className = 'mod-card' + (done ? ' mod-done' : '');
-            div.innerHTML = `
-                <div class="mod-icon-wrap" style="background:${m.color}18;color:${m.color}">
-                    <i data-lucide="${m.icon}"></i>
-                </div>
-                <div style="flex:1;min-width:0">
-                    <div class="mod-title">${m.title}</div>
-                    <div class="mod-status" style="color:${done?'#38A169':'#A0AEC0'}">
-                        ${done ? `✓ Completado: ${score}%` : 'Pendiente'}
+            div.className = `mod-card ${isPassed ? 'mod-done' : ''} ${isCurrent ? 'mod-current' : ''} ${isLocked ? 'mod-locked' : ''}`;
+
+            if (isLocked) {
+                // DISEÑO: Módulo Bloqueado
+                div.innerHTML = `
+                    <div class="mod-icon-wrap">
+                        <i data-lucide="lock"></i>
                     </div>
-                    ${done ? `<div class="mod-score-bar"><div class="mod-score-fill" style="width:${score}%;background:${m.color}"></div></div>` : ''}
-                </div>`;
-            div.onclick = () => window.openModule(m.id);
+                    <div style="flex:1;min-width:0">
+                        <div class="mod-title">${index + 1}. ${m.title}</div>
+                        <div class="mod-status" style="color:#A0AEC0">Bloqueado</div>
+                    </div>`;
+                div.onclick = () => window.showToast('Debes aprobar la lección anterior con 80% o más.', 'warn');
+            
+            } else if (isPassed) {
+                // DISEÑO: Módulo Superado
+                div.innerHTML = `
+                    <div class="mod-icon-wrap" style="background:${m.color}18;color:${m.color}">
+                        <i data-lucide="check-circle"></i>
+                    </div>
+                    <div style="flex:1;min-width:0">
+                        <div class="mod-title">${index + 1}. ${m.title}</div>
+                        <div class="mod-status" style="color:#38A169">✓ Aprobado: ${score}%</div>
+                        <div class="mod-score-bar"><div class="mod-score-fill" style="width:${score}%;background:${m.color}"></div></div>
+                    </div>`;
+                div.onclick = () => window.openModule(m.id); // Pueden repasar
+            
+            } else {
+                // DISEÑO: Módulo Actual (El Reto de Hoy)
+                div.innerHTML = `
+                    <div class="mod-icon-wrap" style="background:${m.color};color:white">
+                        <i data-lucide="play"></i>
+                    </div>
+                    <div style="flex:1;min-width:0">
+                        <div class="mod-title">${index + 1}. ${m.title}</div>
+                        <div class="mod-status" style="color:var(--primary-mid);font-weight:800;">Siguiente lección</div>
+                        ${score !== null ? `<div style="font-size:11px; color:#E53E3E; margin-top:4px;">Último intento: ${score}% (Necesitas 80%)</div>` : ''}
+                    </div>`;
+                div.onclick = () => window.openModule(m.id);
+                
+                isLocked = true; // Todo lo que sigue se bloquea
+            }
+            
             grid.appendChild(div);
         });
         lucide.createIcons();

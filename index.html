@@ -69,9 +69,14 @@
             </div>
 
             <div class="nav-links">
+                <!-- RUTA GUIADA ESTRICTA -->
+                <div class="nav-sep"><span>Aprendizaje</span></div>
                 <button class="nav-btn active" onclick="showScreen('dashboard'); setActiveNav(this)">
-                    <i data-lucide="layout-dashboard"></i> <span class="nav-label">Tablero</span>
+                    <i data-lucide="map"></i> <span class="nav-label">Mi Ruta (A1)</span>
                 </button>
+                
+                <!-- MUNDO ABIERTO -->
+                <div class="nav-sep"><span>Mundo Abierto</span></div>
                 <button class="nav-btn" onclick="showScreen('reading-hub'); setActiveNav(this)">
                     <i data-lucide="book-marked"></i> <span class="nav-label">Reading</span>
                 </button>
@@ -81,8 +86,6 @@
                 <button class="nav-btn" onclick="showScreen('vocab-hub'); setActiveNav(this)">
                     <i data-lucide="layers"></i> <span class="nav-label">Vocabulario</span>
                 </button>
-                <div class="nav-sep"><span>Gramática</span></div>
-                <div id="module-menu"></div>
             </div>
 
             <div class="user-profile">

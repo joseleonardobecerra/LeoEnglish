@@ -188,7 +188,7 @@
                     </div>
                 </div>
 
-                <!-- MÓDULOS (La nueva ruta de aprendizaje) -->
+                <!-- MÓDULOS (La nueva ruta de aprendizaje por niveles) -->
                 <div class="section-header">
                     <h3>Ruta de Aprendizaje</h3>
                     <span class="section-sub">Avanza paso a paso. Requiere 80% para desbloquear la siguiente lección.</span>
@@ -283,10 +283,12 @@
         </div>
     </div>
 
-    <!-- SCRIPTS -->
-    <script src="data.js"></script>
+    <!-- SCRIPTS DE DATOS MODULARES (NUEVO) -->
+    <script src="data-grammar.js"></script>
+    <script src="data-reading-writing.js"></script>
+    <script src="data-vocab.js"></script>
     
-    <!-- NOTA IMPORTANTE: app.js ahora es de tipo module para usar import/export con Firebase -->
+    <!-- MOTOR PRINCIPAL (Debe cargar de último y como módulo) -->
     <script type="module" src="app.js"></script>
 </body>
 </html>

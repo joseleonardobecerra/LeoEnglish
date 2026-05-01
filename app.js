@@ -1,4 +1,4 @@
-// app.js v3.4 — MOTOR COMPLETO LEOENGLISH (Firebase, Roles, Admin Preview & Guided Route)
+// app.js v3.5 — MOTOR COMPLETO LEOENGLISH (Firebase, Roles, Admin Preview, UX Auth & Guided Route)
 
 import { auth, db, googleProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, doc, setDoc, getDoc, collection, getDocs } from './firebase-config.js';
 
@@ -7,7 +7,7 @@ import { auth, db, googleProvider, signInWithPopup, signInWithEmailAndPassword, 
 // ============================================================
 let state = {
     role: 'student', 
-    adminView: false, // <-- NUEVO: Controla si el admin tiene los candados apagados
+    adminView: false, 
     xp: 0,
     level: 1,
     streak: 1,
@@ -60,6 +60,23 @@ onAuthStateChanged(auth, (user) => {
     }
 });
 
+// NUEVA FUNCIÓN: Intercambiar vistas de Login y Registro
+window.toggleAuthView = function(view) {
+    const loginView = document.getElementById('login-view');
+    const registerView = document.getElementById('register-view');
+    const authTitle = document.getElementById('auth-title');
+    
+    if (view === 'register') {
+        if(loginView) loginView.style.display = 'none';
+        if(registerView) registerView.style.display = 'block';
+        if(authTitle) authTitle.textContent = 'Crea tu cuenta';
+    } else {
+        if(registerView) registerView.style.display = 'none';
+        if(loginView) loginView.style.display = 'block';
+        if(authTitle) authTitle.textContent = '¡Hola! Inicia sesión';
+    }
+};
+
 window.handleGoogleLogin = async function() {
     try {
         await signInWithPopup(auth, googleProvider);
@@ -71,8 +88,8 @@ window.handleGoogleLogin = async function() {
 };
 
 window.handleEmailLogin = async function() {
-    const email = document.getElementById('auth-email').value.trim();
-    const pass = document.getElementById('auth-password').value.trim();
+    const email = document.getElementById('login-email').value.trim();
+    const pass = document.getElementById('login-password').value.trim();
     if(!email || !pass) return window.showToast('Completa los campos', 'warn');
     
     try {
@@ -85,14 +102,16 @@ window.handleEmailLogin = async function() {
 };
 
 window.handleEmailRegister = async function() {
-    const email = document.getElementById('auth-email').value.trim();
-    const pass = document.getElementById('auth-password').value.trim();
-    if(!email || !pass) return window.showToast('Completa los campos', 'warn');
+    const email = document.getElementById('reg-email').value.trim();
+    const pass = document.getElementById('reg-password').value.trim();
+    const name = document.getElementById('reg-name').value.trim();
+
+    if(!email || !pass || !name) return window.showToast('Completa todos los campos', 'warn');
     if(pass.length < 6) return window.showToast('La contraseña debe tener al menos 6 caracteres', 'warn');
     
     try {
         await createUserWithEmailAndPassword(auth, email, pass);
-        state.userName = email.split('@')[0];
+        state.userName = name; // Guardamos el nombre real
         await saveState(); 
         window.showToast('Cuenta creada con éxito', 'success');
     } catch (error) {
@@ -104,9 +123,32 @@ window.handleEmailRegister = async function() {
 window.handleLogout = async function() {
     try {
         await signOut(auth);
-        state = { role: 'student', adminView: false, xp: 0, level: 1, streak: 1, dailyXP: 0, dailyGoal: 50, totalAnswers: 0, correctAnswers: 0, modulesCompleted: 0, activityLog: [], scores: {}, readingScores: {}, writingDone: {}, vocabScores: {}, userName: 'Estudiante' };
-        document.getElementById('auth-email').value = '';
-        document.getElementById('auth-password').value = '';
+        
+        // Limpiamos el estado global
+        state = { 
+            role: 'student', adminView: false, xp: 0, level: 1, streak: 1, dailyXP: 0, dailyGoal: 50, 
+            totalAnswers: 0, correctAnswers: 0, modulesCompleted: 0, activityLog: [], 
+            scores: {
+                to_be_pronouns: null, articles_dem: null, possessives: null, there_is_are: null,
+                present_simple: null, present_cont: null, simple_vs_cont: null,
+                numbers: null, past_to_be: null, past_simple: null, future_going_to: null, 
+                prepositions: null, imperatives: null, can_could: null, future_will: null,
+                comparisons: null, quantifiers: null, past_continuous: null, present_perfect: null,
+                future_mixed: null, modals_obligation: null, conditionals: null, phrasal_gerunds: null
+            }, 
+            readingScores: {}, writingDone: {}, vocabScores: {}, userName: 'Estudiante' 
+        };
+        
+        // Limpiamos los inputs
+        const elLogin = document.getElementById('login-email'); if(elLogin) elLogin.value = '';
+        const elPass = document.getElementById('login-password'); if(elPass) elPass.value = '';
+        const elRegName = document.getElementById('reg-name'); if(elRegName) elRegName.value = '';
+        const elRegEmail = document.getElementById('reg-email'); if(elRegEmail) elRegEmail.value = '';
+        const elRegPass = document.getElementById('reg-password'); if(elRegPass) elRegPass.value = '';
+        
+        // Devolvemos la vista al Login por si cerraron sesión desde otra vista
+        window.toggleAuthView('login');
+        
         window.showScreen('dashboard');
         window.showToast('Sesión cerrada', 'success');
     } catch (error) {

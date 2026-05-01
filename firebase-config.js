@@ -4,7 +4,7 @@ import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPasswor
 import { getFirestore, doc, setDoc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyO34QWMDfcenr-qtgtNFJggyKLL3ovKQ70",
+  apiKey: "AIzaSy034QWMDfcenz-qtgtNFJggyKLL3ovKQ70", // <-- Restaurado al original correcto
   authDomain: "english-leo.firebaseapp.com",
   projectId: "english-leo",
   storageBucket: "english-leo.firebasestorage.app",

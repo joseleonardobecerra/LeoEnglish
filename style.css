@@ -746,3 +746,32 @@ body {
     .sidebar .logo-section { justify-content: center; }
     .main-content { padding: 20px 16px; }
 }
+/* ============ ESTILOS DE RUTA GUIADA (CANDADOS) ============ */
+.mod-card.mod-current {
+    border: 2px solid var(--primary-mid);
+    background: #F0F4FF;
+    transform: scale(1.02);
+    box-shadow: 0 8px 20px rgba(83, 74, 183, 0.15);
+}
+
+.mod-card.mod-locked {
+    background: #F7FAFC;
+    border: 1px dashed #CBD5E0;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.mod-card.mod-locked:hover {
+    transform: none;
+    box-shadow: none;
+    border-color: #CBD5E0;
+}
+
+.mod-locked .mod-icon-wrap {
+    background: #EDF2F7 !important;
+    color: #A0AEC0 !important;
+}
+
+.mod-locked .mod-title {
+    color: #A0AEC0;
+}

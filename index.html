@@ -17,15 +17,31 @@
                 <div class="logo-icon"><i data-lucide="book-open"></i></div>
                 <h1>Leo<span>English</span></h1>
             </div>
-            <h2>¡Hola! Inicia sesión</h2>
+            
+            <h2 id="auth-title">¡Hola! Inicia sesión</h2>
             <p>Cada miembro de la familia tiene su propio progreso.</p>
 
-            <div class="login-form">
-                <input type="email" id="auth-email" placeholder="Correo electrónico" class="setting-input" autocomplete="email">
-                <input type="password" id="auth-password" placeholder="Contraseña" class="setting-input" autocomplete="current-password">
+            <!-- VISTA DE INICIO DE SESIÓN -->
+            <div class="login-form" id="login-view">
+                <input type="email" id="login-email" placeholder="Correo electrónico" class="setting-input" autocomplete="email">
+                <input type="password" id="login-password" placeholder="Contraseña" class="setting-input" autocomplete="current-password">
 
                 <button class="btn-primary-full" onclick="handleEmailLogin()">Entrar</button>
-                <button class="btn-check" style="width: 100%; margin-top: 10px; background: #718096; justify-content: center;" onclick="handleEmailRegister()">Crear nueva cuenta</button>
+                <p style="text-align: center; margin-top: 15px; font-size: 13px; color: #718096;">
+                    ¿No tienes cuenta? <a href="#" onclick="toggleAuthView('register'); return false;" style="color: #534AB7; font-weight: bold; text-decoration: none;">Regístrate aquí</a>
+                </p>
+            </div>
+
+            <!-- VISTA DE REGISTRO (Oculta por defecto) -->
+            <div class="login-form" id="register-view" style="display: none;">
+                <input type="text" id="reg-name" placeholder="Tu Nombre (Ej. Leo, Tobias)" class="setting-input" autocomplete="name">
+                <input type="email" id="reg-email" placeholder="Correo electrónico" class="setting-input" autocomplete="email">
+                <input type="password" id="reg-password" placeholder="Crea una contraseña (mín. 6)" class="setting-input" autocomplete="new-password">
+
+                <button class="btn-primary-full" style="background: #38A169;" onclick="handleEmailRegister()">Crear mi cuenta</button>
+                <p style="text-align: center; margin-top: 15px; font-size: 13px; color: #718096;">
+                    ¿Ya tienes cuenta? <a href="#" onclick="toggleAuthView('login'); return false;" style="color: #534AB7; font-weight: bold; text-decoration: none;">Inicia sesión</a>
+                </p>
             </div>
 
             <div class="login-divider"><span>O INGRESA CON</span></div>
@@ -274,7 +290,7 @@
                             <h4 style="font-size: 14px; color: #4A5568; margin-bottom: 8px;">
                                 <i data-lucide="shield-alert" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle;"></i> Zona de Administración
                             </h4>
-                            <button class="btn-primary-full" style="background: #2C7A7B;" onclick="activateAdminMode()">Desbloquear todo el curso (100%)</button>
+                            <button class="btn-primary-full" style="background: #2C7A7B;" onclick="toggleAdminView()">Activar/Desactivar Candados (Vista Admin)</button>
                         </div>
                     </div>
                 </div>

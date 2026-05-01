@@ -1,333 +1,274 @@
-// data.js v3.0 — CONTENIDO PEDAGÓGICO COMPLETO
-// Currículo A1-A2 (Marco Europeo de Referencia para las Lenguas)
+// data.js v4.0 — CURRÍCULO OFICIAL A1-A2 (Master Edition)
+// Alineado al Marco Europeo de Referencia para las Lenguas (MCER)
 
 // ============================================================
-// MÓDULOS DE GRAMÁTICA (7 módulos × 20 ejercicios)
+// MÓDULOS DE GRAMÁTICA (RUTA GUIADA)
 // ============================================================
 const modulesData = {
 
-  // ─────────────────────────────────────────────────
-  articles: {
-    id:'articles', title:'Artículos: A, An, The', icon:'type', color:'#7C3AED',
-    theory:`
-      <h3>Los artículos en inglés</h3>
-      <p>En inglés hay dos tipos: el <strong>definido (the)</strong> y el <strong>indefinido (a/an)</strong>. Son obligatorios y su uso es diferente al español.</p>
-      <div class="theory-grid">
-        <div class="t-box" style="border-color:#7C3AED;background:#F5F3FF">
-          <strong style="color:#4C1D95">THE — artículo definido</strong>
-          <small>Cuando hablamos de algo <em>específico</em>, ya conocido o único en el mundo.<br>
-          "Close <u>the</u> door." (sabemos qué puerta) · "<u>The</u> sun rises in the east." (solo hay uno)<br>
-          Con superlativo: "She is <u>the</u> best student."</small>
-        </div>
-        <div class="t-box" style="border-color:#2563EB;background:#EFF6FF">
-          <strong style="color:#1E3A8A">A — antes de sonido consonante</strong>
-          <small>Con sustantivos singulares contables no específicos.<br>
-          a book · a car · a university (suena "yu") · a house · a European<br>
-          "She is <u>a</u> doctor." (profesión) · "I need <u>a</u> pen."</small>
-        </div>
-        <div class="t-box" style="border-color:#059669;background:#ECFDF5">
-          <strong style="color:#064E3B">AN — antes de sonido vocal</strong>
-          <small>Cuando la siguiente palabra empieza por <em>sonido</em> vocal (a,e,i,o,u).<br>
-          an apple · an hour (h muda) · an umbrella · an egg · an honest man<br>
-          "He is <u>an</u> actor." · "It takes <u>an</u> hour."</small>
-        </div>
-      </div>
-      <div class="example-block">
-        <div class="ex-row"><div class="ex-en">I saw <u>a</u> dog in the park.</div><div class="ex-es">Vi un perro en el parque. (primera mención)</div></div>
-        <div class="ex-row"><div class="ex-en"><u>The</u> dog was very friendly.</div><div class="ex-es">El perro era muy amistoso. (ya lo mencionamos)</div></div>
-        <div class="ex-row"><div class="ex-en">She is <u>an</u> engineer.</div><div class="ex-es">Ella es ingeniera. (an + vocal)</div></div>
-        <div class="ex-row"><div class="ex-en"><u>The</u> Alps are in Europe.</div><div class="ex-es">Los Alpes están en Europa. (cadena montañosa única)</div></div>
-      </div>
-      <div class="tip-callout"><i data-lucide="alert-circle"></i>
-        <span><strong>Sin artículo (zero article):</strong> nombres propios (Spain, Tom), meses (in January), comidas en general (I have <em>breakfast</em>), títulos + nombre (Doctor Smith, King Charles), idiomas (She speaks English).</span>
-      </div>
-      <div class="tip-callout" style="margin-top:8px"><i data-lucide="lightbulb"></i>
-        <span><strong>El truco del sonido:</strong> "a"/"an" dependen del <em>sonido inicial</em>, no de la letra. "A university" (suena "yu-ni-ver-si-ty"), "An hour" (la h no suena → "an our").</span>
-      </div>`,
-    exercises:[
-      {type:'choice',q:'She wants to be ___ doctor when she grows up.',opts:['a','an','the'],a:'a',exp:'"Doctor" empieza por consonante → "a doctor".'},
-      {type:'choice',q:'___ Eiffel Tower is in Paris.',opts:['A','An','The'],a:'The',exp:'Monumento único y conocido → "The Eiffel Tower".'},
-      {type:'choice',q:'I have ___ umbrella in my bag.',opts:['a','an','the'],a:'an',exp:'"Umbrella" empieza por vocal (u) → "an umbrella".'},
-      {type:'choice',q:'He is ___ honest man.',opts:['a','an','the'],a:'an',exp:'"Honest" tiene H muda, suena vocal ("onest") → "an honest man".'},
-      {type:'choice',q:'We saw ___ elephant at the zoo.',opts:['a','an','the'],a:'an',exp:'"Elephant" empieza por vocal (e) → "an elephant".'},
-      {type:'write',q:'Completa con "a", "an" o "the": ___ sun rises in the east.',a:'The',exp:'El sol es único → "The sun".'},
-      {type:'write',q:'Complete: She is ___ actress. She works in Hollywood.',a:'an',exp:'"Actress" empieza por vocal → "an actress".'},
-      {type:'write',q:'Complete: I need ___ new computer for my work.',a:'a',exp:'"Computer" empieza por consonante → "a computer".'},
-      {type:'write',q:'Complete: Can you open ___ window, please? It is hot in here.',a:'the',exp:'Ventana específica ya conocida → "the window".'},
-      {type:'write',q:'Complete: He is ___ university student. (pista: suena "yu")',a:'a',exp:'"University" suena como "yu" (consonante) → "a university student".'},
-      {type:'order',q:'Ordena la frase:',words:['an','She','is','engineer.'],a:'She is an engineer.',exp:'"An" porque "engineer" empieza por sonido vocal (e).'},
-      {type:'order',q:'Ordena la frase:',words:['the','is','Where','station?'],a:'Where is the station?',exp:'"The station" → lugar específico ya conocido.'},
-      {type:'order',q:'Ordena la frase:',words:['hour','an','takes','It'],a:'It takes an hour.',exp:'"An" porque "hour" empieza por sonido vocal (la h no suena).'},
-      {type:'order',q:'Ordena la frase:',words:['Nile','The','longest','is','the','river.'],a:'The Nile is the longest river.',exp:'Ríos → "The". Superlativo → "the longest".'},
-      {type:'choice',q:'I usually have ___ breakfast at 7 o\'clock.',opts:['a','an','—(sin artículo)'],a:'—(sin artículo)',exp:'Las comidas en general no llevan artículo en inglés: "have breakfast".'},
-      {type:'choice',q:'___ Pacific Ocean is the largest ocean in the world.',opts:['A','An','The'],a:'The',exp:'Océanos y mares llevan siempre "The".'},
-      {type:'write',q:'Complete: I met ___ interesting person at the party last night.',a:'an',exp:'"Interesting" empieza por vocal → "an interesting person".'},
-      {type:'order',q:'Ordena la frase:',words:['best','She','the','student','is','in','class.'],a:'She is the best student in class.',exp:'Superlativo → siempre lleva "the best".'},
-      {type:'choice',q:'My sister is ___ nurse. She works at ___ hospital.',opts:['a / a','an / a','a / an'],a:'a / a',exp:'"Nurse" → consonante → "a nurse". "Hospital" → consonante → "a hospital".'},
-      {type:'write',q:'Complete: ___ Amazon is ___ longest river in South America.',a:'The The',exp:'Ríos → "The Amazon". Superlativo → "the longest river".'},
-    ]
-  },
+  // ==================== NIVEL A1 ==================== //
 
-  // ─────────────────────────────────────────────────
-  prepositions:{
-    id:'prepositions', title:'Preposiciones (In, On, At)', icon:'target', color:'#3182CE',
+  // 1. Welcome to English
+  to_be_pronouns: {
+    id:'to_be_pronouns', title:'Welcome to English: "To Be" & Pronouns', icon:'user', color:'#3182CE',
     theory:`
-      <h3>Preposiciones de tiempo y lugar</h3>
-      <p><strong>ON, IN</strong> y <strong>AT</strong> son las preposiciones más usadas en inglés básico. Tienen reglas específicas según el tipo de tiempo o lugar.</p>
+      <h3>Pronombres Personales y Verbo "To Be"</h3>
+      <p>La base absoluta del inglés. El verbo <strong>To Be</strong> significa "ser" o "estar". Cambia dependiendo de quién realiza la acción (el pronombre).</p>
+      
       <div class="theory-grid">
         <div class="t-box" style="border-color:#3182CE;background:#EBF8FF">
-          <strong style="color:#1A365D">ON — días y superficies</strong>
-          <small><b>Días:</b> on Monday · on 10th June · on Christmas Day<br>
-          <b>Superficie:</b> on the table · on the first floor · on the wall<br>
-          <b>Medios:</b> on TV · on the radio · on the internet · on the phone</small>
+          <strong style="color:#1A365D">Sujetos y Afirmaciones (+)</strong>
+          <small>
+            <b>I am</b> (I'm) a student.<br>
+            <b>You are</b> (You're) my friend.<br>
+            <b>He is</b> (He's) happy. / <b>She is</b> (She's) tall.<br>
+            <b>It is</b> (It's) a dog.<br>
+            <b>We are</b> (We're) ready. / <b>They are</b> (They're) here.
+          </small>
         </div>
-        <div class="t-box" style="border-color:#38A169;background:#F0FFF4">
-          <strong style="color:#1C4532">IN — períodos y espacios</strong>
-          <small><b>Meses:</b> in June · in December<br>
-          <b>Años / décadas:</b> in 1990 · in the 1980s<br>
-          <b>Estaciones:</b> in summer · in winter · in spring<br>
-          <b>Partes del día:</b> in the morning · in the afternoon · in the evening<br>
-          <b>Lugares:</b> in London · in the box · in the room · in Spain</small>
-        </div>
-        <div class="t-box" style="border-color:#805AD5;background:#FAF5FF">
-          <strong style="color:#322659">AT — puntos exactos</strong>
-          <small><b>Horas:</b> at 7 o'clock · at midday · at midnight · at noon<br>
-          <b>Lugares exactos:</b> at home · at school · at work · at the station<br>
-          <b>Festividades:</b> at Christmas · at Easter · at New Year<br>
-          <b>Fin de semana:</b> at the weekend (UK) / on the weekend (US)</small>
-        </div>
-      </div>
-      <div class="example-block">
-        <div class="ex-row"><div class="ex-en">I was born <u>in</u> 1998 <u>in</u> Bogotá.</div><div class="ex-es">Nací en 1998 en Bogotá.</div></div>
-        <div class="ex-row"><div class="ex-en">We always go to church <u>on</u> Sundays.</div><div class="ex-es">Siempre vamos a la iglesia los domingos.</div></div>
-        <div class="ex-row"><div class="ex-en">She gets up <u>at</u> 6 o'clock <u>in</u> the morning.</div><div class="ex-es">Se levanta a las 6 de la mañana.</div></div>
-        <div class="ex-row"><div class="ex-en">The keys are <u>on</u> the table <u>next to</u> the door.</div><div class="ex-es">Las llaves están en la mesa al lado de la puerta.</div></div>
-      </div>
-      <div class="theory-grid" style="margin-top:16px">
         <div class="t-box" style="border-color:#E53E3E;background:#FFF5F5">
-          <strong style="color:#742A2A">Preposiciones de lugar (movimiento y posición)</strong>
-          <small><b>next to</b> = al lado de · <b>behind</b> = detrás de<br>
-          <b>in front of</b> = delante de · <b>between</b> = entre (dos cosas)<br>
-          <b>opposite</b> = enfrente de · <b>near</b> = cerca de<br>
-          <b>above</b> = encima de · <b>below</b> = debajo de<br>
-          <b>into</b> = hacia dentro · <b>out of</b> = hacia fuera</small>
+          <strong style="color:#742A2A">Negaciones (–) e Interrogaciones (?)</strong>
+          <small>
+            <b>Negativo:</b> Añade "not".<br>
+            I am not (I'm not) · She is not (isn't) · They are not (aren't)<br><br>
+            <b>Pregunta:</b> Invierte el orden.<br>
+            <b>Am I</b> late? · <b>Is he</b> your brother? · <b>Are they</b> teachers?
+          </small>
+        </div>
+      </div>
+      
+      <h3 style="margin-top:20px">Pronombres Objeto</h3>
+      <div class="theory-grid">
+        <div class="t-box" style="border-color:#805AD5;background:#FAF5FF">
+          <strong style="color:#4C1D95">Reciben la acción (van después del verbo)</strong>
+          <small>
+            I &rarr; <b>me</b> (Help me!)<br>
+            You &rarr; <b>you</b> (I see you.)<br>
+            He &rarr; <b>him</b> (Call him.) / She &rarr; <b>her</b> (I love her.)<br>
+            It &rarr; <b>it</b> (Take it.)<br>
+            We &rarr; <b>us</b> (Tell us.) / They &rarr; <b>them</b> (Watch them.)
+          </small>
         </div>
       </div>
       <div class="tip-callout"><i data-lucide="lightbulb"></i>
-        <span><strong>Truco AT→ON→IN:</strong> Piensa en círculos. AT = punto exacto (hora, lugar puntual). ON = superficie o día específico. IN = espacio grande (ciudad, mes, año, estación).</span>
+        <span><strong>Edad:</strong> En inglés no "tenemos" años, "somos" años. Nunca digas "I have 20 years". Di siempre: <strong>"I am 20 years old"</strong>.</span>
       </div>`,
     exercises:[
-      {type:'choice',q:'My flat is ___ the first floor.',opts:['in','on','at'],a:'on',exp:'Pisos de un edificio → ON. "On the first floor".'},
-      {type:'choice',q:'We often go swimming ___ the summer.',opts:['on','in','at'],a:'in',exp:'Estaciones del año → IN. "In the summer".'},
-      {type:'choice',q:'Peter goes to church ___ Christmas Day.',opts:['in','at','on'],a:'on',exp:'Día específico (Christmas Day) → ON.'},
-      {type:'choice',q:'She gets up ___ 7 o\'clock every morning.',opts:['in','on','at'],a:'at',exp:'Horas exactas → AT. "At 7 o\'clock".'},
-      {type:'choice',q:'I was born ___ 1998.',opts:['on','in','at'],a:'in',exp:'Años → IN. "In 1998".'},
-      {type:'choice',q:'What time do you eat ___ the evening?',opts:['in','at','on'],a:'in',exp:'Partes del día → IN. "In the evening".'},
-      {type:'choice',q:'They arrived ___ London yesterday.',opts:['in','at','on'],a:'in',exp:'Ciudades → IN. "In London".'},
-      {type:'choice',q:'The party starts ___ midnight.',opts:['in','on','at'],a:'at',exp:'Medianoche es un punto exacto → AT.'},
-      {type:'choice',q:'There is a nice picture ___ the wall.',opts:['in','on','at'],a:'on',exp:'Superficies → ON. "On the wall".'},
-      {type:'choice',q:'The bank is ___ the chemist\'s and the post office.',opts:['next to','between','opposite'],a:'between',exp:'"Between" = entre dos elementos.'},
-      {type:'write',q:'Completa: My birthday is ___ June.',a:'in',exp:'Meses → IN. "In June".'},
-      {type:'write',q:'Completa: He is ___ home right now.',a:'at',exp:'"At home" es una expresión fija.'},
-      {type:'write',q:'Completa: The keys are ___ the table.',a:'on',exp:'Superficie → ON. "On the table".'},
-      {type:'write',q:'Completa: We met ___ Monday morning.',a:'on',exp:'Día de la semana → ON. "On Monday".'},
-      {type:'write',q:'Completa: I will see you ___ the weekend.',a:'at',exp:'"At the weekend" (inglés británico).'},
-      {type:'order',q:'Ordena la frase:',words:['in','My','is','birthday','June.'],a:'My birthday is in June.',exp:'Mes → IN.'},
-      {type:'order',q:'Ordena la frase:',words:['at','are','We','home.'],a:'We are at home.',exp:'"At home" — lugar fijo y conocido.'},
-      {type:'order',q:'Ordena la frase:',words:['the','lives','opposite','hotel','station.','The'],a:'The hotel is opposite the station.',exp:'"Opposite" = enfrente de.'},
-      {type:'choice',q:'I have a meeting ___ Monday ___ 10 o\'clock.',opts:['on / at','in / at','at / on'],a:'on / at',exp:'Día → ON. Hora → AT.'},
-      {type:'write',q:'Completa: She was born ___ the 5th of June ___ 1995.',a:'on in',exp:'Fecha con día → ON. Año → IN.'},
+      {type:'choice',q:'___ is my sister, Maria.',opts:['He','She','They'],a:'She',exp:'"Maria" es mujer (she).'},
+      {type:'choice',q:'I ___ 25 years old.',opts:['am','have','has'],a:'am',exp:'La edad usa el verbo "To Be" (I am), no "To Have".'},
+      {type:'choice',q:'___ they from Colombia?',opts:['Is','Am','Are'],a:'Are',exp:'Para "They", el verbo to be en pregunta es "Are".'},
+      {type:'choice',q:'Please, listen to ___. I am talking.',opts:['I','my','me'],a:'me',exp:'"me" es el pronombre objeto de "I" que recibe la acción (escuchar).'},
+      {type:'choice',q:'John and Peter ___ very good friends.',opts:['is','are','am'],a:'are',exp:'John y Peter = They. Por tanto, "are".'},
+      {type:'write',q:'Completa la contracción negativa: She ___ a doctor.',a:"isn't",exp:'is not = isn\'t'},
+      {type:'write',q:'Escribe el pronombre objeto: I love my dog. I feed ___ every day.',a:'it',exp:'Animales/cosas usan "it".'},
+      {type:'order',q:'Ordena la pregunta:',words:['you','Are','ready?'],a:'Are you ready?',exp:'To Be + Sujeto + Adjetivo.'},
+      {type:'order',q:'Ordena la frase:',words:['called','him.','She'],a:'She called him.',exp:'Sujeto (She) + Verbo (called) + Objeto (him).'},
+      {type:'write',q:'Completa: ___ is raining outside.',a:'It',exp:'El clima siempre usa el sujeto impersonal "It".'}
     ]
   },
 
-  // ─────────────────────────────────────────────────
-  pronouns:{
-    id:'pronouns', title:'Pronombres Personales', icon:'users', color:'#D97706',
+  // 2. Naming Things
+  articles_dem: {
+    id:'articles_dem', title:'Naming Things: Articles & Demonstratives', icon:'mouse-pointer-2', color:'#D97706',
     theory:`
-      <h3>Los pronombres en inglés</h3>
-      <p>Los pronombres reemplazan a los sustantivos. En inglés hay varios tipos y cada uno tiene su función exacta en la oración.</p>
+      <h3>Artículos: A, An, The</h3>
+      <p>Definen de qué estamos hablando exactamente.</p>
+      
       <div class="theory-grid">
         <div class="t-box" style="border-color:#D97706;background:#FFFBEB">
-          <strong style="color:#78350F">Sujeto — Subject pronouns</strong>
-          <small>Hacen la acción. Van ANTES del verbo.<br>
-          <b>I</b> · <b>you</b> · <b>he</b> · <b>she</b> · <b>it</b> · <b>we</b> · <b>they</b><br>
-          "<u>She</u> is a doctor." / "<u>We</u> are friends."</small>
-        </div>
-        <div class="t-box" style="border-color:#2563EB;background:#EFF6FF">
-          <strong style="color:#1E3A8A">Objeto — Object pronouns</strong>
-          <small>Reciben la acción. Van DESPUÉS del verbo o preposición.<br>
-          <b>me</b> · <b>you</b> · <b>him</b> · <b>her</b> · <b>it</b> · <b>us</b> · <b>them</b><br>
-          "I love <u>her</u>." / "He helps <u>us</u>." / "Talk to <u>me</u>."</small>
-        </div>
-        <div class="t-box" style="border-color:#059669;background:#ECFDF5">
-          <strong style="color:#064E3B">Posesivos adjetivos</strong>
-          <small>Van ANTES del sustantivo. Indican pertenencia.<br>
-          <b>my</b> · <b>your</b> · <b>his</b> · <b>her</b> · <b>its</b> · <b>our</b> · <b>their</b><br>
-          "<u>My</u> book." / "<u>Their</u> house." / "<u>Her</u> car."</small>
-        </div>
-        <div class="t-box" style="border-color:#7C3AED;background:#F5F3FF">
-          <strong style="color:#4C1D95">Posesivos pronombres</strong>
-          <small>Solos, SIN sustantivo detrás.<br>
-          <b>mine</b> · <b>yours</b> · <b>his</b> · <b>hers</b> · <b>ours</b> · <b>theirs</b><br>
-          "This book is <u>mine</u>." / "Is this bag <u>yours</u>?"</small>
-        </div>
-      </div>
-      <div class="example-block">
-        <div class="ex-row"><div class="ex-en"><u>He</u> called <u>her</u> but <u>she</u> didn't answer <u>him</u>.</div><div class="ex-es">Él la llamó pero ella no le contestó.</div></div>
-        <div class="ex-row"><div class="ex-en">This is <u>my</u> car. That one is <u>yours</u>.</div><div class="ex-es">Este es mi coche. Ese es el tuyo.</div></div>
-        <div class="ex-row"><div class="ex-en"><u>We</u> love <u>our</u> city very much.</div><div class="ex-es">Amamos mucho nuestra ciudad.</div></div>
-        <div class="ex-row"><div class="ex-en"><u>It</u> is raining. <u>It</u> is cold today.</div><div class="ex-es">Está lloviendo. Hace frío hoy. (IT impersonal)</div></div>
-      </div>
-      <div class="tip-callout"><i data-lucide="lightbulb"></i>
-        <span><strong>IT:</strong> Para animales (sexo desconocido), objetos, tiempo meteorológico y frases impersonales. "It is raining." / "It is cold." / "It is ten o'clock." / "It is important to study."</span>
-      </div>`,
-    exercises:[
-      {type:'choice',q:'___ is a teacher. She loves her job.',opts:['He','She','They'],a:'She',exp:'"She" para referirse a una mujer.'},
-      {type:'choice',q:'This is my book. That one is ___.',opts:['your','yours','you'],a:'yours',exp:'"Yours" = pronombre posesivo, solo, sin sustantivo.'},
-      {type:'choice',q:'Tom is my friend. I like ___ a lot.',opts:['him','her','them'],a:'him',exp:'"Him" = pronombre objeto masculino.'},
-      {type:'choice',q:'___ is cold today. Bring a jacket!',opts:['He','She','It'],a:'It',exp:'"It" para el tiempo meteorológico.'},
-      {type:'choice',q:'My sister and I love ___ city.',opts:['our','ours','us'],a:'our',exp:'"Our" = adjetivo posesivo (antes del sustantivo "city").'},
-      {type:'choice',q:'Give the book to ___, please. (a ella)',opts:['she','her','hers'],a:'her',exp:'"Her" = pronombre objeto femenino.'},
-      {type:'choice',q:'Those keys are not ___. They are mine.',opts:['your','you','yours'],a:'yours',exp:'"Yours" = pronombre posesivo (sin sustantivo).'},
-      {type:'write',q:'Completa: Tom and Mary are my neighbours. ___ are very kind.',a:'They',exp:'"They" para dos o más personas.'},
-      {type:'write',q:'Completa: This is ___ car. (de nosotros → adjetivo posesivo)',a:'our',exp:'"Our" = adjetivo posesivo de "we".'},
-      {type:'write',q:'Completa: I don\'t know ___. Who is she? (a ella → objeto)',a:'her',exp:'"Her" = pronombre objeto femenino.'},
-      {type:'write',q:'Completa: ___ raining outside. Close the window!',a:"It's",exp:'"It\'s" (It is) → impersonal meteorológico.'},
-      {type:'write',q:'Completa: The children are doing ___ homework.',a:'their',exp:'"Their" = adjetivo posesivo de "they".'},
-      {type:'order',q:'Ordena la frase:',words:['loves','He','her.'],a:'He loves her.',exp:'"He" = sujeto; "her" = objeto femenino.'},
-      {type:'order',q:'Ordena la frase:',words:['is','This','mine.','book'],a:'This book is mine.',exp:'"Mine" = pronombre posesivo de "I".'},
-      {type:'order',q:'Ordena la frase:',words:['told','She','story.','us','a'],a:'She told us a story.',exp:'"Us" = pronombre objeto de "we".'},
-      {type:'choice',q:'Can you help ___? We need assistance.',opts:['we','our','us'],a:'us',exp:'"Us" = pronombre objeto de "we".'},
-      {type:'choice',q:'I called Maria but ___ phone was off.',opts:['her','she','hers'],a:'her',exp:'"Her phone" = adjetivo posesivo + sustantivo.'},
-      {type:'write',q:'A: "Is this your bag?" B: "Yes, it\'s ___."',a:'mine',exp:'"Mine" = el/la mío/a (pronombre posesivo).'},
-      {type:'write',q:'A: "Whose book is this?" B: "It\'s ___." (de ella)',a:'hers',exp:'"Hers" = pronombre posesivo femenino (de she).'},
-      {type:'order',q:'Ordena la frase:',words:['helped','me','She','homework.','with','my'],a:'She helped me with my homework.',exp:'"Me" = objeto; "my homework" = adjetivo posesivo.'},
-    ]
-  },
-
-  // ─────────────────────────────────────────────────
-  verbs:{
-    id:'verbs', title:'Verbos: Be, Have, Do', icon:'command', color:'#E53E3E',
-    theory:`
-      <h3>Los tres verbos fundamentales</h3>
-      <p>Estos verbos son irregulares y también actúan como <strong>auxiliares</strong> para formar preguntas y negaciones. Son absolutamente esenciales.</p>
-      <div class="theory-grid">
-        <div class="t-box" style="border-color:#E53E3E;background:#FFF5F5">
-          <strong style="color:#742A2A">TO BE — ser / estar</strong>
+          <strong style="color:#78350F">A / An (Uno, Una)</strong>
           <small>
-            I <b>am</b> (I'm) · You <b>are</b> (You're) · He/She/It <b>is</b><br>
-            We/You/They <b>are</b><br>
-            Pasado: I/He/She/It <b>was</b> · We/You/They <b>were</b><br>
-            <b>Neg:</b> isn't · aren't · wasn't · weren't<br>
-            <b>Preg:</b> Are you...? / Is she...? / Were they...?
+            Cosas no específicas en singular.<br>
+            <b>A</b> + sonido consonante: a car, a dog, a university (suena yu).<br>
+            <b>An</b> + sonido vocal: an apple, an elephant, an hour (la h es muda).
+          </small>
+        </div>
+        <div class="t-box" style="border-color:#38B2AC;background:#E6FFFA">
+          <strong style="color:#1D4044">The (El, La, Los, Las)</strong>
+          <small>
+            Cosas específicas o ya mencionadas. Únicas en el mundo.<br>
+            "Open <b>the</b> door." (Sabemos cuál).<br>
+            "<b>The</b> sun is hot." (Solo hay un sol).
+          </small>
+        </div>
+      </div>
+
+      <h3 style="margin-top:20px">Demostrativos: This, That, These, Those</h3>
+      <div class="theory-grid">
+        <div class="t-box" style="border-color:#805AD5;background:#FAF5FF">
+          <strong style="color:#4C1D95">Singular (1 cosa)</strong>
+          <small>
+            Cerca: <b>This</b> (Este/Esta). "This book here."<br>
+            Lejos: <b>That</b> (Ese/Aquel). "That star there."
           </small>
         </div>
         <div class="t-box" style="border-color:#38A169;background:#F0FFF4">
-          <strong style="color:#1C4532">TO HAVE — tener / haber</strong>
+          <strong style="color:#1C4532">Plural (+1 cosa)</strong>
           <small>
-            I/You/We/They <b>have</b> · He/She/It <b>has</b><br>
-            Pasado: <b>had</b> (todos)<br>
-            <b>Neg:</b> don't have · doesn't have · didn't have<br>
-            <b>Preg:</b> Do you have...? / Does she have...?<br>
-            ⚠️ En negaciones: "have" no cambia → "doesn't have"
+            Cerca: <b>These</b> (Estos/Estas). "These apples."<br>
+            Lejos: <b>Those</b> (Esos/Aquellos). "Those birds."
           </small>
         </div>
-        <div class="t-box" style="border-color:#3182CE;background:#EBF8FF">
-          <strong style="color:#1A365D">TO DO — hacer / auxiliar</strong>
-          <small>
-            I/You/We/They <b>do</b> · He/She/It <b>does</b><br>
-            Pasado: <b>did</b> (todos)<br>
-            <b>Neg:</b> don't · doesn't · didn't<br>
-            <b>Preg:</b> Do you...? / Does he...? / Did they...?<br>
-            "What do you do?" = ¿A qué te dedicas?
-          </small>
-        </div>
-      </div>
-      <div class="example-block">
-        <div class="ex-row"><div class="ex-en">Are you a student? — Yes, I am. / No, I'm not.</div><div class="ex-es">¿Eres estudiante? — Sí. / No.</div></div>
-        <div class="ex-row"><div class="ex-en">She doesn't have a car. She takes the bus.</div><div class="ex-es">Ella no tiene coche. Coge el autobús.</div></div>
-        <div class="ex-row"><div class="ex-en">Does he work here? — No, he doesn't.</div><div class="ex-es">¿Trabaja él aquí? — No, no trabaja.</div></div>
-        <div class="ex-row"><div class="ex-en">They were tired after the long journey.</div><div class="ex-es">Estaban cansados después del largo viaje.</div></div>
-      </div>
-      <div class="tip-callout"><i data-lucide="lightbulb"></i>
-        <span><strong>Formas cortas:</strong> I'm · you're · he's · she's · it's · we're · they're | I've · she's · we've | I'd · he'd | won't (will not) · can't (cannot) · isn't · aren't · don't · doesn't</span>
       </div>`,
     exercises:[
-      {type:'choice',q:'We ___ tired after the long walk.',opts:['am','is','are'],a:'are',exp:'"We" → "are". Sujeto plural.'},
-      {type:'choice',q:'___ she a doctor?',opts:['Is','Are','Am'],a:'Is',exp:'He/She/It → "Is" en preguntas.'},
-      {type:'choice',q:'I ___ a beautiful house in the country.',opts:['have','has','do'],a:'have',exp:'"I" → "have". Solo He/She/It usan "has".'},
-      {type:'choice',q:'He ___ his homework every single day.',opts:['do','does','is'],a:'does',exp:'"He" → "does" (auxiliar do en 3ª persona).'},
-      {type:'choice',q:'They ___ at the cinema right now.',opts:['is','am','are'],a:'are',exp:'"They" → "are".'},
-      {type:'choice',q:'___ you speak Spanish? — Yes, I do.',opts:['Is','Are','Do'],a:'Do',exp:'"Do" para preguntas con I/You/We/They.'},
-      {type:'choice',q:'She ___ not like cold weather at all.',opts:['do','does','is'],a:'does',exp:'"She doesn\'t" — "does" en negaciones con 3ª persona.'},
-      {type:'choice',q:'My parents ___ a small café near the park.',opts:['have','has','is'],a:'have',exp:'"My parents" (ellos) → "have".'},
-      {type:'write',q:'Completa: It ___ very cold outside today. (ser/estar)',a:'is',exp:'"It is cold" — "it" para describir el tiempo.'},
-      {type:'write',q:'Completa: They ___ not at home. Where are they?',a:'are',exp:'"They are not" / "They aren\'t".'},
-      {type:'write',q:'Completa: ___ he have a dog? (pregunta con have, 3ª persona)',a:'Does',exp:'"Does he have?" — pregunta con 3ª persona singular.'},
-      {type:'write',q:'Completa en negativo: She ___ like spicy food.',a:"doesn't",exp:'"She doesn\'t" = she does not.'},
-      {type:'write',q:'Completa: I ___ a terrible headache. (tener)',a:'have',exp:'"I have a headache" — tener con I → have.'},
-      {type:'write',q:'Completa: ___ they happy about the news? (pregunta con be)',a:'Are',exp:'"Are they happy?" — pregunta con They.'},
-      {type:'order',q:'Ordena la frase:',words:['not','am','ill.','I'],a:'I am not ill.',exp:'"I am not" — negación de to be con I.'},
-      {type:'order',q:'Ordena la frase:',words:['has','a','She','baby.'],a:'She has a baby.',exp:'"She has" — 3ª persona de to have.'},
-      {type:'order',q:'Ordena la pregunta:',words:['you','a','Do','bicycle?','have'],a:'Do you have a bicycle?',exp:'"Do you have?" — pregunta con you + have.'},
-      {type:'order',q:'Ordena la frase:',words:['not','He','does','work.'],a:'He does not work.',exp:'"He does not" — negación 3ª persona.'},
-      {type:'order',q:'Ordena la frase:',words:['two','We','have','cats.'],a:'We have two cats.',exp:'"We have" — primera persona plural.'},
-      {type:'choice',q:'What ___ you do for a living?',opts:['is','do','are'],a:'do',exp:'"What do you do?" — pregunta habitual sobre profesión.'},
+      {type:'choice',q:'I need ___ umbrella.',opts:['a','an','the'],a:'an',exp:'"umbrella" empieza por vocal (u) → an.'},
+      {type:'choice',q:'___ moon is very bright tonight.',opts:['A','An','The'],a:'The',exp:'Solo hay una luna → The.'},
+      {type:'choice',q:'Look at ___ birds in the sky! (Lejos)',opts:['this','that','those'],a:'those',exp:'Plural y lejos = those.'},
+      {type:'choice',q:'He is ___ honest man.',opts:['a','an','the'],a:'an',exp:'La "H" de honest es muda, suena la "O" → an honest man.'},
+      {type:'choice',q:'Is ___ your pen here on my desk?',opts:['this','that','those'],a:'this',exp:'Singular y cerca = this.'},
+      {type:'write',q:'Completa: I bought ___ new computer.',a:'a',exp:'"computer" empieza por consonante → a.'},
+      {type:'order',q:'Ordena la frase:',words:['are','apples','These','delicious.'],a:'These apples are delicious.',exp:'These (plural cerca) + sustantivo plural.'},
+      {type:'write',q:'Completa (lejos, singular): ___ is my car across the street.',a:'That',exp:'Singular lejos = That.'},
+      {type:'choice',q:'She works at ___ hospital in the city centre.',opts:['a','an','the'],a:'the',exp:'Es un hospital específico (el del centro) → the.'},
+      {type:'write',q:'Completa: ___ Andes are mountains in South America.',a:'The',exp:'Cadenas montañosas siempre llevan The.'}
     ]
   },
 
-  // ─────────────────────────────────────────────────
-  present_simple:{
-    id:'present_simple', title:'Presente Simple', icon:'sun', color:'#38B2AC',
+  // 3. Possessives
+  possessives: {
+    id:'possessives', title:'My World: Possessives', icon:'key', color:'#9F7AEA',
+    theory:`
+      <h3>Indicar propiedad o relación</h3>
+      <p>Hay dos formas principales de decir que algo le pertenece a alguien.</p>
+      
+      <div class="theory-grid">
+        <div class="t-box" style="border-color:#9F7AEA;background:#FAF5FF">
+          <strong style="color:#44337A">Adjetivos Posesivos</strong>
+          <small>Siempre van ANTES de la cosa poseída.<br>
+          I &rarr; <b>my</b> (mi)<br>
+          You &rarr; <b>your</b> (tu / su de usted)<br>
+          He &rarr; <b>his</b> (su de él) / She &rarr; <b>her</b> (su de ella)<br>
+          It &rarr; <b>its</b> (su de animal/cosa)<br>
+          We &rarr; <b>our</b> (nuestro) / They &rarr; <b>their</b> (su de ellos)<br>
+          <em>Ej: This is <u>her</u> car.</em></small>
+        </div>
+        <div class="t-box" style="border-color:#48BB78;background:#F0FFF4">
+          <strong style="color:#22543D">El Genitivo Sajón ( 's )</strong>
+          <small>Se añade al DUEÑO (persona o animal) para indicar posesión.<br>
+          Dueño + 's + Cosa<br>
+          "El coche de Tom" &rarr; <b>Tom's car</b>.<br>
+          "La casa de mis padres" &rarr; <b>My parents' house</b> (si termina en s, solo añade el apóstrofe).<br>
+          "El bolso de la mujer" &rarr; <b>The woman's bag</b>.</small>
+        </div>
+      </div>`,
+    exercises:[
+      {type:'choice',q:'This is David. ___ car is parked outside.',opts:['Her','His','Their'],a:'His',exp:'David es "he", su posesivo es "his".'},
+      {type:'choice',q:'We bought a house. ___ house is very big.',opts:['Our','Your','Their'],a:'Our',exp:'De nosotros (we) → our.'},
+      {type:'choice',q:'This is ___ laptop. (El portátil de Maria)',opts:["Maria's","Marias","Maria"],a:"Maria's",exp:'Dueño (Maria) + \'s + Cosa.'},
+      {type:'choice',q:'I like the ___ colour. (El color de la bicicleta)',opts:["bike's","bikes'","bikes"],a:"bike's",exp:'bike (singular) + \'s.'},
+      {type:'choice',q:'The ___ room is upstairs. (La habitación de los niños)',opts:["childrens'","children's","childrens"],a:"children's",exp:'Children es plural irregular (no termina en S), por lo que lleva \'s normal.'},
+      {type:'write',q:'Completa: The dog wagged ___ tail. (su cola)',a:'its',exp:'Para animales usamos its (sin apóstrofe).'},
+      {type:'write',q:'Escribe: El libro del profesor.',a:"The teacher's book",exp:'The teacher + \'s + book.'},
+      {type:'order',q:'Ordena:',words:['is','This',"Tom's",'brother.'],a:"This is Tom's brother.",exp:'Relaciones familiares también usan genitivo sajón.'},
+      {type:'choice',q:'These are my ___. (Los juguetes de mis gatos)',opts:["cats' toys","cat's toys","cats toys"],a:"cats' toys",exp:'Cats (plural que termina en S) solo añade el apóstrofe al final.'},
+      {type:'write',q:'Completa: I lost ___ keys! (mis)',a:'my',exp:'Posesivo de I es my.'}
+    ]
+  },
+
+  // 4. There is/are
+  there_is_are: {
+    id:'there_is_are', title:'Existence: There is / There are', icon:'box', color:'#ED8936',
+    theory:`
+      <h3>Describir lo que existe</h3>
+      <p>En español usamos "Hay" para singular y plural. En inglés, debemos diferenciar si hablamos de una cosa (<strong>There is</strong>) o varias (<strong>There are</strong>).</p>
+      
+      <div class="theory-grid">
+        <div class="t-box" style="border-color:#ED8936;background:#FEFCBF">
+          <strong style="color:#7B341E">Singular / Incontables (There is)</strong>
+          <small>
+            (+) <b>There is</b> a pen on the desk. (Hay un bolígrafo)<br>
+            (-) <b>There isn't</b> any water. (No hay agua)<br>
+            (?) <b>Is there</b> a bank near here?<br>
+            <em>Contracción: There's</em>
+          </small>
+        </div>
+        <div class="t-box" style="border-color:#3182CE;background:#EBF8FF">
+          <strong style="color:#1A365D">Plural (There are)</strong>
+          <small>
+            (+) <b>There are</b> three cars.<br>
+            (-) <b>There aren't</b> any students.<br>
+            (?) <b>Are there</b> many apples?<br>
+            <em>Nota: "There are" NO se puede contraer.</em>
+          </small>
+        </div>
+      </div>
+
+      <h3 style="margin-top:20px">Preguntar por cantidades</h3>
+      <div class="theory-grid">
+        <div class="t-box" style="border-color:#38A169;background:#F0FFF4">
+          <strong style="color:#1C4532">How many? (Contables plural)</strong>
+          <small>Para cosas que puedes contar (1 apple, 2 cars).<br>
+          "<b>How many</b> brothers do you have?"<br>
+          "<b>How many</b> cars are there?"</small>
+        </div>
+        <div class="t-box" style="border-color:#E53E3E;background:#FFF5F5">
+          <strong style="color:#742A2A">How much? (Incontables singular)</strong>
+          <small>Para líquidos, conceptos, o cosas sin plural (water, time, money).<br>
+          "<b>How much</b> time do we have?"<br>
+          "<b>How much</b> water is there?"</small>
+        </div>
+      </div>
+      <div class="tip-callout"><i data-lucide="lightbulb"></i>
+        <span><strong>¿Dinero y Tiempo?</strong> Son incontables en inglés. Preguntamos "How much money?" y "How much time?", aunque contemos los dólares o los minutos.</span>
+      </div>`,
+    exercises:[
+      {type:'choice',q:'___ a laptop on the desk.',opts:['There is','There are','Is there'],a:'There is',exp:'Laptop es singular → There is.'},
+      {type:'choice',q:'___ any apples in the fridge?',opts:['Is there','There are','Are there'],a:'Are there',exp:'Pregunta en plural → Are there?'},
+      {type:'choice',q:'___ money do you have in your pocket?',opts:['How many','How much','How'],a:'How much',exp:'El dinero (money) es incontable → How much.'},
+      {type:'choice',q:'___ people are there in your family?',opts:['How much','How many','How'],a:'How many',exp:'Las personas (people) se pueden contar y "people" es plural → How many.'},
+      {type:'write',q:'Completa la negación plural: There ___ any dogs in the park.',a:"aren't",exp:'Plural negativo → There aren\'t.'},
+      {type:'order',q:'Ordena la pregunta:',words:['milk','How','much','is','there?'],a:'How much milk is there?',exp:'How much + incontable (milk) + is there?'},
+      {type:'choice',q:'___ some water in the glass.',opts:['There is','There are','Are there'],a:'There is',exp:'El agua (water) es incontable, se trata como singular → There is.'},
+      {type:'write',q:'Completa la pregunta: ___ there a supermarket near here?',a:'Is',exp:'Supermarket es singular → Is there...?'},
+      {type:'order',q:'Ordena la frase:',words:['are','There','two','beds','room.','in the'],a:'There are two beds in the room.',exp:'Plural (two beds) → There are.'},
+      {type:'choice',q:'How ___ books did you read last year?',opts:['many','much','any'],a:'many',exp:'Los libros se pueden contar (plural books) → How many.'}
+    ]
+  },
+
+  // 5. Present Simple
+  present_simple: {
+    id:'present_simple', title:'Daily Life: Present Simple', icon:'sun', color:'#38B2AC',
     theory:`
       <h3>Presente Simple — Rutinas y Verdades</h3>
-      <p>El <strong>presente simple</strong> describe hábitos, rutinas, verdades generales y situaciones permanentes. Es el tiempo más frecuente del inglés.</p>
+      <p>Describe hábitos, rutinas, verdades generales y situaciones permanentes.</p>
       <div class="theory-grid">
         <div class="t-box" style="border-color:#38B2AC;background:#E6FFFA">
           <strong style="color:#1D4044">Afirmativo (+)</strong>
           <small>I/You/We/They + <b>verbo base</b><br>
           He/She/It + <b>verbo + S</b><br>
-          "I <u>eat</u> breakfast." / "She <u>eats</u> breakfast."<br>
-          "They <u>work</u> here." / "He <u>works</u> here."</small>
+          "I <u>eat</u> breakfast." / "She <u>eats</u> breakfast."</small>
         </div>
         <div class="t-box" style="border-color:#E53E3E;background:#FFF5F5">
           <strong style="color:#742A2A">Negativo (–)</strong>
           <small>I/You/We/They + <b>don't</b> + verbo base<br>
           He/She/It + <b>doesn't</b> + verbo base<br>
-          "I <u>don't</u> like fish."<br>
           "She <u>doesn't</u> drive."</small>
         </div>
         <div class="t-box" style="border-color:#D97706;background:#FFFBEB">
           <strong style="color:#78350F">Interrogativo (?)</strong>
           <small><b>Do</b> + I/you/we/they + verbo base?<br>
           <b>Does</b> + he/she/it + verbo base?<br>
-          "<u>Do</u> you play football?"<br>
           "<u>Does</u> he speak French?"</small>
         </div>
       </div>
       <div class="theory-grid" style="margin-top:12px">
         <div class="t-box" style="border-color:#7C3AED;background:#F5F3FF">
-          <strong style="color:#4C1D95">Reglas ortográficas (3ª persona +s)</strong>
+          <strong style="color:#4C1D95">Reglas de 3ª persona (+s)</strong>
           <small>
-            Normal: +s → works, reads, likes, eats<br>
-            -ch/-sh/-x/-s/-o: +es → watches, goes, fixes, washes<br>
-            Vocal + y: +s → plays, says, enjoys<br>
-            Consonante + y → ies: studies, flies, tries, carries<br>
-            <b>Irregulares:</b> be→<b>is</b> · have→<b>has</b> · do→<b>does</b>
+            Normal: works, reads<br>
+            -ch/-sh/-x/-s/-o: watch<b>es</b>, go<b>es</b><br>
+            Consonante+y: stud<b>ies</b><br>
+            Excepción: have &rarr; <b>has</b>
           </small>
         </div>
         <div class="t-box" style="border-color:#059669;background:#ECFDF5">
           <strong style="color:#064E3B">Adverbios de frecuencia</strong>
           <small>
-            100% <b>always</b> → <b>usually</b> → <b>often</b> → <b>sometimes</b> → <b>rarely</b> → <b>never</b> 0%<br>
-            Posición: entre sujeto y verbo principal.<br>
-            "She <u>always</u> arrives on time."<br>
-            "I <u>never</u> eat meat." / "He <u>often</u> travels."
+            always, usually, often, sometimes, never<br>
+            <b>Posición:</b> Entre el sujeto y el verbo principal.<br>
+            "She <u>always</u> arrives on time."
           </small>
         </div>
-      </div>
-      <div class="tip-callout"><i data-lucide="lightbulb"></i>
-        <span><strong>Señales de tiempo:</strong> always, usually, often, sometimes, rarely, never, every day/week/year, on Mondays, in the morning, at the weekend, once a week.</span>
       </div>`,
     exercises:[
       {type:'choice',q:'She ___ to music every evening.',opts:['listen','listens','is listening'],a:'listens',exp:'"She" (3ª persona) → listen + s = "listens". Hábito.'},
@@ -335,272 +276,318 @@ const modulesData = {
       {type:'choice',q:'___ he speak French?',opts:['Do','Does','Is'],a:'Does',exp:'"He" (3ª persona) → "Does" en preguntas.'},
       {type:'choice',q:'My father ___ TV every night.',opts:['watch','watches','is watching'],a:'watches',exp:'"Father" (3ª persona) → watch+es = "watches".'},
       {type:'choice',q:'They ___ football on Saturdays.',opts:['plays','play','is playing'],a:'play',exp:'"They" → sin -s. Hábito semanal = presente simple.'},
-      {type:'choice',q:'The sun ___ in the east and sets in the west.',opts:['rise','rises','is rising'],a:'rises',exp:'Verdad universal: "The sun rises". 3ª persona → +s.'},
-      {type:'choice',q:'___ your parents live near here?',opts:['Do','Does','Are'],a:'Do',exp:'"Your parents" (They) → "Do" en preguntas.'},
-      {type:'choice',q:'Water ___ at 100 degrees Celsius.',opts:['boil','boils','is boiling'],a:'boils',exp:'Verdad científica → presente simple. 3ª persona → boils.'},
       {type:'write',q:'Escribe el verbo: He ___ (study) English every day.',a:'studies',exp:'"study" → consonante+y → studies. 3ª persona.'},
-      {type:'write',q:'Escribe el verbo: The bus ___ (leave) at 8:30.',a:'leaves',exp:'"leave" → 3ª persona → leaves.'},
       {type:'write',q:'Negativo: "She likes coffee." → "She ___ coffee."',a:"doesn't like",exp:'"She doesn\'t like" — negación 3ª persona.'},
-      {type:'write',q:'Pregunta: "___ they live in Madrid?" (Do/Does)',a:'Do',exp:'"They" → "Do they live...?"'},
-      {type:'write',q:'Escribe el verbo: He ___ (go) to the gym on Mondays.',a:'goes',exp:'"go" → 3ª persona → goes (go+es).'},
-      {type:'write',q:'Negativo: "I like fish." → "I ___ fish."',a:"don't like",exp:'"I don\'t like" — negación 1ª persona.'},
       {type:'order',q:'Ordena la frase:',words:['usually','I','early.','wake up'],a:'I usually wake up early.',exp:'"Usually" va entre sujeto y verbo.'},
-      {type:'order',q:'Ordena la negación:',words:["work","doesn't","She","here."],a:"She doesn't work here.",exp:'"She doesn\'t" + verbo base.'},
       {type:'order',q:'Ordena la pregunta:',words:['English?','speak','Does','she'],a:'Does she speak English?',exp:'Does + sujeto + verbo base.'},
-      {type:'order',q:'Ordena la frase:',words:['play','They','football','weekends.','on'],a:'They play football on weekends.',exp:'Hábito semanal → presente simple.'},
-      {type:'order',q:'Ordena la frase:',words:['never','He','meat.','eats'],a:'He never eats meat.',exp:'"Never" entre sujeto y verbo.'},
-      {type:'choice',q:'How often ___ she go to the gym?',opts:['do','does','is'],a:'does',exp:'"She" (3ª persona) → "does" en preguntas.'},
+      {type:'choice',q:'How often ___ she go to the gym?',opts:['do','does','is'],a:'does',exp:'"She" (3ª persona) → "does" en preguntas.'}
     ]
   },
 
-  // ─────────────────────────────────────────────────
-  present_cont:{
-    id:'present_cont', title:'Presente Continuo y Simple vs Continuo', icon:'activity', color:'#805AD5',
+  // 6. Present Continuous
+  present_cont: {
+    id:'present_cont', title:'Right Now: Present Continuous', icon:'activity', color:'#805AD5',
     theory:`
-      <h3>Presente Continuo — Acciones en progreso</h3>
-      <p>El presente continuo describe acciones que ocurren <strong>ahora mismo</strong> o de forma temporal. Estructura: <strong>TO BE + verbo-ING</strong>.</p>
+      <h3>Acciones en progreso</h3>
+      <p>Describe acciones que ocurren <strong>ahora mismo</strong> o temporalmente. Estructura: <strong>TO BE + verbo-ING</strong>.</p>
       <div class="theory-grid">
         <div class="t-box" style="border-color:#805AD5;background:#FAF5FF">
           <strong style="color:#4C1D95">Formas</strong>
           <small>
-            Afirm: I <b>am</b> · He/She/It <b>is</b> · We/You/They <b>are</b> + -ING<br>
-            Neg: I'm <b>not</b> · He <b>isn't</b> · They <b>aren't</b> + -ING<br>
-            Preg: <b>Am</b> I · <b>Is</b> he · <b>Are</b> they + -ING?
+            (+) I <b>am</b> reading. / She <b>is</b> reading.<br>
+            (-) They <b>aren't</b> listening.<br>
+            (?) <b>Are</b> you coming?
           </small>
         </div>
         <div class="t-box" style="border-color:#E53E3E;background:#FFF5F5">
           <strong style="color:#742A2A">Reglas del -ING</strong>
           <small>
-            Normal: read→read<b>ing</b> · talk→talk<b>ing</b><br>
-            -e muda: write→writ<b>ing</b> · come→com<b>ing</b><br>
-            CVC corta: run→run<b>ning</b> · sit→sit<b>ting</b> · swim→swim<b>ming</b><br>
-            -ie: lie→ly<b>ing</b> · die→dy<b>ing</b> · tie→ty<b>ing</b>
-          </small>
-        </div>
-        <div class="t-box" style="border-color:#D97706;background:#FFFBEB">
-          <strong style="color:#78350F">Usos del continuo</strong>
-          <small>
-            1. Ahora mismo: "Look! It <u>is raining</u>."<br>
-            2. Período temporal: "I <u>am reading</u> a great book this week."<br>
-            3. Cambios y tendencias: "Prices <u>are rising</u>."<br>
-            4. Planes futuros: "I <u>am meeting</u> Tom tomorrow."
+            Normal: read→read<b>ing</b><br>
+            -e muda: writ<b>e</b>→writ<b>ing</b><br>
+            CVC corta: run→run<b>ning</b>
           </small>
         </div>
       </div>
-      <h3 style="margin-top:20px">Simple vs. Continuo</h3>
-      <div class="theory-grid">
-        <div class="t-box" style="border-color:#38B2AC;background:#E6FFFA">
-          <strong style="color:#1D4044">SIMPLE → Hábito permanente</strong>
-          <small>Señales: always, usually, every day, on Mondays, never<br>
-          "She <u>drinks</u> coffee every morning." (hábito)<br>
-          "Dogs <u>eat</u> meat." (verdad general)</small>
-        </div>
-        <div class="t-box" style="border-color:#805AD5;background:#FAF5FF">
-          <strong style="color:#4C1D95">CONTINUO → Ahora / temporalmente</strong>
-          <small>Señales: now, right now, at the moment, look!, today, this week<br>
-          "She <u>is drinking</u> coffee right now." (este momento)<br>
-          "I <u>am studying</u> hard this month." (temporalmente)</small>
-        </div>
-      </div>
-      <div class="theory-grid" style="margin-top:12px">
-        <div class="t-box" style="border-color:#E53E3E;background:#FFF5F5">
-          <strong style="color:#742A2A">⚠️ Verbos de estado (NUNCA en continuo)</strong>
-          <small>
-            <b>Sentidos:</b> see · hear · smell · taste · feel<br>
-            <b>Emoción:</b> love · hate · like · want · need · prefer<br>
-            <b>Mente:</b> know · think (opinar) · believe · understand · remember · forget<br>
-            ✗ "I am knowing" → ✓ "I know"<br>
-            ✗ "She is wanting" → ✓ "She wants"
-          </small>
-        </div>
-      </div>
-      <div class="example-block">
-        <div class="ex-row"><div class="ex-en">I usually <u>drive</u> to work. / Today I <u>am taking</u> the bus.</div><div class="ex-es">Normalmente conduzco. / Hoy estoy cogiendo el autobús.</div></div>
-        <div class="ex-row"><div class="ex-en">Look! It <u>is snowing</u>! But it rarely <u>snows</u> here.</div><div class="ex-es">¡Mira, está nevando! Pero raramente nieva aquí.</div></div>
-      </div>
-      <div class="tip-callout"><i data-lucide="lightbulb"></i>
-        <span><strong>Truco:</strong> Si puedes añadir "right now" → usa continuo. Si puedes añadir "every day" → usa simple. "I <u>am reading</u> right now." / "I <u>read</u> every day."</span>
+      <h3 style="margin-top:20px">Verbos + ING (Gustos)</h3>
+      <div class="tip-callout"><i data-lucide="heart"></i>
+        <span>Los verbos que expresan gusto (<strong>like, love, hate, enjoy</strong>) siempre van seguidos de otro verbo en <strong>-ING</strong> en A1.<br>
+        "I like <u>playing</u> tennis." / "She hates <u>waking</u> up early."</span>
       </div>`,
     exercises:[
       {type:'choice',q:'Look! The baby ___.',opts:['sleeps','is sleeping','sleep'],a:'is sleeping',exp:'"Look!" → acción en este momento → continuo.'},
-      {type:'choice',q:'She always ___ coffee in the morning.',opts:['is drinking','drinks','drink'],a:'drinks',exp:'"Always" → hábito → simple. "She drinks".'},
-      {type:'choice',q:'I usually ___ coffee, but today I ___ tea.',opts:['drink / am drinking','am drinking / drink','drinks / drinking'],a:'drink / am drinking',exp:'"Usually" → simple. "Today" → continuo.'},
-      {type:'choice',q:'He always ___ his car on Sundays.',opts:['is washing','washes','washing'],a:'washes',exp:'"Always" → hábito → presente simple.'},
-      {type:'choice',q:'What ___ you doing right now?',opts:['do','are','is'],a:'are',exp:'"Right now" → continuo. "What are you doing?"'},
-      {type:'choice',q:'The kids ___ playing in the garden at the moment.',opts:['is','are','am'],a:'are',exp:'"The kids" (ellos) → "are". Continuo con be + ING.'},
-      {type:'choice',q:'I ___ not talking to you right now. I\'m busy.',opts:['am','is','are'],a:'am',exp:'"I" → "am". Continuo negativo: "I am not".'},
-      {type:'choice',q:'They never ___ to the cinema. They prefer Netflix.',opts:['are going','goes','go'],a:'go',exp:'"Never" → hábito → simple. "They go".'},
+      {type:'choice',q:'What ___ you doing right now?',opts:['do','are','is'],a:'are',exp:'"Right now" → continuo. To be para you es "are".'},
+      {type:'choice',q:'I enjoy ___ to music.',opts:['listen','listening','listens'],a:'listening',exp:'Después de enjoy/like/hate/love, el verbo va con -ING.'},
+      {type:'choice',q:'I ___ not talking to you. I\'m on the phone.',opts:['am','is','are'],a:'am',exp:'Continuo negativo: "I am not".'},
       {type:'write',q:'Verbo+ING (run): The dog is ___.',a:'running',exp:'"run" → CVC (r-u-n) → doble consonante → running.'},
-      {type:'write',q:'Verbo+ING (study): He is ___ for his exam.',a:'studying',exp:'"study" → termina en vocal+y → studying.'},
-      {type:'write',q:'Verbo+ING (write): She is ___ a letter.',a:'writing',exp:'"write" → termina en -e muda → drop e → writing.'},
-      {type:'write',q:'Completa (hábito, usually): She usually ___ (work) in London.',a:'works',exp:'Hábito con "usually" → simple. 3ª persona → works.'},
-      {type:'write',q:'Completa (ahora): They ___ (play) football right now.',a:'are playing',exp:'"Right now" → continuo. They are playing.'},
-      {type:'write',q:'Completa (hábito): He always ___ (drive) carefully.',a:'drives',exp:'"Always" → simple. 3ª persona → drives.'},
-      {type:'order',q:'Ordena la frase:',words:['a','I','letter.','am','writing'],a:'I am writing a letter.',exp:'"I am + -ING" → presente continuo.'},
-      {type:'order',q:'Ordena la frase:',words:['reading','He','is','moment.','the','at'],a:'He is reading at the moment.',exp:'"At the moment" → señal de continuo.'},
+      {type:'write',q:'Completa (ahora): They ___ (play) football.',a:'are playing',exp:'Continuo: They are playing.'},
+      {type:'order',q:'Ordena la frase:',words:['reading','He','is','moment.','the','at'],a:'He is reading at the moment.',exp:'"At the moment" → continuo.'},
       {type:'order',q:'Ordena la frase:',words:['raining','It','is','outside.'],a:'It is raining outside.',exp:'"It is raining" → situación actual.'},
-      {type:'order',q:'Ordena la frase:',words:['shower.','is','She','in','singing','the'],a:'She is singing in the shower.',exp:'"Is singing" → acción en progreso ahora.'},
-      {type:'choice',q:'I ___ this music. It\'s great! (love)',opts:['am loving','loves','love'],a:'love',exp:'"Love" = verbo de estado → NUNCA en continuo → "I love".'},
-      {type:'choice',q:'Look! It ___ outside! Quick, take an umbrella!',opts:['rains','rained','is raining'],a:'is raining',exp:'"Look!" → acción en este momento → continuo.'},
+      {type:'choice',q:'She loves ___ pizza on Fridays.',opts:['eat','eating','eats'],a:'eating',exp:'Después de "loves", verbo con -ING.'},
+      {type:'choice',q:'Why ___ you wearing a coat? It\'s hot!',opts:['do','are','is'],a:'are',exp:'"wearing" → continuo → "are you wearing".'}
     ]
   },
 
-  // ─────────────────────────────────────────────────
-  simple_vs_cont:{
-    id:'simple_vs_cont', title:'Simple vs Continuo (Práctica)', icon:'git-merge', color:'#ED8936',
+  // 7. Prepositions
+  prepositions: {
+    id:'prepositions', title:'Time & Place: Prepositions', icon:'map-pin', color:'#E53E3E',
     theory:`
-      <h3>¿Hábito o este momento? — Repaso comparativo</h3>
-      <p>Este módulo es un <strong>repaso intensivo</strong> para dominar la diferencia entre el presente simple y el continuo con ejercicios de discriminación y contraste.</p>
+      <h3>IN, ON, AT (Tiempo y Lugar)</h3>
+      <p>Las tres preposiciones fundamentales del inglés.</p>
       <div class="theory-grid">
-        <div class="t-box" style="border-color:#38B2AC;background:#E6FFFA">
-          <strong style="color:#1D4044">SIMPLE → Hábito / Verdad general</strong>
-          <small>
-            Señales: <b>always, usually, often, sometimes, rarely, never</b><br>
-            <b>every day/week, on Mondays, in the morning</b><br>
-            "She <u>drinks</u> coffee every morning." (siempre)<br>
-            "Dogs <u>eat</u> meat." (verdad general)<br>
-            "Water <u>boils</u> at 100°C." (científico)
-          </small>
+        <div class="t-box" style="border-color:#38A169;background:#F0FFF4">
+          <strong style="color:#1C4532">IN (Espacios y períodos grandes)</strong>
+          <small><b>Lugar:</b> in the box, in London, in Spain.<br>
+          <b>Tiempo:</b> in June, in 1990, in summer, in the morning.</small>
+        </div>
+        <div class="t-box" style="border-color:#3182CE;background:#EBF8FF">
+          <strong style="color:#1A365D">ON (Superficies y días)</strong>
+          <small><b>Lugar:</b> on the table, on the wall, on the 1st floor.<br>
+          <b>Tiempo:</b> on Monday, on 10th June.</small>
         </div>
         <div class="t-box" style="border-color:#805AD5;background:#FAF5FF">
-          <strong style="color:#4C1D95">CONTINUO → Ahora / Temporalmente</strong>
-          <small>
-            Señales: <b>now, right now, at the moment, look!, today</b><br>
-            <b>this week/month, currently, listen!</b><br>
-            "She <u>is drinking</u> coffee right now." (este momento)<br>
-            "I <u>am living</u> in London this year." (temporal)<br>
-            "Look! It <u>is raining</u>!" (acción visible)
-          </small>
+          <strong style="color:#4C1D95">AT (Puntos exactos)</strong>
+          <small><b>Lugar:</b> at the door, at home, at school.<br>
+          <b>Tiempo:</b> at 7 o'clock, at midnight, at the weekend.</small>
         </div>
-      </div>
-      <div class="theory-grid" style="margin-top:14px">
-        <div class="t-box" style="border-color:#E53E3E;background:#FFF5F5">
-          <strong style="color:#742A2A">⚠️ Verbos que NUNCA van en continuo</strong>
-          <small>
-            <b>Estado mental:</b> know, think (opinar), believe, understand, remember, forget, mean<br>
-            <b>Emociones:</b> love, hate, like, want, need, prefer, wish<br>
-            <b>Sentidos:</b> see, hear, smell, taste, feel (estado)<br>
-            <b>Posesión:</b> have (tener), own, belong, contain<br>
-            ✗ "I am knowing" → ✓ "I know"<br>
-            ✗ "She is wanting" → ✓ "She wants"
-          </small>
-        </div>
-        <div class="t-box" style="border-color:#D97706;background:#FFFBEB">
-          <strong style="color:#78350F">Contraste en la misma frase</strong>
-          <small>
-            "I usually <u>drive</u> to work but today I <u>am taking</u> the bus."<br>
-            "She <u>loves</u> music and she <u>is listening</u> to it now."<br>
-            "He <u>works</u> in Madrid but this week he <u>is working</u> from home."<br>
-            "It rarely <u>snows</u> here but look — it <u>is snowing</u>!"
-          </small>
-        </div>
-      </div>
-      <div class="tip-callout"><i data-lucide="lightbulb"></i>
-        <span><strong>Prueba rápida:</strong> Añade "right now" → ¿tiene sentido? → continuo. Añade "every day" → ¿tiene sentido? → simple. Si el verbo es de estado (know, love, want...) → siempre simple.</span>
       </div>`,
     exercises:[
-      {type:'choice',q:'I usually ___ coffee, but today I ___ tea.',opts:['drink / am drinking','am drinking / drink','drinks / is drinking'],a:'drink / am drinking',exp:'"Usually" → simple. "Today" (excepción) → continuo.'},
-      {type:'write',q:'Completa (ahora): Shh! I ___ (listen) to the radio.',a:'am listening',exp:'"Shh!" indica ahora → continuo: I am listening.'},
-      {type:'choice',q:'He always ___ his car on Sundays.',opts:['is washing','washes','washing'],a:'washes',exp:'"Always" → hábito semanal → simple. "He washes".'},
-      {type:'order',q:'Ordena la frase:',words:['every','I','read','day.'],a:'I read every day.',exp:'"Every day" → hábito → simple.'},
-      {type:'write',q:'Completa (hábito): She usually ___ (work) in London.',a:'works',exp:'"Usually" → hábito → simple. 3ª persona → works.'},
-      {type:'choice',q:'Look! It ___ outside. Quick, take an umbrella!',opts:['rains','is raining','rain'],a:'is raining',exp:'"Look!" → acción visible ahora → continuo.'},
-      {type:'order',q:'Ordena la frase:',words:['moment.','reading','He','is','at','the'],a:'He is reading at the moment.',exp:'"At the moment" → señal de continuo.'},
-      {type:'choice',q:'They never ___ to the cinema. They prefer Netflix.',opts:['are going','goes','go'],a:'go',exp:'"Never" → hábito → simple. They + go (sin -s).'},
-      {type:'write',q:'Completa (ahora): They ___ (play) football right now.',a:'are playing',exp:'"Right now" → continuo: They are playing.'},
-      {type:'choice',q:'She usually ___ her parents, but this weekend she ___ her cousin.',opts:['visits / is visiting','is visiting / visits','visit / visiting'],a:'visits / is visiting',exp:'"Usually" → simple. "This weekend" → excepción temporal → continuo.'},
-      {type:'order',q:'Ordena la frase:',words:['now.','working','We','are'],a:'We are working now.',exp:'"Now" → continuo: We are working.'},
-      {type:'write',q:'Completa (hábito): He always ___ (drive) carefully.',a:'drives',exp:'"Always" → hábito → simple. 3ª persona → drives.'},
-      {type:'choice',q:'Why ___ you wearing a coat? It\'s hot today!',opts:['do','are','is'],a:'are',exp:'"Wearing" → continuo → "are you wearing". Acción visible ahora.'},
-      {type:'write',q:'Completa (hábito): I usually ___ (eat) a sandwich for lunch.',a:'eat',exp:'"Usually" → hábito → simple. I → eat (sin -s).'},
-      {type:'order',q:'Ordena la frase:',words:['shower.','is','She','in','singing','the'],a:'She is singing in the shower.',exp:'"Is singing" → acción en progreso en este momento.'},
-      {type:'choice',q:'I ___ this song. It\'s amazing! (love)',opts:['am loving','loves','love'],a:'love',exp:'"Love" es verbo de estado → NUNCA en continuo → "I love".'},
-      {type:'write',q:'Completa: Tom usually ___ (walk) to school but today he ___ (take) the bus.',a:'walks is taking',exp:'"Usually" → simple. "Today" → excepción → continuo.'},
-      {type:'choice',q:'Cats ___ fish. It\'s their natural instinct.',opts:['are liking','likes','like'],a:'like',exp:'Verdad general + verbo de estado → simple. They + like.'},
-      {type:'order',q:'Ordena la frase:',words:['right','is','She','now.','studying'],a:'She is studying right now.',exp:'"Right now" → continuo: She is studying.'},
-      {type:'choice',q:'A: "What ___ you do?" B: "I\'m a teacher." / A: "What ___ you doing now?" B: "I\'m correcting papers."',opts:['do / are','are / do','does / are'],a:'do / are',exp:'"What do you do?" = profesión (simple). "What are you doing?" = ahora (continuo).'},
+      {type:'choice',q:'My flat is ___ the first floor.',opts:['in','on','at'],a:'on',exp:'Pisos de un edificio → ON.'},
+      {type:'choice',q:'We go to the beach ___ the summer.',opts:['on','in','at'],a:'in',exp:'Estaciones del año → IN.'},
+      {type:'choice',q:'Peter was born ___ 1998.',opts:['in','at','on'],a:'in',exp:'Años → IN.'},
+      {type:'choice',q:'She gets up ___ 7 o\'clock.',opts:['in','on','at'],a:'at',exp:'Horas exactas → AT.'},
+      {type:'choice',q:'We have a meeting ___ Monday.',opts:['in','on','at'],a:'on',exp:'Días de la semana → ON.'},
+      {type:'write',q:'Completa: My birthday is ___ June.',a:'in',exp:'Meses → IN.'},
+      {type:'write',q:'Completa: He is ___ home right now.',a:'at',exp:'"At home" es una expresión fija.'},
+      {type:'order',q:'Ordena:',words:['the','keys','are','table.','on','The'],a:'The keys are on the table.',exp:'Superficie → ON.'},
+      {type:'choice',q:'The bank is ___ the chemist\'s and the post office.',opts:['next to','between','opposite'],a:'between',exp:'Entre dos cosas = between.'},
+      {type:'write',q:'Completa: I will see you ___ the weekend.',a:'at',exp:'"At the weekend" (UK).'}
     ]
   },
 
-  // ─────────────────────────────────────────────────
-  numbers:{
-    id:'numbers', title:'Números, Plural y Fechas', icon:'hash', color:'#D69E2E',
+  // 8. Imperatives
+  imperatives: {
+    id:'imperatives', title:'Orders & Requests: Imperatives', icon:'megaphone', color:'#38B2AC',
     theory:`
-      <h3>Números cardinales y ordinales</h3>
-      <p>Los números en inglés tienen reglas propias. Dominarlos te permite hablar de fechas, edades, precios, direcciones y posiciones.</p>
+      <h3>Dar órdenes, instrucciones o invitar</h3>
+      <p>El imperativo es la forma más directa del inglés. <strong>No lleva sujeto (ni I, ni You).</strong></p>
+      
       <div class="theory-grid">
-        <div class="t-box" style="border-color:#D69E2E;background:#FEFCBF">
-          <strong style="color:#78350F">Cardinales (contar)</strong>
+        <div class="t-box" style="border-color:#38B2AC;background:#E6FFFA">
+          <strong style="color:#1D4044">Afirmativo (+)</strong>
+          <small>Usa el verbo base.<br>
+          "<b>Open</b> the door." (Abre la puerta)<br>
+          "<b>Listen</b> to me." (Escúchame)<br>
+          "<b>Be</b> careful!" (Ten cuidado)</small>
+        </div>
+        <div class="t-box" style="border-color:#E53E3E;background:#FFF5F5">
+          <strong style="color:#742A2A">Negativo (-)</strong>
+          <small>Siempre usa "Don\'t".<br>
+          "<b>Don't open</b> the door." (No abras)<br>
+          "<b>Don't be</b> late." (No llegues tarde)</small>
+        </div>
+      </div>
+      <div class="tip-callout"><i data-lucide="coffee"></i>
+        <span><strong>I'd like:</strong> Para pedir cosas educadamente no usamos el imperativo (no digas "Give me water"). Usamos <strong>"I'd like"</strong> (Me gustaría).<br>
+        "<u>I'd like</u> a coffee, please."</span>
+      </div>`,
+    exercises:[
+      {type:'choice',q:'___ the window, please. It is hot.',opts:['You open','Open','Opening'],a:'Open',exp:'Imperativo afirmativo: solo el verbo.'},
+      {type:'choice',q:'___ touch that! It\'s hot!',opts:["Don't","Not","No"],a:"Don't",exp:'Imperativo negativo siempre usa "Don\'t".'},
+      {type:'choice',q:'In a restaurant: "___ a table for two, please."',opts:['I want','Give me',"I'd like"],a:"I'd like",exp:'Para pedir educadamente usamos "I\'d like".'},
+      {type:'choice',q:'___ quiet! The baby is sleeping.',opts:['Be','Are','Is'],a:'Be',exp:'Imperativo del verbo to be es "Be".'},
+      {type:'write',q:'Completa la negación: ___ forget your keys!',a:"Don't",exp:'Imperativo negativo = Don\'t.'},
+      {type:'order',q:'Ordena la instrucción:',words:['your','name','Write','here.'],a:'Write your name here.',exp:'Verbo (Write) al inicio.'},
+      {type:'order',q:'Ordena la petición:',words:['water,','like','some',"I'd",'please.'],a:"I'd like some water, please.",exp:'I\'d like + cosa + please.'},
+      {type:'write',q:'Traduce "Pásame la sal" (Pass): ___ me the salt.',a:'Pass',exp:'Solo el verbo en base.'},
+      {type:'choice',q:'___ late for the meeting tomorrow.',opts:["Don't be","Be not","Not be"],a:"Don't be",exp:'"Don\'t" + "be".'},
+      {type:'write',q:'Completa: ___ me! (¡Ayúdame!)',a:'Help',exp:'Verbo base.'}
+    ]
+  },
+
+  // 9. Can / Could
+  can_could: {
+    id:'can_could', title:'Abilities: Can / Could', icon:'shield-check', color:'#553C9A',
+    theory:`
+      <h3>Verbos Modales Básicos</h3>
+      <p>Los modales expresan habilidad o posibilidad. <strong>Nunca llevan -S y siempre van con verbo base.</strong></p>
+      <div class="theory-grid">
+        <div class="t-box" style="border-color:#553C9A;background:#F5F3FF">
+          <strong style="color:#44337A">CAN (Presente)</strong>
+          <small>Habilidad: "I <b>can</b> swim."<br>
+          Posibilidad: "It <b>can</b> be dangerous."<br>
+          Permiso informal: "<b>Can</b> I go?"<br>
+          Negativo: <b>can't</b> (cannot)</small>
+        </div>
+        <div class="t-box" style="border-color:#3182CE;background:#EBF8FF">
+          <strong style="color:#1A365D">COULD (Pasado y Cortesía)</strong>
+          <small>Habilidad pasada: "I <b>could</b> run fast."<br>
+          Petición formal/educada: "<b>Could</b> you help me, please?"<br>
+          Negativo: <b>couldn't</b></small>
+        </div>
+      </div>`,
+    exercises:[
+      {type:'choice',q:'She ___ speak three languages.',opts:['can','cans','can to'],a:'can',exp:'Los modales no llevan -s ni "to".'},
+      {type:'choice',q:'___ you pass me the salt, please? (Muy educado)',opts:['Can','Could','Do'],a:'Could',exp:'"Could" es más formal y educado que "Can".'},
+      {type:'choice',q:'I ___ swim when I was 5 years old.',opts:['can','could','can\'t'],a:'could',exp:'Habilidad en el pasado = could.'},
+      {type:'choice',q:'Sorry, I ___ come to your party tomorrow. I have to work.',opts:['don\'t can',"can't",'could'],a:"can't",exp:'Negativo presente de can es can\'t.'},
+      {type:'write',q:'Completa: ___ I use your phone?',a:'Can',exp:'Permiso informal.'},
+      {type:'order',q:'Ordena:',words:['the','He','play','can','guitar.'],a:'He can play the guitar.',exp:'Sujeto + can + verbo base.'},
+      {type:'order',q:'Ordena:',words:['you','me,','help','Could','please?'],a:'Could you help me, please?',exp:'Petición educada.'},
+      {type:'write',q:'Pasado negativo: He ___ open the door. It was locked.',a:"couldn't",exp:'could not = couldn\'t.'},
+      {type:'choice',q:'My brother ___ cook very well.',opts:['can','cans','is can'],a:'can',exp:'Sin -s, incluso en 3ª persona.'},
+      {type:'write',q:'Completa: ___ you repeat that, please? (Educado)',a:'Could',exp:'Could you repeat...'}
+    ]
+  },
+
+  // 10. Past of To Be
+  past_to_be: {
+    id:'past_to_be', title:'The Past: Was / Were', icon:'clock', color:'#C05621',
+    theory:`
+      <h3>El Pasado del Verbo To Be</h3>
+      <p>Para hablar de estados o ubicaciones en el pasado (fui, era, estuve, estaba).</p>
+      
+      <div class="theory-grid">
+        <div class="t-box" style="border-color:#C05621;background:#FFF5EB">
+          <strong style="color:#7B341E">I / He / She / It &rarr; WAS</strong>
           <small>
-            1–12: memorizar (one, two...twelve)<br>
-            13–19: + <b>teen</b> → thirteen, fourteen, <b>fifteen</b>, sixteen...<br>
-            20–90: + <b>ty</b> → twenty, thirty, <b>forty</b> ⚠️, fifty...<br>
-            100: a/one <b>hundred</b> · 1,000: a/one <b>thousand</b><br>
-            1,000,000: a/one <b>million</b><br>
-            Unir centenas: two hundred <b>and</b> fifty-five (312)
+            (+) I <b>was</b> tired yesterday.<br>
+            (-) She <b>wasn't</b> at home.<br>
+            (?) <b>Was</b> it raining?
           </small>
         </div>
-        <div class="t-box" style="border-color:#7C3AED;background:#F5F3FF">
-          <strong style="color:#4C1D95">Ordinales (posición)</strong>
+        <div class="t-box" style="border-color:#38A169;background:#F0FFF4">
+          <strong style="color:#1C4532">You / We / They &rarr; WERE</strong>
           <small>
-            1st <b>first</b> · 2nd <b>second</b> · 3rd <b>third</b><br>
-            4th fourth · 5th <b>fifth</b> ⚠️ · 8th <b>eighth</b> ⚠️ · 9th <b>ninth</b> ⚠️<br>
-            12th <b>twelfth</b> ⚠️ · 20th <b>twentieth</b> · 30th <b>thirtieth</b><br>
-            21st twenty-<b>first</b> · 22nd twenty-<b>second</b> · 23rd twenty-<b>third</b>
+            (+) We <b>were</b> happy.<br>
+            (-) They <b>weren't</b> ready.<br>
+            (?) <b>Were</b> you at the party?
           </small>
         </div>
       </div>
-      <h3 style="margin-top:20px">Plural de los sustantivos</h3>
+      <div class="tip-callout"><i data-lucide="info"></i>
+        <span><strong>Born:</strong> Para decir cuándo o dónde naciste, siempre usamos "was/were born".<br>
+        "I <u>was born</u> in 1990." (No se dice "I born").</span>
+      </div>`,
+    exercises:[
+      {type:'choice',q:'I ___ very tired last night.',opts:['were','was','am'],a:'was',exp:'Para "I", el pasado es "was".'},
+      {type:'choice',q:'Where ___ you yesterday?',opts:['was','were','are'],a:'were',exp:'Para "You", siempre usamos "were".'},
+      {type:'choice',q:'They ___ at school because it was Sunday.',opts:["wasn't","weren't","aren't"],a:"weren't",exp:'Negativo plural en pasado = weren\'t.'},
+      {type:'choice',q:'I ___ born in Colombia.',opts:['was','am','were'],a:'was',exp:'"I was born".'},
+      {type:'write',q:'Completa: The movie ___ very boring.',a:'was',exp:'The movie = It → was.'},
+      {type:'write',q:'Completa: ___ she at the meeting?',a:'Was',exp:'Pregunta singular → Was.'},
+      {type:'order',q:'Ordena:',words:['were','We','late','class.','for'],a:'We were late for class.',exp:'We + were + adjetivo.'},
+      {type:'order',q:'Ordena:',words:['home','yesterday.','He',"wasn't",'at'],a:"He wasn't at home yesterday.",exp:'Negativo singular = wasn\'t.'},
+      {type:'choice',q:'My parents ___ angry with me.',opts:['was','were','is'],a:'were',exp:'My parents = They → were.'},
+      {type:'write',q:'Completa: What time ___ the party?',a:'was',exp:'The party = It → was.'}
+    ]
+  },
+
+  // 11. Past Simple
+  past_simple: {
+    id:'past_simple', title:'Telling Stories: Past Simple', icon:'history', color:'#D97706',
+    theory:`
+      <h3>Acciones Terminadas</h3>
+      <p>Describe eventos que empezaron y terminaron en el pasado.</p>
+      
       <div class="theory-grid">
-        <div class="t-box" style="border-color:#059669;background:#ECFDF5">
-          <strong style="color:#064E3B">Plurales regulares</strong>
+        <div class="t-box" style="border-color:#D97706;background:#FFFBEB">
+          <strong style="color:#78350F">Afirmativo (+)</strong>
           <small>
-            Normal: + s → books, cars, tables, students<br>
-            -ch/-sh/-x/-s/-o: + es → watches, boxes, buses, tomatoes<br>
-            Consonante+y → ies: city→<b>cities</b>, party→<b>parties</b>, baby→<b>babies</b><br>
-            -f/-fe → ves: wife→<b>wives</b>, leaf→<b>leaves</b>, knife→<b>knives</b>
+            <b>Regulares:</b> + ED (walk &rarr; walked).<br>
+            <b>Irregulares:</b> cambian (go &rarr; went, see &rarr; saw, have &rarr; had).
           </small>
         </div>
         <div class="t-box" style="border-color:#E53E3E;background:#FFF5F5">
-          <strong style="color:#742A2A">Plurales irregulares — memorizar</strong>
+          <strong style="color:#742A2A">Negativo (-) e Interrogativo (?)</strong>
           <small>
-            man→<b>men</b> · woman→<b>women</b> · child→<b>children</b><br>
-            person→<b>people</b> · tooth→<b>teeth</b> · foot→<b>feet</b><br>
-            mouse→<b>mice</b> · goose→<b>geese</b> · ox→<b>oxen</b><br>
-            Sin cambio: fish · sheep · deer · series · species
+            ¡El verbo principal vuelve a su forma BASE!<br>
+            (-) Sujeto + <b>didn't</b> + verbo base.<br>
+            <em>"I didn't go." (No fui)</em><br>
+            (?) <b>Did</b> + sujeto + verbo base?<br>
+            <em>"Did you eat?" (¿Comiste?)</em>
           </small>
         </div>
-      </div>
-      <div class="tip-callout"><i data-lucide="lightbulb"></i>
-        <span><strong>Fechas:</strong> Se escriben "10th June" pero se dicen "the tenth of June". Años: 1990 = "nineteen ninety". 2000 = "two thousand". 2024 = "twenty twenty-four".</span>
       </div>`,
     exercises:[
-      {type:'choice',q:'Selecciona el ordinal de 20:',opts:['twentieth','twentyth','twentith'],a:'twentieth',exp:'20th → twentieth. Las decenas: twenty→twentieth.'},
-      {type:'choice',q:'El ordinal de 5 es:',opts:['fiveth','fifth','fifeth'],a:'fifth',exp:'"Fifth" — el 5 tiene forma irregular.'},
-      {type:'choice',q:'El plural de "child" es:',opts:['childs','childrens','children'],a:'children',exp:'"Children" — plural completamente irregular de "child".'},
-      {type:'choice',q:'80 se escribe:',opts:['eighteen','eighty','eigty'],a:'eighty',exp:'"Eighty" — la ortografía correcta de 80.'},
-      {type:'choice',q:'El plural de "city" es:',opts:['citys','cities','cityes'],a:'cities',exp:'"city" → consonante+y → cities (y→ies).'},
-      {type:'choice',q:'El plural de "wife" es:',opts:['wifes','wives','wife'],a:'wives',exp:'"wife" → -fe → ves → "wives".'},
-      {type:'choice',q:'El número 1,000,000 se dice:',opts:['one million','one millions','a thousands'],a:'one million',exp:'"One million" — invariable, sin -s.'},
-      {type:'choice',q:'El plural de "tooth" es:',opts:['tooths','toothes','teeth'],a:'teeth',exp:'"Teeth" — plural irregular de "tooth".'},
-      {type:'write',q:'Escribe el número en inglés: 15',a:'fifteen',exp:'"Fifteen" — uno de los -teen irregulares.'},
-      {type:'write',q:'Escribe el número en inglés: 40',a:'forty',exp:'"Forty" — SIN la "u" de four. ¡Excepción importante!'},
-      {type:'write',q:'Escribe el ordinal de 12:',a:'twelfth',exp:'"Twelfth" — forma muy irregular, hay que memorizarla.'},
-      {type:'write',q:'Escribe el número 100:',a:'one hundred',exp:'"One hundred" / "a hundred" — ambas son correctas.'},
-      {type:'write',q:'Plural: one man → two ___',a:'men',exp:'"Men" — plural irregular de "man".'},
-      {type:'write',q:'Plural: one mouse → three ___',a:'mice',exp:'"Mice" — plural irregular de "mouse".'},
-      {type:'write',q:'Escribe el número 50:',a:'fifty',exp:'"Fifty" — cincuenta.'},
-      {type:'order',q:'Forma el número 102:',words:['two','a','hundred','and'],a:'a hundred and two',exp:'102 = "a hundred and two". Usar "and" para unir.'},
-      {type:'order',q:'Forma 2,500,000:',words:['million','two','hundred','five','thousand'],a:'two million five hundred thousand',exp:'2,500,000 = "two million five hundred thousand".'},
-      {type:'order',q:'Forma el ordinal 21st:',words:['first','twenty-'],a:'twenty-first',exp:'21st = "twenty-first". Las unidades mantienen su ordinal.'},
-      {type:'choice',q:'El plural de "sheep" es:',opts:['sheeps','sheepies','sheep'],a:'sheep',exp:'"Sheep" es invariable. Singular y plural son iguales.'},
-      {type:'write',q:'Escribe en inglés: 312',a:'three hundred and twelve',exp:'"Three hundred and twelve" — centena + and + decena.'},
+      {type:'choice',q:'She ___ to London last year.',opts:['goes','went','go'],a:'went',exp:'"go" es irregular → went.'},
+      {type:'choice',q:'I ___ breakfast this morning.',opts:["don't have","didn't have","didn't had"],a:"didn't have",exp:'didn\'t + verbo base.'},
+      {type:'choice',q:'___ you see that film last night?',opts:['Do','Did','Were'],a:'Did',exp:'Pregunta en pasado = Did + sujeto + verbo base.'},
+      {type:'write',q:'Escribe el pasado: We ___ (study) hard.',a:'studied',exp:'consonante+y → ied.'},
+      {type:'write',q:'Escribe el pasado: They ___ (play) tennis.',a:'played',exp:'vocal+y → solo añade ed.'},
+      {type:'order',q:'Ordena:',words:['to','yesterday.','walked','school','She'],a:'She walked to school yesterday.',exp:'Sujeto + verbo-ed.'},
+      {type:'order',q:'Ordena:',words:["didn't","He","Friday.","work","last"],a:"He didn't work last Friday.",exp:'didn\'t + verbo base.'},
+      {type:'choice',q:'They ___ the match yesterday.',opts:['win','won','wined'],a:'won',exp:'win es irregular → won.'},
+      {type:'write',q:'Pregunta: "___ she call you?"',a:'Did',exp:'Did + she + call.'},
+      {type:'write',q:'Pasado irregular de buy: I ___ a car.',a:'bought',exp:'buy → bought.'}
     ]
   },
+
+  // 12. Future: Going To
+  future_going_to: {
+    id:'future_going_to', title:'Future Plans: Going to', icon:'calendar', color:'#38B2AC',
+    theory:`
+      <h3>Planes e Intenciones</h3>
+      <p>Usamos <strong>Be + Going To</strong> para hablar de cosas que ya hemos decidido hacer en el futuro, o cosas que es evidente que van a pasar.</p>
+      
+      <div class="theory-grid">
+        <div class="t-box" style="border-color:#38B2AC;background:#E6FFFA">
+          <strong style="color:#1D4044">Estructura</strong>
+          <small>
+            Sujeto + <b>am/is/are</b> + <b>going to</b> + verbo base.<br><br>
+            (+) I <b>am going to</b> travel.<br>
+            (-) She <b>isn't going to</b> work.<br>
+            (?) <b>Are</b> they <b>going to</b> come?
+          </small>
+        </div>
+        <div class="t-box" style="border-color:#3182CE;background:#EBF8FF">
+          <strong style="color:#1A365D">Usos principales</strong>
+          <small>
+            <b>1. Planes previos:</b> "We are going to buy a house." (Ya lo hablamos).<br>
+            <b>2. Evidencia:</b> "Look at those black clouds. It is going to rain." (Lo estoy viendo).
+          </small>
+        </div>
+      </div>`,
+    exercises:[
+      {type:'choice',q:'I ___ visit Colombia next year. I have the tickets.',opts:['am going to','go to','will'],a:'am going to',exp:'Plan ya decidido (tengo los tickets) = am going to.'},
+      {type:'choice',q:'Look at the sky! It ___.',opts:['is raining','is going to rain','rains'],a:'is going to rain',exp:'Evidencia visible (el cielo) de algo que va a pasar = is going to.'},
+      {type:'choice',q:'___ you going to watch the match tonight?',opts:['Do','Are','Will'],a:'Are',exp:'Estructura de pregunta: Are + sujeto + going to.'},
+      {type:'write',q:'Completa la negación: She ___ going to come to the party.',a:"isn't",exp:'is not = isn\'t.'},
+      {type:'order',q:'Ordena:',words:["I'm","to","buy","a","going","car."],a:"I'm going to buy a car.",exp:'I\'m going to + verbo.'},
+      {type:'order',q:'Ordena:',words:["They're","going","Spain.","to","visit"],a:"They're going to visit Spain.",exp:'They\'re going to + verbo.'},
+      {type:'choice',q:'We ___ not going to sell our house.',opts:['are','do','is'],a:'are',exp:'We + are.'},
+      {type:'write',q:'Completa: What are you ___ to do?',a:'going',exp:'are you going to...'},
+      {type:'write',q:'Completa con To Be: He ___ going to study law.',a:'is',exp:'He is going to...'},
+      {type:'choice',q:'My sister ___ have a baby! The doctor confirmed it.',opts:['will','is going to','goes to'],a:'is going to',exp:'Hecho confirmado/planeado = is going to.'}
+    ]
+  },
+
+  // ==================== NIVEL A2 (Placeholder Models) ==================== //
+  
+  comparisons: {
+    id:'comparisons', title:'Advanced Comparisons', icon:'bar-chart', color:'#3182CE',
+    theory:`
+      <h3>Comparatives & Superlatives</h3>
+      <p>Reglas A2 para comparar.</p>
+      <div class="theory-grid">
+        <div class="t-box">
+          <strong>Comparativos (2 cosas)</strong>
+          <small>Cortos: +er + than (taller than)<br>Largos: more + adj + than (more beautiful than)<br>Excep: better, worse, further.</small>
+        </div>
+        <div class="t-box">
+          <strong>Superlativos (El más...)</strong>
+          <small>Cortos: the + est (the tallest)<br>Largos: the most + adj (the most beautiful)<br>Excep: the best, the worst.</small>
+        </div>
+      </div>`,
+    exercises:[
+      {type:'choice',q:'My car is ___ than yours.',opts:['fast','faster','fastest'],a:'faster',exp:'Comparativo corto: +er.'},
+      {type:'choice',q:'This is ___ movie I have ever seen.',opts:['the best','better','the goodest'],a:'the best',exp:'Superlativo irregular de good.'}
+    ]
+  }
+
 };
 
 // ============================================================
-// READING TEXTS — 6 textos graduados A1-A2
+// READING TEXTS — Textos graduados A1-A2
 // ============================================================
 const readingTexts = [
   {
@@ -659,19 +646,6 @@ const readingTexts = [
     id:'daily_routine', title:"Maria's Daily Routine", level:'A1', levelColor:'#059669',
     topic:'Rutina diaria', questions:6, desc:'Descripción detallada de una rutina usando presente simple y adverbios.',
     body:`My name is Maria and I am going to describe my <span class="word-hl" data-tr="rutina diaria">daily routine</span>. I <span class="word-hl" data-tr="me despierto">wake up</span> at <span class="word-hl" data-tr="las siete en punto">seven o'clock</span> every morning. First, I <span class="word-hl" data-tr="me ducho">have a shower</span> and then I <span class="word-hl" data-tr="me visto">get dressed</span>. I <span class="word-hl" data-tr="desayuno">have breakfast</span> at half past seven. I usually eat <span class="word-hl" data-tr="tostadas con mantequilla">toast and butter</span> and drink a cup of <span class="word-hl" data-tr="café negro">black coffee</span>. I leave the house at <span class="word-hl" data-tr="las ocho menos cuarto">quarter to eight</span> and I <span class="word-hl" data-tr="tomo el metro">take the underground</span> to work. I <span class="word-hl" data-tr="llego a">arrive at</span> my office at eight thirty. I work as an <span class="word-hl" data-tr="contable / contadora">accountant</span>. At <span class="word-hl" data-tr="mediodía">midday</span>, I have <span class="word-hl" data-tr="un descanso de una hora">a one-hour break</span>. I often go to a <span class="word-hl" data-tr="cafetería">café</span> near my office for <span class="word-hl" data-tr="el almuerzo">lunch</span>. I <span class="word-hl" data-tr="termino de trabajar">finish work</span> at five o'clock and I am usually home by <span class="word-hl" data-tr="las seis">six o'clock</span>. In the evening, I <span class="word-hl" data-tr="preparo la cena">cook dinner</span> and <span class="word-hl" data-tr="me relajo">relax</span>. I <span class="word-hl" data-tr="me acuesto / voy a la cama">go to bed</span> at about <span class="word-hl" data-tr="las once de la noche">eleven at night</span>.`,
-    qs:[
-      {q:'What time does Maria wake up?',opts:['At six o\'clock','At seven o\'clock','At half past seven','At quarter to eight'],a:1,exp:'"I wake up at seven o\'clock every morning."'},
-      {q:'What does Maria usually have for breakfast?',opts:['Cereal and milk','Eggs and bacon','Toast and butter with coffee','Fruit and juice'],a:2,exp:'"I usually eat toast and butter and drink a cup of black coffee."'},
-      {q:'How does Maria travel to work?',opts:['By car','By bus','On foot','She takes the underground'],a:3,exp:'"I take the underground to work."'},
-      {q:'What is Maria\'s job?',opts:['She is a nurse','She is a teacher','She is an accountant','She is an engineer'],a:2,exp:'"I work as an accountant."'},
-      {q:'How long is Maria\'s lunch break?',opts:['Thirty minutes','One hour','Two hours','Forty-five minutes'],a:1,exp:'"I have a one-hour break at midday."'},
-      {q:'What time does Maria go to bed?',opts:['At nine o\'clock','At ten o\'clock','At about eleven at night','At midnight'],a:2,exp:'"I go to bed at about eleven at night."'},
-    ]
-  },
-  {
-    id:'daily_routine', title:"Maria's Daily Routine", level:'A1', levelColor:'#059669',
-    topic:'Rutina diaria', questions:6, desc:'Descripción detallada de una rutina usando presente simple y adverbios de frecuencia.',
-    body:`My name is Maria and I am going to describe my <span class="word-hl" data-tr="rutina diaria">daily routine</span>. I <span class="word-hl" data-tr="me despierto">wake up</span> at <span class="word-hl" data-tr="las siete en punto">seven o'clock</span> every morning. First, I <span class="word-hl" data-tr="me ducho">have a shower</span> and then I <span class="word-hl" data-tr="me visto">get dressed</span>. I <span class="word-hl" data-tr="desayuno">have breakfast</span> at half past seven. I usually eat <span class="word-hl" data-tr="tostadas con mantequilla">toast and butter</span> and drink a cup of <span class="word-hl" data-tr="café negro">black coffee</span>. I leave the house at <span class="word-hl" data-tr="las ocho menos cuarto">quarter to eight</span> and I <span class="word-hl" data-tr="tomo el metro">take the underground</span> to work. I <span class="word-hl" data-tr="llego a">arrive at</span> my office at eight thirty. I work as an <span class="word-hl" data-tr="contable / contadora">accountant</span>. At <span class="word-hl" data-tr="mediodía">midday</span>, I have <span class="word-hl" data-tr="un descanso de una hora">a one-hour break</span>. I often go to a <span class="word-hl" data-tr="cafetería">café</span> near my office for <span class="word-hl" data-tr="el almuerzo">lunch</span>. I <span class="word-hl" data-tr="termino de trabajar">finish work</span> at five o'clock and I am usually home by <span class="word-hl" data-tr="las seis">six o'clock</span>. In the evening, I <span class="word-hl" data-tr="preparo la cena">cook dinner</span> and <span class="word-hl" data-tr="me relajo">relax</span>. I <span class="word-hl" data-tr="me acuesto">go to bed</span> at about <span class="word-hl" data-tr="las once de la noche">eleven at night</span>.`,
     qs:[
       {q:'What time does Maria wake up?',opts:['At six o\'clock','At seven o\'clock','At half past seven','At quarter to eight'],a:1,exp:'"I wake up at seven o\'clock every morning."'},
       {q:'What does Maria usually have for breakfast?',opts:['Cereal and milk','Eggs and bacon','Toast and butter with coffee','Fruit and juice'],a:2,exp:'"I usually eat toast and butter and drink a cup of black coffee."'},
@@ -863,10 +837,75 @@ const writingExercises = [
       },
     ]
   },
+  {
+    id:'word_order_3', title:'Sintaxis: pasado y futuro', type:'order',
+    typeLabel:'Sintaxis', typeColor:'#C05621',
+    desc:'Ordena palabras para construir frases en pasado simple y futuro.',
+    tasks:[
+      {prompt:'Forma la frase en pasado:',words:['to','yesterday.','walked','school','She'],answer:'She walked to school yesterday.',tip:'Pasado simple regular: walk → walked.'},
+      {prompt:'Forma la pregunta en pasado:',words:['you','Did','the','enjoy','party?'],answer:'Did you enjoy the party?',tip:'"Did + sujeto + verbo base + ?" No -ed después de did.'},
+      {prompt:'Forma la frase en pasado:',words:['the','They','last','won','cup','year.'],answer:'They won the cup last year.',tip:'"win" es irregular → won. "Last year" al final.'},
+      {prompt:'Forma la frase en futuro (will):',words:["I'll",'buy','a','tomorrow.','ticket'],answer:"I'll buy a ticket tomorrow.",tip:'"I\'ll + verbo base + objeto + tiempo"'},
+      {prompt:'Forma la frase (going to):',words:["She's",'to','study','going','medicine.'],answer:"She's going to study medicine.",tip:'"is going to + verbo base". Plan decidido.'},
+      {prompt:'Forma la negación en pasado:',words:["didn't",'He','work','Friday.','last'],answer:"He didn't work last Friday.",tip:'"didn\'t + verbo base". Sin -ed después de didn\'t.'},
+      {prompt:'Forma la pregunta con will:',words:['you','Will','help','me?'],answer:'Will you help me?',tip:'"Will + sujeto + verbo base + ?"'},
+    ]
+  },
+  {
+    id:'fill_gaps_mixed', title:'Completa los huecos (gramática mixta)', type:'transform',
+    typeLabel:'Gramática mixta', typeColor:'#2C7A7B',
+    desc:'Completa frases con el tiempo verbal, modal o forma gramaticalmente correcta.',
+    tasks:[
+      {prompt:'"She ___ (study) when I called her last night." → pasado continuo (was/were + ING)',answer:'was studying',tip:'"was + verbo-ING" = acción en progreso en el pasado cuando algo interrumpió.'},
+      {prompt:'"You ___ eat more vegetables. They\'re good for you." → consejo (should/must)',answer:'should',tip:'"should + verbo base". Recomendación, no obligación.'},
+      {prompt:'"I ___ very nervous before my exam yesterday." → pasado de TO BE',answer:'was',tip:'"I was" — pasado de TO BE con I.'},
+      {prompt:'"They ___ to the cinema last Saturday." → pasado negativo (go)',answer:"didn't go",tip:'"didn\'t + verbo base". "go" no cambia.'},
+      {prompt:'"___ you speak more slowly, please?" → petición muy educada',answer:'Could',tip:'"Could you...?" es más educado que "Can you...?"'},
+      {prompt:'"She ___ to the doctor tomorrow. She booked it this morning." → futuro planificado (go)',answer:'is going to go',tip:'Cita ya reservada → plan decidido → going to.'},
+    ]
+  },
+  {
+    id:'free_writing_email', title:'Escribe un email informal', type:'free',
+    typeLabel:'Escritura libre', typeColor:'#2C7A7B',
+    desc:'Practica la escritura de un email informal en inglés a un amigo/a.',
+    tasks:[
+      {
+        prompt:'Escribe un email informal a un amigo/a de habla inglesa. Cuéntale: cómo estás, qué hiciste el fin de semana pasado (pasado simple) y qué planes tienes para las próximas vacaciones (going to / will). Mínimo 40 palabras.',
+        hint:"Hi [name]! How are you? / Last weekend, I... / I went to... / I saw... / Next holidays, I'm going to... / I'll... / I can't wait!",
+        minWords:40,
+        example:"Hi David!\n\nHow are you? I'm great, thanks!\n\nLast weekend was fantastic. I went to a concert in the city with my friends. We had a great time!\n\nFor the next holidays, I'm going to visit my grandparents in the countryside. I'll also try to learn to cook some new recipes. I can't wait!\n\nSee you soon!\nCarlos"
+      },
+      {
+        prompt:'"What did you do yesterday?" Escribe tu respuesta detallada. Usa pasado simple con al menos 5 verbos diferentes (go, have, meet, study, watch, cook, etc.).',
+        hint:'Yesterday, I woke up at... / Then I... / After that, I... / In the afternoon, I... / In the evening, I...',
+        minWords:35,
+        example:"Yesterday was a busy day! I woke up early at six o'clock. First, I had a shower and ate breakfast. Then I went to university and studied for three hours. After lunch, I met my friend Ana at a café. In the evening, I cooked dinner and watched a film. I went to bed at eleven. It was a great day!"
+      },
+    ]
+  },
+  {
+    id:'free_writing_opinion', title:'Expresa tu opinión', type:'free',
+    typeLabel:'Escritura libre', typeColor:'#553C9A',
+    desc:'Expresa tu opinión sobre temas cotidianos usando estructuras de opinión en inglés.',
+    tasks:[
+      {
+        prompt:'¿Crees que la tecnología es buena o mala para los jóvenes? Da tu opinión con al menos 3 argumentos. Usa: "I think / I believe / In my opinion / However / For example". Mínimo 45 palabras.',
+        hint:'I think / I believe / In my opinion... · On the one hand... / On the other hand... · However... · For example... · In conclusion...',
+        minWords:45,
+        example:"In my opinion, technology is very useful for young people, but we need to use it carefully. On the one hand, the internet helps us study and learn new things. For example, I use YouTube to practise my English. On the other hand, some people spend too much time on social media. I think we should use technology for a limited time every day. In conclusion, technology is good if we use it wisely."
+      },
+      {
+        prompt:'¿Cuál es tu deporte o actividad favorita? Descríbela y explica por qué te gusta. ¿Cuándo y dónde la practicas? Usa: can, should, love, always, usually. Mínimo 40 palabras.',
+        hint:'My favourite sport/activity is... · I play/do/practise it... · I started... years ago. · I love it because... · It helps me to... · I usually play/do it...',
+        minWords:40,
+        example:"My favourite sport is football. I have played it since I was six years old. I usually play with my friends on Saturday afternoons at the park near my house. I love football because it is exciting and it keeps me fit. It also helps me make new friends. I think everyone should play a sport — it is great for your health!"
+      },
+    ]
+  }
 ];
 
 // ============================================================
-// VOCABULARY TOPICS — 8 temas completos
+// VOCABULARY TOPICS
 // ============================================================
 const vocabTopics = [
   {
@@ -1125,290 +1164,3 @@ const vocabTopics = [
     ]
   },
 ];
-
-// ============================================================
-// NUEVOS MÓDULOS DE GRAMÁTICA — Expansión v3.1
-// ============================================================
-Object.assign(modulesData, {
-
-  past_simple:{
-    id:'past_simple', title:'Pasado Simple', icon:'clock', color:'#C05621',
-    theory:`
-      <h3>Pasado Simple — Acciones terminadas</h3>
-      <p>El <strong>pasado simple</strong> describe acciones que comenzaron y terminaron en el pasado. Es el tiempo narrativo por excelencia del inglés.</p>
-      <div class="theory-grid">
-        <div class="t-box" style="border-color:#C05621;background:#FFF5EB">
-          <strong style="color:#7B341E">Verbos REGULARES → + ED</strong>
-          <small>
-            walk → walk<b>ed</b> · play → play<b>ed</b> · work → work<b>ed</b><br>
-            live → liv<b>ed</b> (termina en -e, solo +d)<br>
-            study → studi<b>ed</b> (consonante+y → ied)<br>
-            stop → stop<b>ped</b> (CVC corta: doble consonante)<br>
-            "I <u>worked</u> yesterday." / "She <u>played</u> tennis."
-          </small>
-        </div>
-        <div class="t-box" style="border-color:#E53E3E;background:#FFF5F5">
-          <strong style="color:#742A2A">Verbos IRREGULARES — memorizar</strong>
-          <small>
-            go→<b>went</b> · have→<b>had</b> · see→<b>saw</b> · come→<b>came</b><br>
-            get→<b>got</b> · make→<b>made</b> · take→<b>took</b> · give→<b>gave</b><br>
-            say→<b>said</b> · know→<b>knew</b> · think→<b>thought</b> · buy→<b>bought</b><br>
-            eat→<b>ate</b> · write→<b>wrote</b> · win→<b>won</b> · lose→<b>lost</b><br>
-            be→<b>was/were</b> · do→<b>did</b> · read→<b>read</b> (pronunciación cambia)
-          </small>
-        </div>
-        <div class="t-box" style="border-color:#3182CE;background:#EBF8FF">
-          <strong style="color:#1A365D">Negativo e interrogativo</strong>
-          <small>
-            Negativo: Sujeto + <b>didn't</b> + verbo BASE<br>
-            "She <u>didn't go</u> to school yesterday."<br>
-            Pregunta: <b>Did</b> + sujeto + verbo BASE?<br>
-            "<u>Did</u> you see the film?" — "Yes, I did. / No, I didn't."<br>
-            ⚠️ Con did/didn't el verbo va en <b>base</b> (no -ed, no -s)
-          </small>
-        </div>
-      </div>
-      <div class="example-block">
-        <div class="ex-row"><div class="ex-en">I <u>visited</u> my grandmother last Sunday.</div><div class="ex-es">Visité a mi abuela el domingo pasado.</div></div>
-        <div class="ex-row"><div class="ex-en">She <u>didn't eat</u> breakfast this morning.</div><div class="ex-es">Ella no desayunó esta mañana.</div></div>
-        <div class="ex-row"><div class="ex-en"><u>Did</u> they <u>go</u> to the party? — Yes, they did.</div><div class="ex-es">¿Fueron a la fiesta? — Sí, fueron.</div></div>
-        <div class="ex-row"><div class="ex-en">He <u>was</u> tired so he <u>went</u> to bed early.</div><div class="ex-es">Estaba cansado así que se fue a la cama temprano.</div></div>
-      </div>
-      <div class="tip-callout"><i data-lucide="lightbulb"></i>
-        <span><strong>Señales de tiempo:</strong> yesterday, last night/week/year/Monday, ago (two days ago), in 2010, this morning (si ya pasó), when I was young, once upon a time, in the end.</span>
-      </div>`,
-    exercises:[
-      {type:'choice',q:'She ___ to London last year.',opts:['goes','went','go'],a:'went',exp:'"go" es irregular → went. "Last year" → pasado.'},
-      {type:'choice',q:'I ___ breakfast this morning. I was late.',opts:["don't have","didn't have","hadn't"],a:"didn't have",exp:'Negativo pasado: "didn\'t + verbo base (have)".'},
-      {type:'choice',q:'___ you see that film last night?',opts:['Do','Did','Were'],a:'Did',exp:'Pregunta pasado: "Did + sujeto + verbo base?"'},
-      {type:'choice',q:'They ___ very happy when they heard the news.',opts:['are','were','was'],a:'were',exp:'"They" → "were" en pasado de TO BE.'},
-      {type:'choice',q:'He ___ his keys yesterday morning.',opts:['looses','lost','lose'],a:'lost',exp:'"lose" es irregular → pasado: lost.'},
-      {type:'choice',q:'We ___ a great holiday in Cartagena last summer.',opts:['have','had','has'],a:'had',exp:'"have" es irregular → pasado: had.'},
-      {type:'choice',q:'She ___ not come to the party. She was ill.',opts:['did','didn\'t','doesn\'t'],a:"didn't",exp:'Negativo pasado: "didn\'t + verbo base (come)".'},
-      {type:'choice',q:'___ he call you yesterday?',opts:['Does','Did','Was'],a:'Did',exp:'Pregunta pasado: "Did + sujeto + verbo base?"'},
-      {type:'write',q:'Escribe el pasado: She ___ (study) for three hours last night.',a:'studied',exp:'"study" → consonante+y → studied.'},
-      {type:'write',q:'Escribe el pasado: They ___ (go) to the beach last weekend.',a:'went',exp:'"go" es irregular → went.'},
-      {type:'write',q:'Negativo: "He worked yesterday." → "He ___ yesterday."',a:"didn't work",exp:'"didn\'t + verbo base". Sin -ed en negaciones.'},
-      {type:'write',q:'Pregunta: "___ she call you?" (Did/Does)',a:'Did',exp:'"Did she call?" — pregunta en pasado.'},
-      {type:'write',q:'Escribe el pasado: I ___ (buy) a new phone two days ago.',a:'bought',exp:'"buy" es irregular → bought.'},
-      {type:'write',q:'Escribe el pasado: We ___ (visit) our grandparents last Sunday.',a:'visited',exp:'"visit" es regular → visited.'},
-      {type:'order',q:'Ordena la frase:',words:['to','yesterday.','walked','school','She'],a:'She walked to school yesterday.',exp:'"walked" → pasado regular. "Yesterday" al final.'},
-      {type:'order',q:'Ordena la negación:',words:["didn't","He","last","work","Friday."],a:"He didn't work last Friday.",exp:'"didn\'t + verbo base". "Last Friday" al final.'},
-      {type:'order',q:'Ordena la pregunta:',words:['you','Did','the','enjoy','party?'],a:'Did you enjoy the party?',exp:'"Did + sujeto + verbo base + ?"'},
-      {type:'order',q:'Ordena la frase:',words:['the','They','won','match.'],a:'They won the match.',exp:'"win" es irregular → won.'},
-      {type:'choice',q:'Last night I ___ a book and then ___ to sleep.',opts:['read / went','reads / go','read / go'],a:'read / went',exp:'"read" (pasado = read) + "go" → went. Ambos irregulares.'},
-      {type:'write',q:'Completa: When I was young, I ___ (live) in a small village.',a:'lived',exp:'"live" → regular → lived. "When I was young" = pasado.'},
-    ]
-  },
-
-  future_will:{
-    id:'future_will', title:'Futuro: Will y Going To', icon:'chevrons-right', color:'#2C7A7B',
-    theory:`
-      <h3>Hablar del futuro en inglés</h3>
-      <p>En inglés hay dos formas principales de hablar del futuro: <strong>WILL</strong> y <strong>BE GOING TO</strong>. Tienen usos claramente distintos.</p>
-      <div class="theory-grid">
-        <div class="t-box" style="border-color:#2C7A7B;background:#E6FFFA">
-          <strong style="color:#1D4044">WILL — decisiones espontáneas / predicciones</strong>
-          <small>
-            Estructura: Sujeto + <b>will</b> + verbo base<br>
-            Formas cortas: I<b>'ll</b> · You'll · He'll · She'll · We'll · They'll<br>
-            Negativo: <b>won't</b> (will not)<br>
-            1. Decisión en el momento: "I'll get some water." (ahora lo decido)<br>
-            2. Predicción general: "I think it will rain tomorrow."<br>
-            3. Promesas / ofertas: "I'll help you with that."
-          </small>
-        </div>
-        <div class="t-box" style="border-color:#7C3AED;background:#F5F3FF">
-          <strong style="color:#4C1D95">BE GOING TO — planes / predicciones con evidencia</strong>
-          <small>
-            Estructura: Sujeto + <b>am/is/are going to</b> + verbo base<br>
-            Neg: I'm not going to · He isn't going to<br>
-            Preg: Are you going to...? / Is she going to...?<br>
-            1. Plan previo: "I'm going to study medicine." (ya decidido)<br>
-            2. Intención: "She's going to call him tonight."<br>
-            3. Evidencia visible: "Look! It's going to rain!" (nubes negras)
-          </small>
-        </div>
-      </div>
-      <div class="example-block">
-        <div class="ex-row"><div class="ex-en">A: "The phone is ringing!" B: "I<u>'ll</u> get it!"</div><div class="ex-es">¡Lo cojo yo! — decisión espontánea → will</div></div>
-        <div class="ex-row"><div class="ex-en">I<u>'m going to</u> visit Colombia next summer.</div><div class="ex-es">Voy a visitar Colombia. — plan ya decidido</div></div>
-        <div class="ex-row"><div class="ex-en">Look at those clouds! It<u>'s going to</u> rain!</div><div class="ex-es">¡Va a llover! — evidencia visual → going to</div></div>
-        <div class="ex-row"><div class="ex-en">I think she<u>'ll</u> pass the exam. She's very smart.</div><div class="ex-es">Creo que aprobará — predicción → will</div></div>
-      </div>
-      <div class="tip-callout"><i data-lucide="lightbulb"></i>
-        <span><strong>Truco:</strong> ¿Ya lo tenías planeado? → going to. ¿Lo decides ahora mismo? → will. ¿Hay evidencia delante de ti? → going to. ¿Es predicción general? → will.</span>
-      </div>`,
-    exercises:[
-      {type:'choice',q:'A: "We have no milk." B: "Don\'t worry, I ___ buy some."',opts:['am going to','will','am'],a:'will',exp:'Decisión espontánea en el momento → will.'},
-      {type:'choice',q:'She ___ study medicine next year. She already enrolled.',opts:['will','is going to','goes to'],a:'is going to',exp:'Plan decidido con antelación → going to.'},
-      {type:'choice',q:'Look at those clouds! It ___ rain!',opts:['will','is going to','goes to'],a:'is going to',exp:'Evidencia visible (nubes) → going to.'},
-      {type:'choice',q:'I think Barcelona ___ win the match tonight.',opts:['is going to','goes','will'],a:'will',exp:'Predicción general sin evidencia inmediata → will.'},
-      {type:'choice',q:'___ you help me with this, please?',opts:['Are you going to','Will','Do'],a:'Will',exp:'Petición / oferta → will. "Will you help me?"'},
-      {type:'choice',q:'We ___ not go to the party. We have other plans.',opts:['will','aren\'t going to','don\'t'],a:"aren't going to",exp:'Plan negativo ya decidido → aren\'t going to.'},
-      {type:'choice',q:'"The phone is ringing!" → "I ___ answer it!"',opts:['am going to','will','am'],a:'will',exp:'Decisión espontánea, en ese momento → will.'},
-      {type:'choice',q:'They ___ get married in June. They just announced it.',opts:['will','are going to','do'],a:'are going to',exp:'Plan anunciado y decidido → are going to.'},
-      {type:'write',q:'Decisión espontánea: A: "I\'m cold." B: "I ___ close the window."',a:"I'll close",exp:'"I\'ll close" — decisión tomada ahora mismo.'},
-      {type:'write',q:'Plan decidido: She ___ (study) French next semester. She already enrolled.',a:'is going to study',exp:'Plan previo → "is going to study".'},
-      {type:'write',q:'Negación de will: "He will come." → "He ___ come."',a:"won't",exp:'"will not" → won\'t. Forma corta.'},
-      {type:'write',q:'Evidencia: He\'s eating too fast. He ___ be sick.',a:'is going to',exp:'Evidencia → is going to be sick.'},
-      {type:'write',q:'Promesa: "I promise I ___ call you tomorrow."',a:"I'll",exp:'"I\'ll call" — promesa → will.'},
-      {type:'write',q:'Pregunta: "___ she be at the meeting?" (will)',a:'Will',exp:'"Will she be at the meeting?"'},
-      {type:'order',q:'Ordena la frase:',words:["I'm","to","buy","a","going","new","car."],a:"I'm going to buy a new car.",exp:'"am going to + verbo base". Plan decidido.'},
-      {type:'order',q:'Ordena la frase:',words:["won't","He","the","forget","password."],a:"He won't forget the password.",exp:'"won\'t + verbo base". Negación de will.'},
-      {type:'order',q:'Ordena la pregunta:',words:['you','Will','help','me?'],a:'Will you help me?',exp:'"Will + sujeto + verbo base + ?"'},
-      {type:'order',q:'Ordena la frase:',words:["They're","going","Spain.","to","visit"],a:"They're going to visit Spain.",exp:'"are going to + verbo base".'},
-      {type:'choice',q:'A: "There\'s someone at the door." B: "I ___ go."',opts:['am going to','will','go'],a:'will',exp:'Decisión espontánea → will.'},
-      {type:'write',q:'Predicción: It ___ be a great party. I\'m sure! (will, forma corta)',a:"It'll",exp:'"It\'ll be" — predicción con will. Forma corta.'},
-    ]
-  },
-
-  can_could:{
-    id:'can_could', title:'Verbos Modales: Can, Could, Must, Should', icon:'shield', color:'#553C9A',
-    theory:`
-      <h3>Verbos modales — Can, Could, Must, Should</h3>
-      <p>Los <strong>verbos modales</strong> expresan habilidad, posibilidad, obligación o consejo. Son invariables y van seguidos siempre de <strong>verbo en base</strong>.</p>
-      <div class="theory-grid">
-        <div class="t-box" style="border-color:#553C9A;background:#F5F3FF">
-          <strong style="color:#44337A">CAN — habilidad / permiso / posibilidad</strong>
-          <small>
-            Estructura: Sujeto + <b>can</b> + verbo base (nunca +s ni +to)<br>
-            Neg: <b>can't / cannot</b> · Preg: <b>Can</b> + sujeto + verbo?<br>
-            "She <u>can</u> speak three languages." (habilidad)<br>
-            "<u>Can</u> I open the window?" (permiso)<br>
-            "It <u>can</u> get very cold here." (posibilidad general)
-          </small>
-        </div>
-        <div class="t-box" style="border-color:#3182CE;background:#EBF8FF">
-          <strong style="color:#1A365D">COULD — pasado de can / petición educada</strong>
-          <small>
-            "When I was young, I <u>could</u> run very fast." (habilidad pasada)<br>
-            "<u>Could</u> you help me, please?" (más educado que can)<br>
-            "<u>Could</u> I have the menu, please?" (petición formal)<br>
-            "It <u>could</u> rain later." (posibilidad, menos seguro que will)
-          </small>
-        </div>
-        <div class="t-box" style="border-color:#C05621;background:#FFF5EB">
-          <strong style="color:#7B341E">MUST / HAVE TO — obligación fuerte</strong>
-          <small>
-            "You <u>must</u> wear a seatbelt." (obligación, regla)<br>
-            "I <u>have to</u> work tomorrow." (obligación externa)<br>
-            "You <u>mustn't</u> smoke here." (prohibición fuerte)<br>
-            "You <u>don't have to</u> come." (no es necesario ≠ prohibición)
-          </small>
-        </div>
-        <div class="t-box" style="border-color:#38A169;background:#F0FFF4">
-          <strong style="color:#1C4532">SHOULD — consejo / recomendación</strong>
-          <small>
-            "You <u>should</u> see a doctor." (consejo → deberías)<br>
-            "She <u>shouldn't</u> eat so much sugar." (recomendación neg.)<br>
-            "<u>Should</u> I call him?" (pedir consejo)<br>
-            "Students <u>should</u> study every day." (recomendación gral.)
-          </small>
-        </div>
-      </div>
-      <div class="example-block">
-        <div class="ex-row"><div class="ex-en">He <u>can</u> play the guitar really well.</div><div class="ex-es">Él sabe tocar la guitarra muy bien.</div></div>
-        <div class="ex-row"><div class="ex-en"><u>Could</u> you speak more slowly, please?</div><div class="ex-es">¿Podría hablar más despacio, por favor?</div></div>
-        <div class="ex-row"><div class="ex-en">You <u>must</u> be quiet in the library.</div><div class="ex-es">Debes guardar silencio en la biblioteca.</div></div>
-        <div class="ex-row"><div class="ex-en">You <u>should</u> drink more water every day.</div><div class="ex-es">Deberías beber más agua cada día.</div></div>
-      </div>
-      <div class="tip-callout"><i data-lucide="lightbulb"></i>
-        <span><strong>Regla de oro:</strong> Los modales NUNCA llevan -s en 3ª persona y NUNCA van seguidos de "to" (excepto "have to"). ✗ "She cans swim" → ✓ "She can swim". ✗ "He must to go" → ✓ "He must go".</span>
-      </div>`,
-    exercises:[
-      {type:'choice',q:'She ___ speak English, Spanish and French.',opts:['can to','cans','can'],a:'can',exp:'Los modales no tienen -s: "she can" (no "cans"). Nunca +to.'},
-      {type:'choice',q:'___ I use your phone? Mine is out of battery.',opts:['Could','Should','Must'],a:'Could',exp:'"Could I...?" — petición educada de permiso.'},
-      {type:'choice',q:'You ___ wear a helmet when you ride a bike. It\'s the law.',opts:['should','could','must'],a:'must',exp:'"Must" — obligación legal / fuerte.'},
-      {type:'choice',q:'You look tired. You ___ go to bed earlier.',opts:['must','should','can'],a:'should',exp:'"Should" — consejo o recomendación.'},
-      {type:'choice',q:'When I was five, I ___ read already.',opts:['can','could','should'],a:'could',exp:'"Could" — habilidad en el pasado.'},
-      {type:'choice',q:'You ___ smoke in this restaurant. It\'s not allowed.',opts:["shouldn't","mustn't","couldn't"],a:"mustn't",exp:'"Mustn\'t" — prohibición fuerte (regla, ley).'},
-      {type:'choice',q:'You ___ come to the party. It\'s optional, not compulsory.',opts:["mustn't","shouldn't","don't have to"],a:"don't have to",exp:'"Don\'t have to" = no es necesario (no es prohibición).'},
-      {type:'choice',q:'___ you help me carry these bags?',opts:['Should','Could','Must'],a:'Could',exp:'"Could you...?" — petición educada de ayuda.'},
-      {type:'write',q:'Completa: I ___ swim very well. I love the pool.',a:'can',exp:'"Can" = habilidad presente.'},
-      {type:'write',q:'Consejo: "You look sick. You ___ see a doctor."',a:'should',exp:'"Should" = consejo. Forma invariable.'},
-      {type:'write',q:'Completa: She ___ drive yet. She\'s only 15.',a:"can't",exp:'"Can\'t" = no tiene la habilidad.'},
-      {type:'write',q:'Obligación: "All passengers ___ fasten their seatbelts."',a:'must',exp:'"Must" = obligación fuerte, instrucción de seguridad.'},
-      {type:'write',q:'Petición educada: "___ you open the door for me, please?"',a:'Could',exp:'"Could you...?" — más educado que "Can you...?"'},
-      {type:'write',q:'Completa: When I was a child, I ___ stay up late on weekends.',a:'could',exp:'"Could" = permiso o habilidad en el pasado.'},
-      {type:'order',q:'Ordena la frase:',words:['play','He','piano.','can','the'],a:'He can play the piano.',exp:'"Can + verbo base". Sin -s en el verbo principal.'},
-      {type:'order',q:'Ordena el consejo:',words:['You','exercise','more.','should'],a:'You should exercise more.',exp:'"Should + verbo base". Recomendación.'},
-      {type:'order',q:'Ordena la prohibición:',words:['here.','You',"mustn't",'park'],a:"You mustn't park here.",exp:'"Mustn\'t + verbo base". Prohibición.'},
-      {type:'order',q:'Ordena la pregunta:',words:['I','window?','open','Can','the'],a:'Can I open the window?',exp:'"Can + sujeto + verbo base?" — permiso.'},
-      {type:'choice',q:'___ you speak louder, please? I can\'t hear you.',opts:['Should','Must','Could'],a:'Could',exp:'"Could you...?" — petición cortés y educada.'},
-      {type:'write',q:'Completa: You ___ forget your passport. It\'s essential! (prohibición)',a:"mustn't",exp:'"Mustn\'t forget" = no debes olvidarlo (obligación/prohibición).'},
-    ]
-  },
-
-});
-
-// ============================================================
-// NUEVOS EJERCICIOS DE WRITING — Expansión v3.1
-// ============================================================
-writingExercises.push(
-  {
-    id:'word_order_3', title:'Sintaxis: pasado y futuro', type:'order',
-    typeLabel:'Sintaxis', typeColor:'#C05621',
-    desc:'Ordena palabras para construir frases en pasado simple y futuro.',
-    tasks:[
-      {prompt:'Forma la frase en pasado:',words:['to','yesterday.','walked','school','She'],answer:'She walked to school yesterday.',tip:'Pasado simple regular: walk → walked.'},
-      {prompt:'Forma la pregunta en pasado:',words:['you','Did','the','enjoy','party?'],answer:'Did you enjoy the party?',tip:'"Did + sujeto + verbo base + ?" No -ed después de did.'},
-      {prompt:'Forma la frase en pasado:',words:['the','They','last','won','cup','year.'],answer:'They won the cup last year.',tip:'"win" es irregular → won. "Last year" al final.'},
-      {prompt:'Forma la frase en futuro (will):',words:["I'll",'buy','a','tomorrow.','ticket'],answer:"I'll buy a ticket tomorrow.",tip:'"I\'ll + verbo base + objeto + tiempo"'},
-      {prompt:'Forma la frase (going to):',words:["She's",'to','study','going','medicine.'],answer:"She's going to study medicine.",tip:'"is going to + verbo base". Plan decidido.'},
-      {prompt:'Forma la negación en pasado:',words:["didn't",'He','work','Friday.','last'],answer:"He didn't work last Friday.",tip:'"didn\'t + verbo base". Sin -ed después de didn\'t.'},
-      {prompt:'Forma la pregunta con will:',words:['you','Will','help','me?'],answer:'Will you help me?',tip:'"Will + sujeto + verbo base + ?"'},
-    ]
-  },
-  {
-    id:'fill_gaps_mixed', title:'Completa los huecos (gramática mixta)', type:'transform',
-    typeLabel:'Gramática mixta', typeColor:'#2C7A7B',
-    desc:'Completa frases con el tiempo verbal, modal o forma gramaticalmente correcta.',
-    tasks:[
-      {prompt:'"She ___ (study) when I called her last night." → pasado continuo (was/were + ING)',answer:'was studying',tip:'"was + verbo-ING" = acción en progreso en el pasado cuando algo interrumpió.'},
-      {prompt:'"You ___ eat more vegetables. They\'re good for you." → consejo (should/must)',answer:'should',tip:'"should + verbo base". Recomendación, no obligación.'},
-      {prompt:'"I ___ very nervous before my exam yesterday." → pasado de TO BE',answer:'was',tip:'"I was" — pasado de TO BE con I.'},
-      {prompt:'"They ___ to the cinema last Saturday." → pasado negativo (go)',answer:"didn't go",tip:'"didn\'t + verbo base". "go" no cambia.'},
-      {prompt:'"___ you speak more slowly, please?" → petición muy educada',answer:'Could',tip:'"Could you...?" es más educado que "Can you...?"'},
-      {prompt:'"She ___ to the doctor tomorrow. She booked it this morning." → futuro planificado (go)',answer:'is going to go',tip:'Cita ya reservada → plan decidido → going to.'},
-    ]
-  },
-  {
-    id:'free_writing_email', title:'Escribe un email informal', type:'free',
-    typeLabel:'Escritura libre', typeColor:'#2C7A7B',
-    desc:'Practica la escritura de un email informal en inglés a un amigo/a.',
-    tasks:[
-      {
-        prompt:'Escribe un email informal a un amigo/a de habla inglesa. Cuéntale: cómo estás, qué hiciste el fin de semana pasado (pasado simple) y qué planes tienes para las próximas vacaciones (going to / will). Mínimo 40 palabras.',
-        hint:"Hi [name]! How are you? / Last weekend, I... / I went to... / I saw... / Next holidays, I'm going to... / I'll... / I can't wait!",
-        minWords:40,
-        example:"Hi David!\n\nHow are you? I'm great, thanks!\n\nLast weekend was fantastic. I went to a concert in the city with my friends. We had a great time!\n\nFor the next holidays, I'm going to visit my grandparents in the countryside. I'll also try to learn to cook some new recipes. I can't wait!\n\nSee you soon!\nCarlos"
-      },
-      {
-        prompt:'"What did you do yesterday?" Escribe tu respuesta detallada. Usa pasado simple con al menos 5 verbos diferentes (go, have, meet, study, watch, cook, etc.).',
-        hint:'Yesterday, I woke up at... / Then I... / After that, I... / In the afternoon, I... / In the evening, I...',
-        minWords:35,
-        example:"Yesterday was a busy day! I woke up early at six o'clock. First, I had a shower and ate breakfast. Then I went to university and studied for three hours. After lunch, I met my friend Ana at a café. In the evening, I cooked dinner and watched a film. I went to bed at eleven. It was a great day!"
-      },
-    ]
-  },
-  {
-    id:'free_writing_opinion', title:'Expresa tu opinión', type:'free',
-    typeLabel:'Escritura libre', typeColor:'#553C9A',
-    desc:'Expresa tu opinión sobre temas cotidianos usando estructuras de opinión en inglés.',
-    tasks:[
-      {
-        prompt:'¿Crees que la tecnología es buena o mala para los jóvenes? Da tu opinión con al menos 3 argumentos. Usa: "I think / I believe / In my opinion / However / For example". Mínimo 45 palabras.',
-        hint:'I think / I believe / In my opinion... · On the one hand... / On the other hand... · However... · For example... · In conclusion...',
-        minWords:45,
-        example:"In my opinion, technology is very useful for young people, but we need to use it carefully. On the one hand, the internet helps us study and learn new things. For example, I use YouTube to practise my English. On the other hand, some people spend too much time on social media. I think we should use technology for a limited time every day. In conclusion, technology is good if we use it wisely."
-      },
-      {
-        prompt:'¿Cuál es tu deporte o actividad favorita? Descríbela y explica por qué te gusta. ¿Cuándo y dónde la practicas? Usa: can, should, love, always, usually. Mínimo 40 palabras.',
-        hint:'My favourite sport/activity is... · I play/do/practise it... · I started... years ago. · I love it because... · It helps me to... · I usually play/do it...',
-        minWords:40,
-        example:"My favourite sport is football. I have played it since I was six years old. I usually play with my friends on Saturday afternoons at the park near my house. I love football because it is exciting and it keeps me fit. It also helps me make new friends. I think everyone should play a sport — it is great for your health!"
-      },
-    ]
-  }
-);

@@ -4,12 +4,12 @@ import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPasswor
 import { getFirestore, doc, setDoc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSy034QWMDfcenz-qtgtNFJggyKLL3ovKQ70", // <-- Restaurado al original correcto
+  apiKey: "AIzaSyD34QWMDfcenr-qtgtNFJggyKLl3ovKO70",
   authDomain: "english-leo.firebaseapp.com",
   projectId: "english-leo",
   storageBucket: "english-leo.firebasestorage.app",
   messagingSenderId: "350962866266",
-  appId: "1:350962866266:web:3a582634913a29df136063",
+  appId: "1:350962866266:web:3e582634913a29df136063",
   measurementId: "G-6CWCTG3TSF"
 };
 

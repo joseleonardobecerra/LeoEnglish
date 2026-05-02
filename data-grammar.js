@@ -1403,3 +1403,855 @@ const modulesData = {
   }
 
 };
+// ============================================================
+// LEOENGLISH — GRAMMAR ROUTE + DIAGNOSTIC BRIDGE v5.1
+// Pegar al FINAL de data-grammar.js
+// No borra ni reemplaza módulos. Solo agrega metadatos para ruta,
+// diagnóstico, homologación y refuerzos.
+// ============================================================
+
+
+// ------------------------------------------------------------
+// 1. ALIAS DE COMPATIBILIDAD
+// ------------------------------------------------------------
+// Algunos nombres antiguos del app.js no coinciden con los IDs reales
+// del data-grammar.js v5.0. Estos alias evitan romper la ruta.
+
+const grammarIdAliases = {
+  to_be_pronouns: 'verbs',
+  articles_dem: 'articles',
+  possessives: 'pronouns',
+  future_going_to_plans: 'future_going_to',
+  future_will_going_to: 'future_will',
+  present_continuous: 'present_cont',
+  adverbs_frequency: 'frequency_adverbs',
+  like_love_hate_ing: 'likes_gerunds',
+  questions: 'questions_a1',
+  basic_questions: 'questions_a1',
+  be_have_do: 'verbs',
+  basic_modals: 'can_could',
+  comparatives: 'comparisons',
+  how_much_many: 'quantifiers'
+};
+
+function resolveGrammarId(id) {
+  if (modulesData[id]) return id;
+  if (grammarIdAliases[id] && modulesData[grammarIdAliases[id]]) {
+    return grammarIdAliases[id];
+  }
+  return id;
+}
+
+
+// ------------------------------------------------------------
+// 2. RUTA OFICIAL DE GRAMÁTICA
+// ------------------------------------------------------------
+// Esta ruta usa los IDs reales que existen en tu modulesData.
+
+const grammarLearningPath = [
+  {
+    level: 'A1',
+    title: 'A1 · Foundations',
+    description: 'Bases esenciales para comunicarse en inglés cotidiano.',
+    color: '#1D9E75',
+    requiredScore: 80,
+    homologationScore: 85,
+    modules: [
+      'articles',
+      'adjectives_demo',
+      'pronouns',
+      'verbs',
+      'present_simple',
+      'frequency_adverbs',
+      'present_cont',
+      'simple_vs_cont',
+      'there_is_are',
+      'questions_a1',
+      'prepositions',
+      'imperatives',
+      'likes_gerunds',
+      'numbers',
+      'can_could',
+      'id_like_food',
+      'past_to_be',
+      'past_simple',
+      'future_going_to',
+      'future_will'
+    ]
+  },
+  {
+    level: 'A2',
+    title: 'A2 · Expansion',
+    description: 'Consolidación de comparación, cuantificadores, narración, experiencias, obligación y condicionales.',
+    color: '#3182CE',
+    requiredScore: 80,
+    homologationScore: 85,
+    modules: [
+      'comparisons',
+      'quantifiers',
+      'past_continuous',
+      'present_perfect',
+      'future_mixed',
+      'modals_obligation',
+      'conditionals',
+      'phrasal_gerunds'
+    ]
+  }
+];
+
+
+// ------------------------------------------------------------
+// 3. MAPA DE COMPETENCIAS PARA HOMOLOGACIÓN
+// ------------------------------------------------------------
+// Cada módulo queda conectado con competencias, diagnóstico y refuerzos.
+
+const grammarModuleCompetencyMap = {
+  articles: {
+    cefr: 'A1',
+    skill: 'grammar',
+    homologationGroup: 'a1_articles',
+    diagnosticTags: ['articles', 'a_an_the', 'specific_unspecific', 'countable_singular'],
+    weaknessLabel: 'Artículos a, an y the',
+    evidence: 'Usa correctamente a/an/the en frases sobre objetos, profesiones y lugares.'
+  },
+
+  adjectives_demo: {
+    cefr: 'A1',
+    skill: 'grammar',
+    homologationGroup: 'a1_adjectives_demonstratives',
+    diagnosticTags: ['adjectives', 'demonstratives', 'this_that_these_those', 'noun_order'],
+    weaknessLabel: 'Adjetivos y demostrativos',
+    evidence: 'Describe personas, objetos y lugares usando adjetivos antes del sustantivo.'
+  },
+
+  pronouns: {
+    cefr: 'A1',
+    skill: 'grammar',
+    homologationGroup: 'a1_pronouns_possessives',
+    diagnosticTags: ['pronouns', 'subject_pronouns', 'object_pronouns', 'possessive_adjectives', 'possessive_pronouns'],
+    weaknessLabel: 'Pronombres y posesivos',
+    evidence: 'Usa pronombres personales, objetos y posesivos sin confundir función.'
+  },
+
+  verbs: {
+    cefr: 'A1',
+    skill: 'grammar',
+    homologationGroup: 'a1_be_have_do',
+    diagnosticTags: ['to_be', 'have_has', 'do_does', 'questions_negatives'],
+    weaknessLabel: 'Verbos base: be, have y do',
+    evidence: 'Forma frases afirmativas, negativas y preguntas con be, have y do.'
+  },
+
+  present_simple: {
+    cefr: 'A1',
+    skill: 'grammar',
+    homologationGroup: 'a1_present_simple',
+    diagnosticTags: ['present_simple', 'routines', 'third_person_s', 'do_does', 'negative_present'],
+    weaknessLabel: 'Presente simple',
+    evidence: 'Habla de rutinas y hábitos usando presente simple.'
+  },
+
+  frequency_adverbs: {
+    cefr: 'A1',
+    skill: 'grammar',
+    homologationGroup: 'a1_frequency_adverbs',
+    diagnosticTags: ['frequency_adverbs', 'always_usually_often_sometimes_never', 'word_order'],
+    weaknessLabel: 'Adverbios de frecuencia',
+    evidence: 'Expresa frecuencia y ubica correctamente los adverbios en la oración.'
+  },
+
+  present_cont: {
+    cefr: 'A1',
+    skill: 'grammar',
+    homologationGroup: 'a1_present_continuous',
+    diagnosticTags: ['present_continuous', 'be_ing', 'actions_now', 'ing_spelling'],
+    weaknessLabel: 'Presente continuo',
+    evidence: 'Describe acciones que están ocurriendo ahora usando be + ing.'
+  },
+
+  simple_vs_cont: {
+    cefr: 'A1',
+    skill: 'grammar',
+    homologationGroup: 'a1_simple_vs_continuous',
+    diagnosticTags: ['present_simple_vs_continuous', 'state_verbs', 'now_vs_habit'],
+    weaknessLabel: 'Presente simple vs continuo',
+    evidence: 'Diferencia hábitos de acciones en progreso.'
+  },
+
+  there_is_are: {
+    cefr: 'A1',
+    skill: 'grammar',
+    homologationGroup: 'a1_there_is_are',
+    diagnosticTags: ['there_is_are', 'singular_plural', 'existence', 'places'],
+    weaknessLabel: 'There is / There are',
+    evidence: 'Describe la existencia de objetos o lugares usando singular y plural.'
+  },
+
+  questions_a1: {
+    cefr: 'A1',
+    skill: 'grammar',
+    homologationGroup: 'a1_questions',
+    diagnosticTags: ['questions', 'wh_questions', 'yes_no_questions', 'be_do_does_did'],
+    weaknessLabel: 'Preguntas básicas',
+    evidence: 'Formula preguntas básicas con be, do, does, did y wh-words.'
+  },
+
+  prepositions: {
+    cefr: 'A1',
+    skill: 'grammar',
+    homologationGroup: 'a1_prepositions',
+    diagnosticTags: ['prepositions', 'in_on_at', 'place_prepositions', 'time_prepositions'],
+    weaknessLabel: 'Preposiciones de tiempo y lugar',
+    evidence: 'Usa in, on, at y preposiciones de lugar en contextos cotidianos.'
+  },
+
+  imperatives: {
+    cefr: 'A1',
+    skill: 'grammar',
+    homologationGroup: 'a1_imperatives',
+    diagnosticTags: ['imperatives', 'commands', 'instructions', 'dont'],
+    weaknessLabel: 'Imperativos',
+    evidence: 'Da instrucciones y reglas con imperativos positivos y negativos.'
+  },
+
+  likes_gerunds: {
+    cefr: 'A1',
+    skill: 'grammar',
+    homologationGroup: 'a1_likes_gerunds',
+    diagnosticTags: ['like_love_hate_ing', 'gerunds_basic', 'preferences'],
+    weaknessLabel: 'Like, love, hate + ing',
+    evidence: 'Expresa gustos y preferencias usando verbo + ing.'
+  },
+
+  numbers: {
+    cefr: 'A1',
+    skill: 'grammar',
+    homologationGroup: 'a1_numbers_plurals_dates',
+    diagnosticTags: ['numbers', 'ordinals', 'plurals', 'dates'],
+    weaknessLabel: 'Números, fechas y plurales',
+    evidence: 'Usa números, ordinales y plurales regulares e irregulares.'
+  },
+
+  can_could: {
+    cefr: 'A1',
+    skill: 'grammar',
+    homologationGroup: 'a1_can_could',
+    diagnosticTags: ['can_cant', 'could_couldnt', 'abilities', 'permission'],
+    weaknessLabel: 'Can, can’t, could y couldn’t',
+    evidence: 'Habla de habilidades presentes y pasadas usando modales básicos.'
+  },
+
+  id_like_food: {
+    cefr: 'A1',
+    skill: 'grammar',
+    homologationGroup: 'a1_id_like_food',
+    diagnosticTags: ['id_like', 'would_like', 'polite_requests', 'food_orders'],
+    weaknessLabel: 'I’d like y pedidos corteses',
+    evidence: 'Pide comida o productos usando I’d like y would you like.'
+  },
+
+  past_to_be: {
+    cefr: 'A1',
+    skill: 'grammar',
+    homologationGroup: 'a1_past_to_be',
+    diagnosticTags: ['was_were', 'past_to_be', 'past_states', 'past_places'],
+    weaknessLabel: 'Pasado de to be',
+    evidence: 'Habla de estados y lugares en el pasado usando was y were.'
+  },
+
+  past_simple: {
+    cefr: 'A1',
+    skill: 'grammar',
+    homologationGroup: 'a1_past_simple',
+    diagnosticTags: ['past_simple', 'regular_verbs', 'irregular_verbs', 'did_questions', 'didnt'],
+    weaknessLabel: 'Pasado simple',
+    evidence: 'Narra acciones pasadas usando verbos regulares, irregulares y did.'
+  },
+
+  future_going_to: {
+    cefr: 'A1',
+    skill: 'grammar',
+    homologationGroup: 'a1_going_to',
+    diagnosticTags: ['going_to', 'future_plans', 'intentions', 'evidence_future'],
+    weaknessLabel: 'Going to para planes',
+    evidence: 'Habla de planes e intenciones futuras usando be going to.'
+  },
+
+  future_will: {
+    cefr: 'A1',
+    skill: 'grammar',
+    homologationGroup: 'a1_will_going_to',
+    diagnosticTags: ['will', 'going_to', 'future_predictions', 'spontaneous_decisions'],
+    weaknessLabel: 'Will y Going To',
+    evidence: 'Diferencia decisiones espontáneas, predicciones y planes futuros.'
+  },
+
+  comparisons: {
+    cefr: 'A2',
+    skill: 'grammar',
+    homologationGroup: 'a2_comparisons',
+    diagnosticTags: ['comparatives', 'superlatives', 'than', 'the_most', 'er_est'],
+    weaknessLabel: 'Comparativos y superlativos',
+    evidence: 'Compara personas, lugares y objetos usando comparativos y superlativos.'
+  },
+
+  quantifiers: {
+    cefr: 'A2',
+    skill: 'grammar',
+    homologationGroup: 'a2_quantifiers',
+    diagnosticTags: ['quantifiers', 'some_any', 'much_many', 'a_few_a_little', 'countable_uncountable'],
+    weaknessLabel: 'Cuantificadores',
+    evidence: 'Usa cuantificadores con sustantivos contables e incontables.'
+  },
+
+  past_continuous: {
+    cefr: 'A2',
+    skill: 'grammar',
+    homologationGroup: 'a2_past_continuous',
+    diagnosticTags: ['past_continuous', 'was_were_ing', 'when_while', 'interrupted_actions'],
+    weaknessLabel: 'Past Continuous',
+    evidence: 'Narra acciones en progreso en el pasado y acciones interrumpidas.'
+  },
+
+  present_perfect: {
+    cefr: 'A2',
+    skill: 'grammar',
+    homologationGroup: 'a2_present_perfect',
+    diagnosticTags: ['present_perfect', 'have_has_participle', 'ever_never', 'already_yet_just'],
+    weaknessLabel: 'Present Perfect',
+    evidence: 'Habla de experiencias de vida y acciones conectadas con el presente.'
+  },
+
+  future_mixed: {
+    cefr: 'A2',
+    skill: 'grammar',
+    homologationGroup: 'a2_future_mixed',
+    diagnosticTags: ['future_forms', 'will', 'going_to', 'present_continuous_future', 'arrangements'],
+    weaknessLabel: 'Futuros mixtos',
+    evidence: 'Diferencia predicciones, planes y acuerdos futuros.'
+  },
+
+  modals_obligation: {
+    cefr: 'A2',
+    skill: 'grammar',
+    homologationGroup: 'a2_modals_obligation',
+    diagnosticTags: ['must', 'have_to', 'dont_have_to', 'mustnt', 'should', 'obligation_advice'],
+    weaknessLabel: 'Modales de obligación y consejo',
+    evidence: 'Expresa obligación, prohibición, ausencia de obligación y consejo.'
+  },
+
+  conditionals: {
+    cefr: 'A2',
+    skill: 'grammar',
+    homologationGroup: 'a2_conditionals',
+    diagnosticTags: ['zero_conditional', 'first_conditional', 'if_present_will', 'facts_consequences'],
+    weaknessLabel: 'Condicionales cero y primero',
+    evidence: 'Expresa hechos generales y consecuencias futuras usando if.'
+  },
+
+  phrasal_gerunds: {
+    cefr: 'A2',
+    skill: 'grammar',
+    homologationGroup: 'a2_gerunds',
+    diagnosticTags: ['gerunds', 'after_prepositions', 'gerund_subject', 'enjoy_finish_look_forward_to'],
+    weaknessLabel: 'Gerundios en uso natural',
+    evidence: 'Usa gerundios después de preposiciones, como sujeto y después de verbos frecuentes.'
+  }
+};
+
+
+// ------------------------------------------------------------
+// 4. PRERREQUISITOS PARA BLOQUEO INTELIGENTE
+// ------------------------------------------------------------
+
+const grammarPrerequisites = {
+  articles: [],
+  adjectives_demo: ['articles'],
+  pronouns: ['adjectives_demo'],
+  verbs: ['pronouns'],
+  present_simple: ['verbs'],
+  frequency_adverbs: ['present_simple'],
+  present_cont: ['verbs'],
+  simple_vs_cont: ['present_simple', 'present_cont'],
+  there_is_are: ['articles', 'verbs'],
+  questions_a1: ['verbs', 'present_simple'],
+  prepositions: ['there_is_are'],
+  imperatives: ['verbs'],
+  likes_gerunds: ['present_simple'],
+  numbers: ['articles'],
+  can_could: ['verbs'],
+  id_like_food: ['articles', 'quantifiers'],
+  past_to_be: ['verbs'],
+  past_simple: ['past_to_be'],
+  future_going_to: ['verbs'],
+  future_will: ['future_going_to'],
+
+  comparisons: ['adjectives_demo'],
+  quantifiers: ['articles', 'there_is_are'],
+  past_continuous: ['past_simple', 'present_cont'],
+  present_perfect: ['past_simple'],
+  future_mixed: ['future_will', 'future_going_to'],
+  modals_obligation: ['can_could'],
+  conditionals: ['present_simple', 'future_will'],
+  phrasal_gerunds: ['likes_gerunds', 'prepositions']
+};
+
+
+// ------------------------------------------------------------
+// 5. ENRIQUECIMIENTO AUTOMÁTICO DE CADA MÓDULO
+// ------------------------------------------------------------
+
+function inferGrammarLevelFromPath(moduleId) {
+  const found = grammarLearningPath.find(level => level.modules.includes(moduleId));
+  return found ? found.level : 'A1';
+}
+
+function getGrammarSequence(moduleId) {
+  let counter = 0;
+
+  for (const level of grammarLearningPath) {
+    for (const id of level.modules) {
+      counter++;
+      if (id === moduleId) return counter;
+    }
+  }
+
+  return 999;
+}
+
+Object.keys(modulesData).forEach(moduleId => {
+  const mod = modulesData[moduleId];
+  const meta = grammarModuleCompetencyMap[moduleId] || {};
+
+  mod.id = mod.id || moduleId;
+  mod.level = mod.level || meta.cefr || inferGrammarLevelFromPath(moduleId);
+  mod.skill = mod.skill || 'grammar';
+
+  mod.routeMeta = {
+    type: 'grammar',
+    level: mod.level,
+    sequence: getGrammarSequence(moduleId),
+    requiredScore: 80,
+    homologationScore: 85,
+    prerequisites: grammarPrerequisites[moduleId] || [],
+    estimatedMinutes: mod.estimatedMinutes || (
+      Array.isArray(mod.exercises) && mod.exercises.length >= 15 ? 35 : 25
+    ),
+    isRequired: true
+  };
+
+  mod.homologation = {
+    canHomologate: true,
+    group: meta.homologationGroup || moduleId,
+    minimumDiagnosticScore: 85,
+    weaknessLabel: meta.weaknessLabel || mod.title,
+    evidence: meta.evidence || mod.learningGoal || `Dominio del módulo ${mod.title}.`
+  };
+
+  mod.diagnosticTags = meta.diagnosticTags || [moduleId];
+  mod.weaknessLabel = meta.weaknessLabel || mod.title;
+  mod.cefrDescriptor = mod.cefrDescriptor || meta.evidence || mod.learningGoal || '';
+});
+
+
+// ------------------------------------------------------------
+// 6. DIAGNÓSTICO BASE DE GRAMÁTICA
+// ------------------------------------------------------------
+// Esta estructura puede alimentar data-diagnostic.js o el motor interno del app.js.
+
+const grammarDiagnosticBlueprint = {
+  id: 'grammar_diagnostic_a1_a2',
+  title: 'Diagnóstico de gramática A1–A2',
+  description: 'Evalúa competencias gramaticales y permite homologar módulos dominados.',
+  levels: ['A1', 'A2'],
+  rules: {
+    passScore: 80,
+    homologationScore: 85,
+    reinforcementThreshold: 75
+  },
+  items: [
+    {
+      id: 'diag_articles_1',
+      level: 'A1',
+      skill: 'grammar',
+      mapsTo: ['articles'],
+      tags: ['articles', 'a_an_the'],
+      q: 'She is ___ doctor.',
+      opts: ['a', 'an', 'the'],
+      a: 0,
+      exp: 'Doctor empieza por sonido consonante: a doctor.'
+    },
+    {
+      id: 'diag_adjectives_1',
+      level: 'A1',
+      skill: 'grammar',
+      mapsTo: ['adjectives_demo'],
+      tags: ['adjectives', 'word_order'],
+      q: 'Choose the correct sentence.',
+      opts: ['A red car', 'A car red', 'Red a car'],
+      a: 0,
+      exp: 'En inglés el adjetivo normalmente va antes del sustantivo.'
+    },
+    {
+      id: 'diag_pronouns_1',
+      level: 'A1',
+      skill: 'grammar',
+      mapsTo: ['pronouns'],
+      tags: ['pronouns', 'object_pronouns'],
+      q: 'Tom is my friend. I like ___.',
+      opts: ['he', 'him', 'his'],
+      a: 1,
+      exp: 'Después del verbo usamos pronombre objeto: him.'
+    },
+    {
+      id: 'diag_verbs_1',
+      level: 'A1',
+      skill: 'grammar',
+      mapsTo: ['verbs'],
+      tags: ['to_be'],
+      q: 'They ___ at home.',
+      opts: ['am', 'is', 'are'],
+      a: 2,
+      exp: 'They usa are.'
+    },
+    {
+      id: 'diag_present_simple_1',
+      level: 'A1',
+      skill: 'grammar',
+      mapsTo: ['present_simple'],
+      tags: ['present_simple', 'third_person_s'],
+      q: 'She ___ English every day.',
+      opts: ['study', 'studies', 'studying'],
+      a: 1,
+      exp: 'She usa verbo con -s/-es: studies.'
+    },
+    {
+      id: 'diag_frequency_1',
+      level: 'A1',
+      skill: 'grammar',
+      mapsTo: ['frequency_adverbs'],
+      tags: ['frequency_adverbs'],
+      q: 'He ___ late. He is very punctual.',
+      opts: ['is never', 'never is', 'never'],
+      a: 0,
+      exp: 'Con to be, el adverbio va después: is never.'
+    },
+    {
+      id: 'diag_present_cont_1',
+      level: 'A1',
+      skill: 'grammar',
+      mapsTo: ['present_cont'],
+      tags: ['present_continuous'],
+      q: 'Look! It ___.',
+      opts: ['rains', 'is raining', 'rain'],
+      a: 1,
+      exp: 'Look indica acción ocurriendo ahora: is raining.'
+    },
+    {
+      id: 'diag_there_is_are_1',
+      level: 'A1',
+      skill: 'grammar',
+      mapsTo: ['there_is_are'],
+      tags: ['there_is_are'],
+      q: 'There ___ two chairs in the room.',
+      opts: ['is', 'are', 'am'],
+      a: 1,
+      exp: 'Two chairs es plural: there are.'
+    },
+    {
+      id: 'diag_questions_1',
+      level: 'A1',
+      skill: 'grammar',
+      mapsTo: ['questions_a1'],
+      tags: ['questions', 'do_does'],
+      q: 'Where ___ you live?',
+      opts: ['do', 'does', 'are'],
+      a: 0,
+      exp: 'Where do you live?'
+    },
+    {
+      id: 'diag_prepositions_1',
+      level: 'A1',
+      skill: 'grammar',
+      mapsTo: ['prepositions'],
+      tags: ['in_on_at'],
+      q: 'My birthday is ___ June.',
+      opts: ['on', 'in', 'at'],
+      a: 1,
+      exp: 'Los meses usan in.'
+    },
+    {
+      id: 'diag_imperatives_1',
+      level: 'A1',
+      skill: 'grammar',
+      mapsTo: ['imperatives'],
+      tags: ['imperatives'],
+      q: '___ the door, please.',
+      opts: ['Open', 'Opens', 'Opening'],
+      a: 0,
+      exp: 'El imperativo usa verbo base.'
+    },
+    {
+      id: 'diag_likes_1',
+      level: 'A1',
+      skill: 'grammar',
+      mapsTo: ['likes_gerunds'],
+      tags: ['like_love_hate_ing'],
+      q: 'I like ___ music.',
+      opts: ['listen', 'listening to', 'listens'],
+      a: 1,
+      exp: 'Like + verb-ing.'
+    },
+    {
+      id: 'diag_can_1',
+      level: 'A1',
+      skill: 'grammar',
+      mapsTo: ['can_could'],
+      tags: ['can_cant'],
+      q: 'She can ___ English.',
+      opts: ['speaks', 'speak', 'speaking'],
+      a: 1,
+      exp: 'Después de can usamos verbo base.'
+    },
+    {
+      id: 'diag_past_to_be_1',
+      level: 'A1',
+      skill: 'grammar',
+      mapsTo: ['past_to_be'],
+      tags: ['was_were'],
+      q: 'I ___ at home yesterday.',
+      opts: ['was', 'were', 'am'],
+      a: 0,
+      exp: 'I usa was en pasado.'
+    },
+    {
+      id: 'diag_past_simple_1',
+      level: 'A1',
+      skill: 'grammar',
+      mapsTo: ['past_simple'],
+      tags: ['past_simple'],
+      q: 'Yesterday, I ___ a movie.',
+      opts: ['watch', 'watched', 'watching'],
+      a: 1,
+      exp: 'Yesterday indica pasado simple.'
+    },
+    {
+      id: 'diag_going_to_1',
+      level: 'A1',
+      skill: 'grammar',
+      mapsTo: ['future_going_to'],
+      tags: ['going_to'],
+      q: 'I am going ___ my grandmother tomorrow.',
+      opts: ['visit', 'to visit', 'visiting'],
+      a: 1,
+      exp: 'Be going to + verbo base.'
+    },
+
+    {
+      id: 'diag_comparisons_1',
+      level: 'A2',
+      skill: 'grammar',
+      mapsTo: ['comparisons'],
+      tags: ['comparatives'],
+      q: 'This book is ___ than that book.',
+      opts: ['interesting', 'more interesting', 'most interesting'],
+      a: 1,
+      exp: 'Adjetivo largo: more interesting than.'
+    },
+    {
+      id: 'diag_quantifiers_1',
+      level: 'A2',
+      skill: 'grammar',
+      mapsTo: ['quantifiers'],
+      tags: ['quantifiers', 'much_many'],
+      q: 'I don’t have ___ money.',
+      opts: ['many', 'much', 'a few'],
+      a: 1,
+      exp: 'Money es incontable: much money.'
+    },
+    {
+      id: 'diag_past_continuous_1',
+      level: 'A2',
+      skill: 'grammar',
+      mapsTo: ['past_continuous'],
+      tags: ['past_continuous'],
+      q: 'I ___ TV when you called.',
+      opts: ['was watching', 'watched', 'am watching'],
+      a: 0,
+      exp: 'Acción en progreso en el pasado: was watching.'
+    },
+    {
+      id: 'diag_present_perfect_1',
+      level: 'A2',
+      skill: 'grammar',
+      mapsTo: ['present_perfect'],
+      tags: ['present_perfect'],
+      q: 'She has ___ to London.',
+      opts: ['go', 'went', 'been'],
+      a: 2,
+      exp: 'Para experiencias usamos has been.'
+    },
+    {
+      id: 'diag_future_mixed_1',
+      level: 'A2',
+      skill: 'grammar',
+      mapsTo: ['future_mixed'],
+      tags: ['future_forms'],
+      q: 'We ___ meeting Ana tomorrow at 6.',
+      opts: ['are', 'will', 'going'],
+      a: 0,
+      exp: 'Present continuous para acuerdos futuros: are meeting.'
+    },
+    {
+      id: 'diag_modals_obligation_1',
+      level: 'A2',
+      skill: 'grammar',
+      mapsTo: ['modals_obligation'],
+      tags: ['must', 'have_to'],
+      q: 'You ___ wear a helmet on a motorcycle.',
+      opts: ['must', 'can', 'would'],
+      a: 0,
+      exp: 'Obligación fuerte/legal: must.'
+    },
+    {
+      id: 'diag_conditionals_1',
+      level: 'A2',
+      skill: 'grammar',
+      mapsTo: ['conditionals'],
+      tags: ['first_conditional'],
+      q: 'If it rains, I ___ at home.',
+      opts: ['stay', 'will stay', 'stayed'],
+      a: 1,
+      exp: 'First conditional: If + present, will + verb.'
+    },
+    {
+      id: 'diag_gerunds_1',
+      level: 'A2',
+      skill: 'grammar',
+      mapsTo: ['phrasal_gerunds'],
+      tags: ['gerunds_after_prepositions'],
+      q: 'Thank you for ___ me.',
+      opts: ['help', 'helping', 'to help'],
+      a: 1,
+      exp: 'Después de preposición for usamos gerundio.'
+    }
+  ]
+};
+
+
+// ------------------------------------------------------------
+// 7. UTILIDADES PARA LA APP
+// ------------------------------------------------------------
+
+function getGrammarModule(moduleId) {
+  const resolved = resolveGrammarId(moduleId);
+  return modulesData[resolved] || null;
+}
+
+function getGrammarModulesByLevel(level) {
+  return grammarLearningPath
+    .find(path => path.level === level)
+    ?.modules
+    .map(id => modulesData[id])
+    .filter(Boolean) || [];
+}
+
+function getGrammarWeaknessLabel(moduleId) {
+  const resolved = resolveGrammarId(moduleId);
+  return modulesData[resolved]?.weaknessLabel || moduleId;
+}
+
+function getGrammarHomologationGroup(moduleId) {
+  const resolved = resolveGrammarId(moduleId);
+  return modulesData[resolved]?.homologation?.group || resolved;
+}
+
+function getGrammarDiagnosticItemsByLevel(level) {
+  return grammarDiagnosticBlueprint.items.filter(item => item.level === level);
+}
+
+function getGrammarReinforcementModulesFromDiagnostic(diagnosticAnswers) {
+  const result = {};
+
+  diagnosticAnswers.forEach(answer => {
+    const item = answer.item;
+    const ok = answer.ok;
+
+    if (!item || ok) return;
+
+    (item.mapsTo || []).forEach(moduleId => {
+      const resolved = resolveGrammarId(moduleId);
+
+      result[resolved] = {
+        moduleId: resolved,
+        title: modulesData[resolved]?.title || resolved,
+        level: modulesData[resolved]?.level || item.level,
+        weaknessLabel: getGrammarWeaknessLabel(resolved),
+        reason: item.exp || 'Necesita refuerzo según el diagnóstico.'
+      };
+    });
+  });
+
+  return Object.values(result);
+}
+
+
+// ------------------------------------------------------------
+// 8. CONFIGURACIÓN CENTRAL PARA LA RUTA ÚNICA
+// ------------------------------------------------------------
+
+const grammarRouteConfig = {
+  type: 'grammar',
+  source: 'modulesData',
+  version: '5.1',
+  requiredScore: 80,
+  homologationScore: 85,
+  reinforcementThreshold: 75,
+  path: grammarLearningPath,
+  aliases: grammarIdAliases,
+  competencies: grammarModuleCompetencyMap,
+  prerequisites: grammarPrerequisites,
+  diagnostic: grammarDiagnosticBlueprint
+};
+
+
+// ------------------------------------------------------------
+// 9. EXPORTACIÓN PARA NAVEGADOR Y NODE
+// ------------------------------------------------------------
+
+if (typeof window !== 'undefined') {
+  window.modulesData = modulesData;
+  window.grammarLearningPath = grammarLearningPath;
+  window.grammarIdAliases = grammarIdAliases;
+  window.grammarModuleCompetencyMap = grammarModuleCompetencyMap;
+  window.grammarPrerequisites = grammarPrerequisites;
+  window.grammarDiagnosticBlueprint = grammarDiagnosticBlueprint;
+  window.grammarRouteConfig = grammarRouteConfig;
+
+  window.resolveGrammarId = resolveGrammarId;
+  window.getGrammarModule = getGrammarModule;
+  window.getGrammarModulesByLevel = getGrammarModulesByLevel;
+  window.getGrammarWeaknessLabel = getGrammarWeaknessLabel;
+  window.getGrammarHomologationGroup = getGrammarHomologationGroup;
+  window.getGrammarDiagnosticItemsByLevel = getGrammarDiagnosticItemsByLevel;
+  window.getGrammarReinforcementModulesFromDiagnostic = getGrammarReinforcementModulesFromDiagnostic;
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    modulesData,
+    grammarLearningPath,
+    grammarIdAliases,
+    grammarModuleCompetencyMap,
+    grammarPrerequisites,
+    grammarDiagnosticBlueprint,
+    grammarRouteConfig,
+    resolveGrammarId,
+    getGrammarModule,
+    getGrammarModulesByLevel,
+    getGrammarWeaknessLabel,
+    getGrammarHomologationGroup,
+    getGrammarDiagnosticItemsByLevel,
+    getGrammarReinforcementModulesFromDiagnostic
+  };
+}

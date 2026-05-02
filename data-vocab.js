@@ -1391,3 +1391,1060 @@ if (typeof module !== 'undefined' && module.exports) {
     vocabExpansionTopics
   };
 }
+// ============================================================
+// LEOENGLISH — VOCAB ROUTE + DIAGNOSTIC BRIDGE v5.1
+// Pegar al FINAL de data-vocab.js
+// Prepara vocabulario para ruta única, diagnóstico,
+// homologación, refuerzos, portafolio y expansión futura.
+// ============================================================
+
+(function leoVocabRouteBridgeV51() {
+
+  if (typeof vocabTopics === 'undefined') {
+    console.warn('vocabTopics no está definido.');
+    return;
+  }
+
+
+  // ------------------------------------------------------------
+  // 1. REGLAS GENERALES DE VOCABULARIO
+  // ------------------------------------------------------------
+
+  const vocabRouteRules = {
+    requiredScore: 80,
+    homologationScore: 85,
+    reinforcementThreshold: 75,
+    reviewDays: [1, 3, 7, 14]
+  };
+
+  const vocabMethodology = {
+    approach: 'Active vocabulary learning + spaced repetition + communicative use + heutagogical reflection',
+    sequence: [
+      'Activation',
+      'Input',
+      'Pronunciation',
+      'Meaning recognition',
+      'Form recognition',
+      'Controlled practice',
+      'Contextual use',
+      'Communicative mission',
+      'Portfolio evidence',
+      'Spaced review'
+    ]
+  };
+
+  const vocabAssessmentCriteria = [
+    'Reconoce el significado de la palabra.',
+    'Comprende la palabra en contexto.',
+    'Pronuncia la palabra de forma comprensible.',
+    'Usa la palabra en una frase propia.',
+    'Relaciona el vocabulario con una función comunicativa.',
+    'Recupera vocabulario después de varios días.'
+  ];
+
+
+  // ------------------------------------------------------------
+  // 2. ALIAS DE COMPATIBILIDAD
+  // ------------------------------------------------------------
+  // Permite que la ruta, gramática o diagnóstico usen nombres alternos
+  // sin romper los IDs reales de vocabTopics.
+
+  const vocabIdAliases = {
+    personal_info: 'personal_information',
+    personal_data: 'personal_information',
+    countries: 'countries_nationalities',
+    nationalities: 'countries_nationalities',
+    numbers: 'numbers_vocab',
+    numbers_dates: 'numbers_vocab',
+    classroom: 'classroom_objects',
+    school_objects: 'classroom_objects',
+    school_life: 'school_subjects',
+    home: 'home_furniture',
+    furniture: 'home_furniture',
+    routines: 'daily_routines',
+    daily_routine: 'daily_routines',
+    time: 'time_calendar',
+    calendar: 'time_calendar',
+    food: 'food_drink',
+    drinks: 'food_drink',
+    restaurant: 'restaurant_phrases',
+    shopping: 'shopping_money',
+    money: 'shopping_money',
+    clothes: 'clothes_accessories',
+    weather: 'weather_seasons',
+    seasons: 'weather_seasons',
+    feelings: 'emotions_feelings',
+    emotions: 'emotions_feelings',
+    health: 'body_health',
+    body: 'body_health',
+    hobbies: 'hobbies_free_time',
+    free_time: 'hobbies_free_time',
+    sports: 'sports_basic',
+    animals: 'animals_nature',
+    nature: 'animals_nature',
+    transport: 'transport_travel',
+    travel: 'transport_travel',
+    directions: 'directions_city',
+    city_directions: 'directions_city',
+    technology: 'technology_basic',
+    tech: 'technology_basic',
+    verbs: 'common_verbs',
+    basic_verbs: 'common_verbs',
+    essential_adjectives: 'adjectives',
+    jobs_work: 'jobs',
+    occupations: 'jobs',
+    city_places: 'places'
+  };
+
+  function resolveVocabId(id) {
+    if (vocabTopics.some(topic => topic.id === id)) return id;
+
+    if (
+      vocabIdAliases[id] &&
+      vocabTopics.some(topic => topic.id === vocabIdAliases[id])
+    ) {
+      return vocabIdAliases[id];
+    }
+
+    return id;
+  }
+
+  function getVocabTopic(id) {
+    const resolved = resolveVocabId(id);
+    return vocabTopics.find(topic => topic.id === resolved) || null;
+  }
+
+
+  // ------------------------------------------------------------
+  // 3. RUTA OFICIAL DE VOCABULARIO
+  // ------------------------------------------------------------
+
+  const vocabLearningPath = [
+    {
+      level: 'A1',
+      title: 'A1 · Essential Vocabulary',
+      description: 'Vocabulario esencial para presentarse, describir personas, hablar de rutinas, casa, comida, ciudad y vida diaria.',
+      color: '#1D9E75',
+      requiredScore: 80,
+      homologationScore: 85,
+      topics: [
+        'greetings',
+        'personal_information',
+        'countries_nationalities',
+        'numbers_vocab',
+        'colors',
+        'family',
+        'people',
+        'classroom_objects',
+        'school_subjects',
+        'jobs',
+        'places',
+        'home_furniture',
+        'daily_routines',
+        'time_calendar',
+        'food_drink',
+        'restaurant_phrases',
+        'shopping_money',
+        'clothes_accessories',
+        'weather_seasons',
+        'emotions_feelings',
+        'body_health',
+        'hobbies_free_time',
+        'sports_basic',
+        'animals_nature',
+        'transport_travel',
+        'directions_city',
+        'technology_basic',
+        'common_verbs',
+        'adjectives'
+      ]
+    },
+    {
+      level: 'A2',
+      title: 'A2 · Functional Vocabulary',
+      description: 'Vocabulario funcional para ampliar conversación, viajes, salud, tecnología, opiniones, cultura y situaciones sociales.',
+      color: '#3182CE',
+      requiredScore: 80,
+      homologationScore: 85,
+      topics: [
+        'transport_travel',
+        'directions_city',
+        'body_health',
+        'technology_basic',
+        'places',
+        'jobs',
+        'adjectives',
+        'shopping_money',
+        'restaurant_phrases'
+      ]
+    }
+  ];
+
+
+  // ------------------------------------------------------------
+  // 4. MAPA DE COMPETENCIAS DE VOCABULARIO
+  // ------------------------------------------------------------
+
+  const vocabCompetencyMap = {
+    greetings: {
+      cefr: 'A1',
+      skill: 'vocabulary',
+      homologationGroup: 'a1_vocab_greetings',
+      diagnosticTags: ['greetings', 'introductions', 'basic_conversation'],
+      weaknessLabel: 'Vocabulario: saludos y presentaciones',
+      evidence: 'Saluda, se presenta y responde información personal básica.'
+    },
+
+    personal_information: {
+      cefr: 'A1',
+      skill: 'vocabulary',
+      homologationGroup: 'a1_vocab_personal_information',
+      diagnosticTags: ['name', 'age', 'address', 'nationality', 'personal_data'],
+      weaknessLabel: 'Vocabulario: información personal',
+      evidence: 'Da y solicita información personal básica.'
+    },
+
+    countries_nationalities: {
+      cefr: 'A1',
+      skill: 'vocabulary',
+      homologationGroup: 'a1_vocab_countries',
+      diagnosticTags: ['countries', 'nationalities', 'from'],
+      weaknessLabel: 'Vocabulario: países y nacionalidades',
+      evidence: 'Dice de dónde es una persona y cuál es su nacionalidad.'
+    },
+
+    numbers_vocab: {
+      cefr: 'A1',
+      skill: 'vocabulary',
+      homologationGroup: 'a1_vocab_numbers_dates',
+      diagnosticTags: ['numbers', 'ordinals', 'dates', 'prices'],
+      weaknessLabel: 'Vocabulario: números y fechas',
+      evidence: 'Usa números, ordinales, fechas, precios y cantidades básicas.'
+    },
+
+    colors: {
+      cefr: 'A1',
+      skill: 'vocabulary',
+      homologationGroup: 'a1_vocab_colors',
+      diagnosticTags: ['colors', 'adjectives', 'description'],
+      weaknessLabel: 'Vocabulario: colores',
+      evidence: 'Describe objetos, ropa y lugares usando colores.'
+    },
+
+    family: {
+      cefr: 'A1',
+      skill: 'vocabulary',
+      homologationGroup: 'a1_vocab_family',
+      diagnosticTags: ['family', 'relationships', 'possessives'],
+      weaknessLabel: 'Vocabulario: familia',
+      evidence: 'Nombra miembros de la familia y describe relaciones básicas.'
+    },
+
+    people: {
+      cefr: 'A1',
+      skill: 'vocabulary',
+      homologationGroup: 'a1_vocab_people',
+      diagnosticTags: ['people', 'age', 'gender', 'description'],
+      weaknessLabel: 'Vocabulario: personas',
+      evidence: 'Describe personas por edad, rol y características básicas.'
+    },
+
+    classroom_objects: {
+      cefr: 'A1',
+      skill: 'vocabulary',
+      homologationGroup: 'a1_vocab_classroom',
+      diagnosticTags: ['classroom', 'school_objects', 'instructions'],
+      weaknessLabel: 'Vocabulario: objetos del aula',
+      evidence: 'Nombra objetos del aula y los usa en instrucciones simples.'
+    },
+
+    school_subjects: {
+      cefr: 'A1',
+      skill: 'vocabulary',
+      homologationGroup: 'a1_vocab_school_subjects',
+      diagnosticTags: ['school', 'subjects', 'classes'],
+      weaknessLabel: 'Vocabulario: materias y vida escolar',
+      evidence: 'Habla de materias, clases, exámenes y preferencias escolares.'
+    },
+
+    jobs: {
+      cefr: 'A1',
+      skill: 'vocabulary',
+      homologationGroup: 'a1_vocab_jobs',
+      diagnosticTags: ['jobs', 'professions', 'work'],
+      weaknessLabel: 'Vocabulario: profesiones',
+      evidence: 'Nombra profesiones y habla de trabajos básicos.'
+    },
+
+    places: {
+      cefr: 'A1',
+      skill: 'vocabulary',
+      homologationGroup: 'a1_vocab_city_places',
+      diagnosticTags: ['places', 'city', 'locations'],
+      weaknessLabel: 'Vocabulario: lugares de la ciudad',
+      evidence: 'Nombra lugares de la ciudad y los ubica en contexto.'
+    },
+
+    home_furniture: {
+      cefr: 'A1',
+      skill: 'vocabulary',
+      homologationGroup: 'a1_vocab_home_furniture',
+      diagnosticTags: ['home', 'rooms', 'furniture'],
+      weaknessLabel: 'Vocabulario: casa y muebles',
+      evidence: 'Describe habitaciones, muebles y objetos del hogar.'
+    },
+
+    daily_routines: {
+      cefr: 'A1',
+      skill: 'vocabulary',
+      homologationGroup: 'a1_vocab_daily_routines',
+      diagnosticTags: ['routines', 'daily_activities', 'present_simple'],
+      weaknessLabel: 'Vocabulario: rutinas diarias',
+      evidence: 'Habla de hábitos y actividades cotidianas.'
+    },
+
+    time_calendar: {
+      cefr: 'A1',
+      skill: 'vocabulary',
+      homologationGroup: 'a1_vocab_time_calendar',
+      diagnosticTags: ['days', 'months', 'time', 'calendar'],
+      weaknessLabel: 'Vocabulario: tiempo y calendario',
+      evidence: 'Usa días, horarios, partes del día y expresiones de calendario.'
+    },
+
+    food_drink: {
+      cefr: 'A1',
+      skill: 'vocabulary',
+      homologationGroup: 'a1_vocab_food_drink',
+      diagnosticTags: ['food', 'drinks', 'meals'],
+      weaknessLabel: 'Vocabulario: comida y bebida',
+      evidence: 'Nombra alimentos, bebidas y comidas básicas.'
+    },
+
+    restaurant_phrases: {
+      cefr: 'A1',
+      skill: 'vocabulary',
+      homologationGroup: 'a1_vocab_restaurant',
+      diagnosticTags: ['restaurant', 'ordering_food', 'polite_requests'],
+      weaknessLabel: 'Vocabulario: restaurante y pedidos',
+      evidence: 'Pide comida y bebida usando frases corteses.'
+    },
+
+    shopping_money: {
+      cefr: 'A1',
+      skill: 'vocabulary',
+      homologationGroup: 'a1_vocab_shopping_money',
+      diagnosticTags: ['shopping', 'money', 'prices', 'cash_card'],
+      weaknessLabel: 'Vocabulario: compras y dinero',
+      evidence: 'Pregunta precios, compra productos y habla de formas de pago.'
+    },
+
+    clothes_accessories: {
+      cefr: 'A1',
+      skill: 'vocabulary',
+      homologationGroup: 'a1_vocab_clothes',
+      diagnosticTags: ['clothes', 'accessories', 'wearing'],
+      weaknessLabel: 'Vocabulario: ropa y accesorios',
+      evidence: 'Describe ropa, accesorios y lo que alguien lleva puesto.'
+    },
+
+    weather_seasons: {
+      cefr: 'A1',
+      skill: 'vocabulary',
+      homologationGroup: 'a1_vocab_weather',
+      diagnosticTags: ['weather', 'seasons', 'temperature'],
+      weaknessLabel: 'Vocabulario: clima y estaciones',
+      evidence: 'Habla del clima, estaciones y temperatura.'
+    },
+
+    emotions_feelings: {
+      cefr: 'A1',
+      skill: 'vocabulary',
+      homologationGroup: 'a1_vocab_emotions',
+      diagnosticTags: ['emotions', 'feelings', 'states'],
+      weaknessLabel: 'Vocabulario: emociones',
+      evidence: 'Expresa cómo se siente una persona.'
+    },
+
+    body_health: {
+      cefr: 'A1',
+      skill: 'vocabulary',
+      homologationGroup: 'a1_vocab_body_health',
+      diagnosticTags: ['body', 'health', 'symptoms'],
+      weaknessLabel: 'Vocabulario: cuerpo y salud',
+      evidence: 'Nombra partes del cuerpo, síntomas y estados de salud básicos.'
+    },
+
+    hobbies_free_time: {
+      cefr: 'A1',
+      skill: 'vocabulary',
+      homologationGroup: 'a1_vocab_hobbies',
+      diagnosticTags: ['hobbies', 'free_time', 'like_ing'],
+      weaknessLabel: 'Vocabulario: hobbies y tiempo libre',
+      evidence: 'Habla de gustos, hobbies y actividades de tiempo libre.'
+    },
+
+    sports_basic: {
+      cefr: 'A1',
+      skill: 'vocabulary',
+      homologationGroup: 'a1_vocab_sports',
+      diagnosticTags: ['sports', 'abilities', 'games'],
+      weaknessLabel: 'Vocabulario: deportes',
+      evidence: 'Habla de deportes, jugadores, partidos y preferencias.'
+    },
+
+    animals_nature: {
+      cefr: 'A1',
+      skill: 'vocabulary',
+      homologationGroup: 'a1_vocab_animals_nature',
+      diagnosticTags: ['animals', 'nature', 'description'],
+      weaknessLabel: 'Vocabulario: animales y naturaleza',
+      evidence: 'Nombra animales y elementos naturales, y los describe.'
+    },
+
+    transport_travel: {
+      cefr: 'A2',
+      skill: 'vocabulary',
+      homologationGroup: 'a2_vocab_transport_travel',
+      diagnosticTags: ['transport', 'travel', 'tickets', 'airport'],
+      weaknessLabel: 'Vocabulario: transporte y viajes',
+      evidence: 'Habla de transporte, viajes, tiquetes, equipaje y aeropuertos.'
+    },
+
+    directions_city: {
+      cefr: 'A2',
+      skill: 'vocabulary',
+      homologationGroup: 'a2_vocab_directions',
+      diagnosticTags: ['directions', 'city', 'prepositions_place'],
+      weaknessLabel: 'Vocabulario: direcciones y ubicación',
+      evidence: 'Da y sigue direcciones simples en la ciudad.'
+    },
+
+    technology_basic: {
+      cefr: 'A2',
+      skill: 'vocabulary',
+      homologationGroup: 'a2_vocab_technology',
+      diagnosticTags: ['technology', 'devices', 'internet'],
+      weaknessLabel: 'Vocabulario: tecnología básica',
+      evidence: 'Nombra objetos tecnológicos y habla de su uso básico.'
+    },
+
+    common_verbs: {
+      cefr: 'A1',
+      skill: 'vocabulary',
+      homologationGroup: 'a1_vocab_common_verbs',
+      diagnosticTags: ['common_verbs', 'actions', 'daily_language'],
+      weaknessLabel: 'Vocabulario: verbos comunes',
+      evidence: 'Usa verbos frecuentes para crear frases básicas.'
+    },
+
+    adjectives: {
+      cefr: 'A1',
+      skill: 'vocabulary',
+      homologationGroup: 'a1_vocab_adjectives',
+      diagnosticTags: ['adjectives', 'description', 'comparisons'],
+      weaknessLabel: 'Vocabulario: adjetivos esenciales',
+      evidence: 'Describe personas, objetos, lugares y situaciones con adjetivos esenciales.'
+    }
+  };
+
+
+  // ------------------------------------------------------------
+  // 5. FUNCIONES DE SECUENCIA Y NIVEL
+  // ------------------------------------------------------------
+
+  function findVocabPathLevel(id) {
+    const resolved = resolveVocabId(id);
+
+    const path = vocabLearningPath.find(level =>
+      level.topics.includes(resolved)
+    );
+
+    return path ? path.level : null;
+  }
+
+  function getVocabSequence(id) {
+    const resolved = resolveVocabId(id);
+    let counter = 0;
+
+    for (const level of vocabLearningPath) {
+      for (const topicId of level.topics) {
+        counter++;
+        if (topicId === resolved) return counter;
+      }
+    }
+
+    return 999;
+  }
+
+  function getVocabWeaknessLabel(id) {
+    const resolved = resolveVocabId(id);
+    const topic = getVocabTopic(resolved);
+
+    return (
+      vocabCompetencyMap[resolved]?.weaknessLabel ||
+      topic?.title ||
+      resolved
+    );
+  }
+
+  function getVocabHomologationGroup(id) {
+    const resolved = resolveVocabId(id);
+
+    return (
+      vocabCompetencyMap[resolved]?.homologationGroup ||
+      resolved
+    );
+  }
+
+
+  // ------------------------------------------------------------
+  // 6. ENRIQUECIMIENTO AUTOMÁTICO DE TEMAS
+  // ------------------------------------------------------------
+
+  vocabTopics.forEach(topic => {
+    const resolved = resolveVocabId(topic.id);
+    const meta = vocabCompetencyMap[resolved] || {};
+
+    const inferredLevel =
+      topic.level ||
+      meta.cefr ||
+      findVocabPathLevel(topic.id) ||
+      'A1';
+
+    topic.id = topic.id;
+    topic.level = inferredLevel;
+    topic.skill = 'vocabulary';
+    topic.sourceType = 'vocab';
+    topic.count = topic.count || (Array.isArray(topic.words) ? topic.words.length : 0);
+
+    topic.routeMeta = {
+      type: 'vocab',
+      level: inferredLevel,
+      sequence: getVocabSequence(topic.id),
+      requiredScore: vocabRouteRules.requiredScore,
+      homologationScore: vocabRouteRules.homologationScore,
+      estimatedMinutes: topic.estimatedMinutes || (
+        topic.count >= 20 ? 25 : 18
+      ),
+      isRequired: true,
+      reviewDays: vocabRouteRules.reviewDays
+    };
+
+    topic.homologation = {
+      canHomologate: true,
+      group: meta.homologationGroup || topic.id,
+      minimumDiagnosticScore: vocabRouteRules.homologationScore,
+      weaknessLabel: meta.weaknessLabel || topic.title,
+      evidence: meta.evidence || topic.communicativeGoal || `Dominio del tema ${topic.title}.`
+    };
+
+    topic.diagnosticTags = meta.diagnosticTags || [topic.id];
+    topic.weaknessLabel = meta.weaknessLabel || topic.title;
+    topic.methodology = topic.methodology || vocabMethodology;
+    topic.assessmentCriteria = topic.assessmentCriteria || vocabAssessmentCriteria;
+
+    if (!topic.canDo) {
+      topic.canDo = [
+        'I can recognize the vocabulary in context.',
+        'I can understand the meaning of the words.',
+        'I can pronounce key words clearly.',
+        'I can use the vocabulary in simple sentences.'
+      ];
+    }
+
+    if (!topic.mission) {
+      topic.mission = topic.communicativeGoal
+        ? topic.communicativeGoal
+        : `Create five sentences using words from ${topic.title}.`;
+    }
+
+    if (!topic.portfolioEvidence) {
+      topic.portfolioEvidence = `Vocabulary evidence: ${topic.title}`;
+    }
+
+    if (!topic.selfAssessment) {
+      topic.selfAssessment = [
+        'Puedo reconocer las palabras principales del tema.',
+        'Puedo recordar el significado sin mirar la traducción.',
+        'Puedo pronunciar varias palabras del tema.',
+        'Puedo usar algunas palabras en frases propias.',
+        'Sé cuáles palabras necesito repasar.'
+      ];
+    }
+  });
+
+
+  // ------------------------------------------------------------
+  // 7. DIAGNÓSTICO DE VOCABULARIO A1–A2
+  // ------------------------------------------------------------
+
+  const vocabDiagnosticBlueprint = {
+    id: 'vocab_diagnostic_a1_a2',
+    title: 'Diagnóstico de vocabulario A1–A2',
+    description: 'Evalúa reconocimiento de vocabulario esencial y funcional para homologar o reforzar temas.',
+    levels: ['A1', 'A2'],
+    rules: vocabRouteRules,
+    items: [
+      {
+        id: 'diag_vocab_greetings_1',
+        level: 'A1',
+        skill: 'vocabulary',
+        mapsTo: ['greetings'],
+        tags: ['greetings'],
+        q: 'What does “Good morning” mean?',
+        opts: ['Buenas noches', 'Buenos días', 'Hasta luego'],
+        a: 1,
+        exp: 'Good morning significa buenos días.'
+      },
+      {
+        id: 'diag_vocab_personal_1',
+        level: 'A1',
+        skill: 'vocabulary',
+        mapsTo: ['personal_information'],
+        tags: ['personal_information'],
+        q: 'Choose the word that means “apellido”.',
+        opts: ['surname / last name', 'address', 'age'],
+        a: 0,
+        exp: 'Surname o last name significa apellido.'
+      },
+      {
+        id: 'diag_vocab_country_1',
+        level: 'A1',
+        skill: 'vocabulary',
+        mapsTo: ['countries_nationalities'],
+        tags: ['countries', 'nationalities'],
+        q: 'A person from Colombia is...',
+        opts: ['Colombian', 'Colombish', 'Colombianer'],
+        a: 0,
+        exp: 'La nacionalidad correcta es Colombian.'
+      },
+      {
+        id: 'diag_vocab_numbers_1',
+        level: 'A1',
+        skill: 'vocabulary',
+        mapsTo: ['numbers_vocab'],
+        tags: ['numbers'],
+        q: 'What is “twelfth”?',
+        opts: ['Doce', 'Duodécimo', 'Veinte'],
+        a: 1,
+        exp: 'Twelfth significa duodécimo.'
+      },
+      {
+        id: 'diag_vocab_family_1',
+        level: 'A1',
+        skill: 'vocabulary',
+        mapsTo: ['family'],
+        tags: ['family'],
+        q: 'Your mother’s brother is your...',
+        opts: ['cousin', 'uncle', 'nephew'],
+        a: 1,
+        exp: 'El hermano de tu madre es tu uncle.'
+      },
+      {
+        id: 'diag_vocab_people_1',
+        level: 'A1',
+        skill: 'vocabulary',
+        mapsTo: ['people'],
+        tags: ['people'],
+        q: 'A “teenager” is usually...',
+        opts: ['A baby', 'An elderly person', 'A young person between 13 and 19'],
+        a: 2,
+        exp: 'Teenager se refiere normalmente a una persona entre 13 y 19 años.'
+      },
+      {
+        id: 'diag_vocab_classroom_1',
+        level: 'A1',
+        skill: 'vocabulary',
+        mapsTo: ['classroom_objects'],
+        tags: ['classroom'],
+        q: 'Which object do you use to write?',
+        opts: ['A pen', 'A chair', 'A window'],
+        a: 0,
+        exp: 'You use a pen to write.'
+      },
+      {
+        id: 'diag_vocab_school_1',
+        level: 'A1',
+        skill: 'vocabulary',
+        mapsTo: ['school_subjects'],
+        tags: ['school_subjects'],
+        q: 'Which one is a school subject?',
+        opts: ['Science', 'Receipt', 'Airport'],
+        a: 0,
+        exp: 'Science es una materia escolar.'
+      },
+      {
+        id: 'diag_vocab_jobs_1',
+        level: 'A1',
+        skill: 'vocabulary',
+        mapsTo: ['jobs'],
+        tags: ['jobs'],
+        q: 'A person who teaches students is a...',
+        opts: ['teacher', 'farmer', 'pilot'],
+        a: 0,
+        exp: 'Teacher significa profesor o profesora.'
+      },
+      {
+        id: 'diag_vocab_places_1',
+        level: 'A1',
+        skill: 'vocabulary',
+        mapsTo: ['places'],
+        tags: ['places'],
+        q: 'Where can you borrow books?',
+        opts: ['At the bank', 'At the library', 'At the airport'],
+        a: 1,
+        exp: 'You can borrow books at the library.'
+      },
+      {
+        id: 'diag_vocab_home_1',
+        level: 'A1',
+        skill: 'vocabulary',
+        mapsTo: ['home_furniture'],
+        tags: ['home'],
+        q: 'Where do you sleep?',
+        opts: ['In the kitchen', 'In the bedroom', 'In the garage'],
+        a: 1,
+        exp: 'You sleep in the bedroom.'
+      },
+      {
+        id: 'diag_vocab_routines_1',
+        level: 'A1',
+        skill: 'vocabulary',
+        mapsTo: ['daily_routines'],
+        tags: ['daily_routines'],
+        q: 'What does “wake up” mean?',
+        opts: ['Dormirse', 'Despertarse', 'Cenar'],
+        a: 1,
+        exp: 'Wake up significa despertarse.'
+      },
+      {
+        id: 'diag_vocab_time_1',
+        level: 'A1',
+        skill: 'vocabulary',
+        mapsTo: ['time_calendar'],
+        tags: ['time'],
+        q: '“Quarter past eight” means...',
+        opts: ['8:15', '8:30', '7:45'],
+        a: 0,
+        exp: 'Quarter past eight es 8:15.'
+      },
+      {
+        id: 'diag_vocab_food_1',
+        level: 'A1',
+        skill: 'vocabulary',
+        mapsTo: ['food_drink'],
+        tags: ['food'],
+        q: 'Which one is a drink?',
+        opts: ['Chicken', 'Tea', 'Bread'],
+        a: 1,
+        exp: 'Tea es una bebida.'
+      },
+      {
+        id: 'diag_vocab_restaurant_1',
+        level: 'A1',
+        skill: 'vocabulary',
+        mapsTo: ['restaurant_phrases'],
+        tags: ['restaurant'],
+        q: 'How do you ask for the bill?',
+        opts: ['Can I have the bill, please?', 'I am the bill.', 'The bill is eating.'],
+        a: 0,
+        exp: 'Can I have the bill, please? es una forma cortés de pedir la cuenta.'
+      },
+      {
+        id: 'diag_vocab_shopping_1',
+        level: 'A1',
+        skill: 'vocabulary',
+        mapsTo: ['shopping_money'],
+        tags: ['shopping'],
+        q: 'What does “receipt” mean?',
+        opts: ['Recibo / factura', 'Cambio', 'Precio'],
+        a: 0,
+        exp: 'Receipt significa recibo o factura.'
+      },
+      {
+        id: 'diag_vocab_clothes_1',
+        level: 'A1',
+        skill: 'vocabulary',
+        mapsTo: ['clothes_accessories'],
+        tags: ['clothes'],
+        q: 'Which one do you wear on your feet?',
+        opts: ['Shoes', 'Hat', 'Bag'],
+        a: 0,
+        exp: 'You wear shoes on your feet.'
+      },
+      {
+        id: 'diag_vocab_weather_1',
+        level: 'A1',
+        skill: 'vocabulary',
+        mapsTo: ['weather_seasons'],
+        tags: ['weather'],
+        q: 'If it is “rainy”, you may need...',
+        opts: ['An umbrella', 'A ticket', 'A keyboard'],
+        a: 0,
+        exp: 'If it is rainy, you may need an umbrella.'
+      },
+      {
+        id: 'diag_vocab_emotions_1',
+        level: 'A1',
+        skill: 'vocabulary',
+        mapsTo: ['emotions_feelings'],
+        tags: ['emotions'],
+        q: 'What does “tired” mean?',
+        opts: ['Cansado', 'Feliz', 'Orgulloso'],
+        a: 0,
+        exp: 'Tired significa cansado.'
+      },
+      {
+        id: 'diag_vocab_health_1',
+        level: 'A1',
+        skill: 'vocabulary',
+        mapsTo: ['body_health'],
+        tags: ['health'],
+        q: 'If your head hurts, you have a...',
+        opts: ['headache', 'stomachache', 'cold'],
+        a: 0,
+        exp: 'Headache significa dolor de cabeza.'
+      },
+      {
+        id: 'diag_vocab_hobbies_1',
+        level: 'A1',
+        skill: 'vocabulary',
+        mapsTo: ['hobbies_free_time'],
+        tags: ['hobbies'],
+        q: 'Which one is a free-time activity?',
+        opts: ['Playing video games', 'Surname', 'Receipt'],
+        a: 0,
+        exp: 'Playing video games es una actividad de tiempo libre.'
+      },
+      {
+        id: 'diag_vocab_sports_1',
+        level: 'A1',
+        skill: 'vocabulary',
+        mapsTo: ['sports_basic'],
+        tags: ['sports'],
+        q: 'Which one is a sport?',
+        opts: ['Basketball', 'Password', 'Balcony'],
+        a: 0,
+        exp: 'Basketball es un deporte.'
+      },
+      {
+        id: 'diag_vocab_animals_1',
+        level: 'A1',
+        skill: 'vocabulary',
+        mapsTo: ['animals_nature'],
+        tags: ['animals'],
+        q: 'Which animal can usually fly?',
+        opts: ['Bird', 'Cow', 'Pig'],
+        a: 0,
+        exp: 'A bird can usually fly.'
+      },
+      {
+        id: 'diag_vocab_verbs_1',
+        level: 'A1',
+        skill: 'vocabulary',
+        mapsTo: ['common_verbs'],
+        tags: ['common_verbs'],
+        q: 'What does “buy” mean?',
+        opts: ['Comprar', 'Vender', 'Dormir'],
+        a: 0,
+        exp: 'Buy significa comprar.'
+      },
+      {
+        id: 'diag_vocab_adjectives_1',
+        level: 'A1',
+        skill: 'vocabulary',
+        mapsTo: ['adjectives'],
+        tags: ['adjectives'],
+        q: 'What is the opposite of “expensive”?',
+        opts: ['Cheap', 'Beautiful', 'Tall'],
+        a: 0,
+        exp: 'Cheap significa barato, lo contrario de expensive.'
+      },
+
+      {
+        id: 'diag_vocab_transport_a2_1',
+        level: 'A2',
+        skill: 'vocabulary',
+        mapsTo: ['transport_travel'],
+        tags: ['transport', 'travel'],
+        q: 'Where do you usually take a plane?',
+        opts: ['At the airport', 'At the library', 'At the supermarket'],
+        a: 0,
+        exp: 'You usually take a plane at the airport.'
+      },
+      {
+        id: 'diag_vocab_directions_a2_1',
+        level: 'A2',
+        skill: 'vocabulary',
+        mapsTo: ['directions_city'],
+        tags: ['directions'],
+        q: '“Go straight ahead” means...',
+        opts: ['Siga derecho', 'Gire a la izquierda', 'Deténgase aquí'],
+        a: 0,
+        exp: 'Go straight ahead significa siga derecho.'
+      },
+      {
+        id: 'diag_vocab_tech_a2_1',
+        level: 'A2',
+        skill: 'vocabulary',
+        mapsTo: ['technology_basic'],
+        tags: ['technology'],
+        q: 'What do you need when your phone battery is low?',
+        opts: ['A charger', 'A suitcase', 'A receipt'],
+        a: 0,
+        exp: 'You need a charger.'
+      }
+    ]
+  };
+
+
+  // ------------------------------------------------------------
+  // 8. CONFIGURACIÓN CENTRAL
+  // ------------------------------------------------------------
+
+  const vocabRouteConfig = {
+    type: 'vocab',
+    source: 'vocabTopics',
+    version: '5.1',
+    rules: vocabRouteRules,
+    path: vocabLearningPath,
+    aliases: vocabIdAliases,
+    competencies: vocabCompetencyMap,
+    diagnostic: vocabDiagnosticBlueprint,
+    methodology: vocabMethodology,
+    assessmentCriteria: vocabAssessmentCriteria
+  };
+
+
+  // ------------------------------------------------------------
+  // 9. INTEGRACIÓN CON DIAGNÓSTICO GLOBAL
+  // ------------------------------------------------------------
+  // Si ya existe window.diagnosticTest desde grammar/reading/writing,
+  // se agrega sección de vocabulario sin borrar las anteriores.
+
+  function mergeVocabDiagnosticIntoGlobalTest() {
+    if (typeof window === 'undefined') return;
+
+    if (!window.diagnosticTest) {
+      window.diagnosticTest = {
+        id: 'main_placement_test_a1_a2',
+        title: 'Prueba diagnóstica integral A1–A2',
+        description: 'Evalúa gramática, vocabulario, reading y writing para ubicar, homologar y asignar refuerzos.',
+        levels: ['A1', 'A2'],
+        rules: {
+          passScore: 80,
+          homologationScore: 85,
+          reinforcementThreshold: 75
+        },
+        sections: []
+      };
+    }
+
+    window.diagnosticTest.sections = window.diagnosticTest.sections || [];
+
+    const hasVocabSection = window.diagnosticTest.sections.some(section => section.id === 'vocab');
+
+    if (!hasVocabSection) {
+      window.diagnosticTest.sections.push({
+        id: 'vocab',
+        title: 'Vocabulary',
+        weight: 0.20,
+        items: vocabDiagnosticBlueprint.items
+      });
+    }
+
+    window.diagnosticTest.title = 'Prueba diagnóstica integral A1–A2';
+    window.diagnosticTest.description = 'Evalúa gramática, vocabulario, reading y writing para ubicar, homologar y asignar refuerzos.';
+  }
+
+
+  // ------------------------------------------------------------
+  // 10. UTILIDADES GLOBALES
+  // ------------------------------------------------------------
+
+  function getVocabTopicsByLevel(level) {
+    return vocabTopics.filter(topic => topic.level === level);
+  }
+
+  function getVocabDiagnosticItemsByLevel(level) {
+    return vocabDiagnosticBlueprint.items.filter(item => item.level === level);
+  }
+
+  function getVocabReinforcementTopicsFromDiagnostic(diagnosticAnswers) {
+    const result = {};
+
+    diagnosticAnswers.forEach(answer => {
+      const item = answer.item;
+      const ok = answer.ok;
+
+      if (!item || ok) return;
+
+      (item.mapsTo || []).forEach(topicId => {
+        const resolved = resolveVocabId(topicId);
+        const topic = getVocabTopic(resolved);
+
+        result[resolved] = {
+          topicId: resolved,
+          title: topic?.title || resolved,
+          level: topic?.level || item.level,
+          weaknessLabel: getVocabWeaknessLabel(resolved),
+          reason: item.exp || 'Necesita refuerzo de vocabulario según el diagnóstico.'
+        };
+      });
+    });
+
+    return Object.values(result);
+  }
+
+
+  // ------------------------------------------------------------
+  // 11. EXPORTACIÓN PARA NAVEGADOR
+  // ------------------------------------------------------------
+
+  if (typeof window !== 'undefined') {
+    window.vocabTopics = vocabTopics;
+
+    window.vocabRouteRules = vocabRouteRules;
+    window.vocabLearningPath = vocabLearningPath;
+    window.vocabIdAliases = vocabIdAliases;
+    window.vocabCompetencyMap = vocabCompetencyMap;
+    window.vocabDiagnosticBlueprint = vocabDiagnosticBlueprint;
+    window.vocabRouteConfig = vocabRouteConfig;
+
+    window.resolveVocabId = resolveVocabId;
+    window.getVocabTopic = getVocabTopic;
+    window.getVocabTopicsByLevel = getVocabTopicsByLevel;
+    window.getVocabWeaknessLabel = getVocabWeaknessLabel;
+    window.getVocabHomologationGroup = getVocabHomologationGroup;
+    window.getVocabDiagnosticItemsByLevel = getVocabDiagnosticItemsByLevel;
+    window.getVocabReinforcementTopicsFromDiagnostic = getVocabReinforcementTopicsFromDiagnostic;
+
+    mergeVocabDiagnosticIntoGlobalTest();
+  }
+
+
+  // ------------------------------------------------------------
+  // 12. EXPORTACIÓN PARA NODE
+  // ------------------------------------------------------------
+
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+      vocabTopics,
+      vocabRouteRules,
+      vocabLearningPath,
+      vocabIdAliases,
+      vocabCompetencyMap,
+      vocabDiagnosticBlueprint,
+      vocabRouteConfig,
+      resolveVocabId,
+      getVocabTopic,
+      getVocabTopicsByLevel,
+      getVocabWeaknessLabel,
+      getVocabHomologationGroup,
+      getVocabDiagnosticItemsByLevel,
+      getVocabReinforcementTopicsFromDiagnostic
+    };
+  }
+
+})();

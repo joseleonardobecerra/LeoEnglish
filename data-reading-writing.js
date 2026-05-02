@@ -1332,3 +1332,1049 @@ if (typeof module !== 'undefined' && module.exports) {
     writingExpansionExercises
   };
 }
+// ============================================================
+// LEOENGLISH — READING & WRITING ROUTE BRIDGE v5.1
+// Pegar al FINAL de data-reading-writing.js
+// Mantiene readingTexts y writingExercises juntos,
+// pero los separa lógicamente para ruta, diagnóstico,
+// homologación y refuerzos.
+// ============================================================
+
+(function leoReadingWritingRouteBridgeV51() {
+
+  if (typeof readingTexts === 'undefined') {
+    console.warn('readingTexts no está definido.');
+    return;
+  }
+
+  if (typeof writingExercises === 'undefined') {
+    console.warn('writingExercises no está definido.');
+    return;
+  }
+
+
+  // ------------------------------------------------------------
+  // 1. CONFIGURACIÓN GENERAL
+  // ------------------------------------------------------------
+
+  const literacyRouteRules = {
+    requiredScore: 80,
+    homologationScore: 85,
+    reinforcementThreshold: 75
+  };
+
+  const literacyMethodology = {
+    approach: 'Active reading and writing + communicative production + heutagogical reflection',
+    sequence: [
+      'Activation',
+      'Input',
+      'Comprehension',
+      'Language noticing',
+      'Controlled practice',
+      'Guided production',
+      'Revision',
+      'Portfolio evidence',
+      'Reflection'
+    ]
+  };
+
+  const literacyAssessment = {
+    reading: [
+      'Comprensión global',
+      'Comprensión específica',
+      'Uso de evidencia textual',
+      'Vocabulario en contexto',
+      'Transferencia del texto a una producción personal'
+    ],
+    writing: [
+      'Claridad del mensaje',
+      'Precisión gramatical',
+      'Orden sintáctico',
+      'Vocabulario pertinente',
+      'Revisión y corrección'
+    ]
+  };
+
+
+  // ------------------------------------------------------------
+  // 2. RUTA OFICIAL DE READING
+  // ------------------------------------------------------------
+
+  const readingLearningPath = [
+    {
+      level: 'A1',
+      title: 'A1 · Reading Foundations',
+      description: 'Textos breves sobre identidad, familia, rutinas, casa, comida, reglas y pasado simple.',
+      color: '#3182CE',
+      requiredScore: 80,
+      homologationScore: 85,
+      texts: [
+        'school_day',
+        'my_family',
+        'daily_routine',
+        'shopping_day',
+        'my_room_a1',
+        'my_best_friend_a1',
+        'at_the_restaurant_a1',
+        'weekend_plans_a1',
+        'yesterday_at_home_a1',
+        'school_rules_a1'
+      ]
+    },
+    {
+      level: 'A2',
+      title: 'A2 · Reading Expansion',
+      description: 'Textos más extensos sobre ciudad, clima, salud, tecnología y cultura.',
+      color: '#805AD5',
+      requiredScore: 80,
+      homologationScore: 85,
+      texts: [
+        'london',
+        'british_weather',
+        'healthy_lifestyle',
+        'technology_life',
+        'colombian_festival'
+      ]
+    }
+  ];
+
+
+  // ------------------------------------------------------------
+  // 3. RUTA OFICIAL DE WRITING
+  // ------------------------------------------------------------
+
+  const writingLearningPath = [
+    {
+      level: 'A1',
+      title: 'A1 · Writing Foundations',
+      description: 'Frases básicas, preguntas, negaciones, presentación personal, rutinas, dictado y corrección.',
+      color: '#D85A30',
+      requiredScore: 80,
+      homologationScore: 85,
+      exercises: [
+        'word_order_1',
+        'word_order_2',
+        'transform_negatives',
+        'transform_questions',
+        'transform_tenses',
+        'free_writing_intro',
+        'free_writing_person',
+        'free_writing_routine',
+        'free_writing_my_profile',
+        'word_order_a1_questions',
+        'dictation_a1_routines',
+        'free_writing_my_routine',
+        'dictation_a1_restaurant',
+        'free_writing_last_weekend',
+        'error_correction_a1_present',
+        'transform_a1_integrated'
+      ]
+    },
+    {
+      level: 'A2',
+      title: 'A2 · Writing Expansion',
+      description: 'Pasado, futuro, email informal, opinión, corrección mixta y producción más extensa.',
+      color: '#9333EA',
+      requiredScore: 80,
+      homologationScore: 85,
+      exercises: [
+        'word_order_3',
+        'fill_gaps_mixed',
+        'free_writing_email',
+        'free_writing_opinion',
+        'error_correction_a1_mixed'
+      ]
+    }
+  ];
+
+
+  // ------------------------------------------------------------
+  // 4. MAPA DE COMPETENCIAS DE READING
+  // ------------------------------------------------------------
+
+  const readingCompetencyMap = {
+    school_day: {
+      cefr: 'A1',
+      skill: 'reading',
+      homologationGroup: 'a1_reading_routines_school',
+      diagnosticTags: ['routine', 'school', 'present_simple', 'time'],
+      weaknessLabel: 'Reading: rutina escolar',
+      evidence: 'Comprende textos breves sobre rutinas escolares, horarios y acciones cotidianas.'
+    },
+
+    my_family: {
+      cefr: 'A1',
+      skill: 'reading',
+      homologationGroup: 'a1_reading_family',
+      diagnosticTags: ['family', 'description', 'jobs', 'possessives'],
+      weaknessLabel: 'Reading: familia y descripciones',
+      evidence: 'Comprende descripciones familiares, profesiones y relaciones personales.'
+    },
+
+    daily_routine: {
+      cefr: 'A1',
+      skill: 'reading',
+      homologationGroup: 'a1_reading_daily_routine',
+      diagnosticTags: ['daily_routine', 'frequency', 'time_expressions'],
+      weaknessLabel: 'Reading: rutina diaria',
+      evidence: 'Identifica secuencias de rutina, horarios y hábitos.'
+    },
+
+    shopping_day: {
+      cefr: 'A1',
+      skill: 'reading',
+      homologationGroup: 'a1_reading_shopping',
+      diagnosticTags: ['shopping', 'prices', 'clothes', 'money'],
+      weaknessLabel: 'Reading: compras y dinero',
+      evidence: 'Comprende situaciones de compras, precios, cantidades y productos.'
+    },
+
+    my_room_a1: {
+      cefr: 'A1',
+      skill: 'reading',
+      homologationGroup: 'a1_reading_home',
+      diagnosticTags: ['home', 'there_is_are', 'prepositions_place'],
+      weaknessLabel: 'Reading: casa y objetos',
+      evidence: 'Comprende descripciones de espacios usando there is/are y preposiciones.'
+    },
+
+    my_best_friend_a1: {
+      cefr: 'A1',
+      skill: 'reading',
+      homologationGroup: 'a1_reading_people',
+      diagnosticTags: ['people_description', 'can_cant', 'likes'],
+      weaknessLabel: 'Reading: descripción de personas',
+      evidence: 'Comprende descripciones de apariencia, gustos y habilidades.'
+    },
+
+    at_the_restaurant_a1: {
+      cefr: 'A1',
+      skill: 'reading',
+      homologationGroup: 'a1_reading_restaurant',
+      diagnosticTags: ['restaurant', 'food', 'id_like', 'polite_requests'],
+      weaknessLabel: 'Reading: restaurante y pedidos',
+      evidence: 'Comprende diálogos básicos para pedir comida de forma cortés.'
+    },
+
+    weekend_plans_a1: {
+      cefr: 'A1',
+      skill: 'reading',
+      homologationGroup: 'a1_reading_future_plans',
+      diagnosticTags: ['going_to', 'future_plans', 'family'],
+      weaknessLabel: 'Reading: planes futuros',
+      evidence: 'Comprende textos breves sobre planes futuros con going to.'
+    },
+
+    yesterday_at_home_a1: {
+      cefr: 'A1',
+      skill: 'reading',
+      homologationGroup: 'a1_reading_past_simple',
+      diagnosticTags: ['past_simple', 'was_were', 'daily_activities_past'],
+      weaknessLabel: 'Reading: pasado simple',
+      evidence: 'Comprende narraciones simples sobre actividades pasadas.'
+    },
+
+    school_rules_a1: {
+      cefr: 'A1',
+      skill: 'reading',
+      homologationGroup: 'a1_reading_rules',
+      diagnosticTags: ['rules', 'imperatives', 'can_cant', 'must'],
+      weaknessLabel: 'Reading: reglas e instrucciones',
+      evidence: 'Comprende reglas escolares, instrucciones y prohibiciones básicas.'
+    },
+
+    london: {
+      cefr: 'A2',
+      skill: 'reading',
+      homologationGroup: 'a2_reading_city_tourism',
+      diagnosticTags: ['city', 'tourism', 'places', 'prepositions'],
+      weaknessLabel: 'Reading: ciudad y turismo',
+      evidence: 'Comprende descripciones turísticas y datos específicos sobre una ciudad.'
+    },
+
+    british_weather: {
+      cefr: 'A2',
+      skill: 'reading',
+      homologationGroup: 'a2_reading_weather',
+      diagnosticTags: ['weather', 'seasons', 'climate', 'descriptions'],
+      weaknessLabel: 'Reading: clima y estaciones',
+      evidence: 'Comprende textos descriptivos sobre clima, estaciones y hábitos culturales.'
+    },
+
+    healthy_lifestyle: {
+      cefr: 'A2',
+      skill: 'reading',
+      homologationGroup: 'a2_reading_health',
+      diagnosticTags: ['health', 'habits', 'advice', 'lifestyle'],
+      weaknessLabel: 'Reading: hábitos saludables',
+      evidence: 'Comprende recomendaciones y detalles sobre estilo de vida saludable.'
+    },
+
+    technology_life: {
+      cefr: 'A2',
+      skill: 'reading',
+      homologationGroup: 'a2_reading_technology',
+      diagnosticTags: ['technology', 'advantages', 'disadvantages', 'opinion'],
+      weaknessLabel: 'Reading: tecnología y sociedad',
+      evidence: 'Comprende ideas principales y argumentos sobre tecnología.'
+    },
+
+    colombian_festival: {
+      cefr: 'A2',
+      skill: 'reading',
+      homologationGroup: 'a2_reading_culture',
+      diagnosticTags: ['culture', 'festival', 'traditions', 'colombia'],
+      weaknessLabel: 'Reading: cultura y tradiciones',
+      evidence: 'Comprende textos culturales con información específica y vocabulario descriptivo.'
+    }
+  };
+
+
+  // ------------------------------------------------------------
+  // 5. MAPA DE COMPETENCIAS DE WRITING
+  // ------------------------------------------------------------
+
+  const writingCompetencyMap = {
+    word_order_1: {
+      cefr: 'A1',
+      skill: 'writing',
+      homologationGroup: 'a1_writing_basic_syntax',
+      diagnosticTags: ['word_order', 'affirmative_sentences', 'to_be'],
+      weaknessLabel: 'Writing: sintaxis afirmativa básica',
+      evidence: 'Construye oraciones afirmativas con orden correcto.'
+    },
+
+    word_order_2: {
+      cefr: 'A1',
+      skill: 'writing',
+      homologationGroup: 'a1_writing_questions_negatives',
+      diagnosticTags: ['questions', 'negatives', 'present_simple', 'present_continuous'],
+      weaknessLabel: 'Writing: preguntas y negaciones',
+      evidence: 'Construye preguntas y negaciones básicas.'
+    },
+
+    transform_negatives: {
+      cefr: 'A1',
+      skill: 'writing',
+      homologationGroup: 'a1_writing_negatives',
+      diagnosticTags: ['negative_sentences', 'dont_doesnt', 'be_negative'],
+      weaknessLabel: 'Writing: transformación a negativo',
+      evidence: 'Transforma frases afirmativas a negativas.'
+    },
+
+    transform_questions: {
+      cefr: 'A1',
+      skill: 'writing',
+      homologationGroup: 'a1_writing_questions',
+      diagnosticTags: ['yes_no_questions', 'do_does', 'be_questions'],
+      weaknessLabel: 'Writing: transformación a pregunta',
+      evidence: 'Transforma afirmaciones en preguntas de sí/no.'
+    },
+
+    transform_tenses: {
+      cefr: 'A1',
+      skill: 'writing',
+      homologationGroup: 'a1_writing_simple_continuous',
+      diagnosticTags: ['present_simple', 'present_continuous', 'tense_transform'],
+      weaknessLabel: 'Writing: presente simple vs continuo',
+      evidence: 'Transforma frases entre presente simple y continuo.'
+    },
+
+    free_writing_intro: {
+      cefr: 'A1',
+      skill: 'writing',
+      homologationGroup: 'a1_writing_introduction',
+      diagnosticTags: ['personal_profile', 'introduction', 'basic_sentences'],
+      weaknessLabel: 'Writing: presentación personal',
+      evidence: 'Escribe una presentación personal breve y clara.'
+    },
+
+    free_writing_person: {
+      cefr: 'A1',
+      skill: 'writing',
+      homologationGroup: 'a1_writing_people_description',
+      diagnosticTags: ['describe_people', 'family', 'adjectives'],
+      weaknessLabel: 'Writing: descripción de personas',
+      evidence: 'Describe una persona usando apariencia, personalidad y profesión.'
+    },
+
+    free_writing_routine: {
+      cefr: 'A1',
+      skill: 'writing',
+      homologationGroup: 'a1_writing_routine',
+      diagnosticTags: ['daily_routine', 'frequency_adverbs', 'time_expressions'],
+      weaknessLabel: 'Writing: rutina diaria',
+      evidence: 'Escribe una rutina con orden temporal y adverbios de frecuencia.'
+    },
+
+    word_order_3: {
+      cefr: 'A2',
+      skill: 'writing',
+      homologationGroup: 'a2_writing_past_future_syntax',
+      diagnosticTags: ['past_simple', 'future', 'will', 'going_to'],
+      weaknessLabel: 'Writing: sintaxis de pasado y futuro',
+      evidence: 'Construye frases en pasado y futuro con orden correcto.'
+    },
+
+    fill_gaps_mixed: {
+      cefr: 'A2',
+      skill: 'writing',
+      homologationGroup: 'a2_writing_mixed_grammar',
+      diagnosticTags: ['mixed_grammar', 'past_continuous', 'modals', 'future'],
+      weaknessLabel: 'Writing: gramática mixta',
+      evidence: 'Completa frases con tiempos verbales y modales correctos.'
+    },
+
+    free_writing_email: {
+      cefr: 'A2',
+      skill: 'writing',
+      homologationGroup: 'a2_writing_informal_email',
+      diagnosticTags: ['email', 'past_simple', 'future_plans', 'informal_writing'],
+      weaknessLabel: 'Writing: email informal',
+      evidence: 'Escribe un email informal con pasado y planes futuros.'
+    },
+
+    free_writing_opinion: {
+      cefr: 'A2',
+      skill: 'writing',
+      homologationGroup: 'a2_writing_opinion',
+      diagnosticTags: ['opinion', 'arguments', 'connectors', 'technology'],
+      weaknessLabel: 'Writing: opinión y argumentos',
+      evidence: 'Expresa una opinión básica con conectores y argumentos simples.'
+    },
+
+    error_correction_a1_present: {
+      cefr: 'A1',
+      skill: 'writing',
+      homologationGroup: 'a1_writing_error_correction_present',
+      diagnosticTags: ['error_correction', 'present_simple', 'to_be', 'frequency'],
+      weaknessLabel: 'Writing: corrección de errores A1',
+      evidence: 'Detecta y corrige errores frecuentes de presente simple y to be.'
+    },
+
+    error_correction_a1_mixed: {
+      cefr: 'A2',
+      skill: 'writing',
+      homologationGroup: 'a2_writing_error_correction_mixed',
+      diagnosticTags: ['error_correction', 'mixed_a1_a2', 'past', 'modals', 'comparatives'],
+      weaknessLabel: 'Writing: corrección mixta',
+      evidence: 'Corrige errores integrados de gramática A1/A2.'
+    },
+
+    dictation_a1_routines: {
+      cefr: 'A1',
+      skill: 'writing',
+      homologationGroup: 'a1_writing_dictation_routines',
+      diagnosticTags: ['dictation', 'routines', 'spelling', 'listening_writing'],
+      weaknessLabel: 'Writing: dictado de rutinas',
+      evidence: 'Escribe frases escuchadas sobre rutinas con buena ortografía.'
+    },
+
+    dictation_a1_restaurant: {
+      cefr: 'A1',
+      skill: 'writing',
+      homologationGroup: 'a1_writing_dictation_restaurant',
+      diagnosticTags: ['dictation', 'restaurant', 'id_like', 'polite_requests'],
+      weaknessLabel: 'Writing: dictado de restaurante',
+      evidence: 'Escribe frases funcionales de restaurante a partir de audio.'
+    },
+
+    free_writing_my_profile: {
+      cefr: 'A1',
+      skill: 'writing',
+      homologationGroup: 'a1_writing_personal_profile',
+      diagnosticTags: ['personal_profile', 'identity', 'basic_info'],
+      weaknessLabel: 'Writing: perfil personal',
+      evidence: 'Escribe un perfil personal breve con información básica.'
+    },
+
+    free_writing_my_routine: {
+      cefr: 'A1',
+      skill: 'writing',
+      homologationGroup: 'a1_writing_daily_routine',
+      diagnosticTags: ['daily_routine', 'present_simple', 'frequency'],
+      weaknessLabel: 'Writing: rutina personal',
+      evidence: 'Escribe una rutina diaria usando presente simple.'
+    },
+
+    free_writing_last_weekend: {
+      cefr: 'A1',
+      skill: 'writing',
+      homologationGroup: 'a1_writing_past_weekend',
+      diagnosticTags: ['past_simple', 'weekend', 'narration'],
+      weaknessLabel: 'Writing: narración en pasado',
+      evidence: 'Escribe un párrafo breve sobre actividades pasadas.'
+    },
+
+    transform_a1_integrated: {
+      cefr: 'A1',
+      skill: 'writing',
+      homologationGroup: 'a1_writing_integrated_transform',
+      diagnosticTags: ['sentence_transformation', 'mixed_a1', 'negative', 'question', 'past', 'future'],
+      weaknessLabel: 'Writing: transformación integrada A1',
+      evidence: 'Transforma oraciones entre afirmativo, negativo, pregunta, pasado y futuro.'
+    },
+
+    word_order_a1_questions: {
+      cefr: 'A1',
+      skill: 'writing',
+      homologationGroup: 'a1_writing_question_order',
+      diagnosticTags: ['word_order', 'questions', 'wh_questions'],
+      weaknessLabel: 'Writing: orden de preguntas',
+      evidence: 'Ordena palabras para formar preguntas A1 correctamente.'
+    }
+  };
+
+
+  // ------------------------------------------------------------
+  // 6. FUNCIONES DE SOPORTE
+  // ------------------------------------------------------------
+
+  function findReadingPathLevel(id) {
+    const path = readingLearningPath.find(level => level.texts.includes(id));
+    return path ? path.level : null;
+  }
+
+  function findWritingPathLevel(id) {
+    const path = writingLearningPath.find(level => level.exercises.includes(id));
+    return path ? path.level : null;
+  }
+
+  function getReadingSequence(id) {
+    let counter = 0;
+
+    for (const level of readingLearningPath) {
+      for (const textId of level.texts) {
+        counter++;
+        if (textId === id) return counter;
+      }
+    }
+
+    return 999;
+  }
+
+  function getWritingSequence(id) {
+    let counter = 0;
+
+    for (const level of writingLearningPath) {
+      for (const exId of level.exercises) {
+        counter++;
+        if (exId === id) return counter;
+      }
+    }
+
+    return 999;
+  }
+
+  function getReadingText(id) {
+    return readingTexts.find(text => text.id === id) || null;
+  }
+
+  function getWritingExercise(id) {
+    return writingExercises.find(ex => ex.id === id) || null;
+  }
+
+  function getReadingWeaknessLabel(id) {
+    return readingCompetencyMap[id]?.weaknessLabel || getReadingText(id)?.title || id;
+  }
+
+  function getWritingWeaknessLabel(id) {
+    return writingCompetencyMap[id]?.weaknessLabel || getWritingExercise(id)?.title || id;
+  }
+
+
+  // ------------------------------------------------------------
+  // 7. ENRIQUECIMIENTO AUTOMÁTICO DE READING
+  // ------------------------------------------------------------
+
+  readingTexts.forEach(text => {
+    const meta = readingCompetencyMap[text.id] || {};
+    const inferredLevel = meta.cefr || text.level || findReadingPathLevel(text.id) || 'A1';
+
+    text.id = text.id;
+    text.level = text.level || inferredLevel;
+    text.skill = 'reading';
+    text.sourceType = 'reading';
+
+    text.routeMeta = {
+      type: 'reading',
+      level: inferredLevel,
+      sequence: getReadingSequence(text.id),
+      requiredScore: literacyRouteRules.requiredScore,
+      homologationScore: literacyRouteRules.homologationScore,
+      estimatedMinutes: text.estimatedMinutes || 18,
+      isRequired: true
+    };
+
+    text.homologation = {
+      canHomologate: true,
+      group: meta.homologationGroup || text.id,
+      minimumDiagnosticScore: literacyRouteRules.homologationScore,
+      weaknessLabel: meta.weaknessLabel || text.title,
+      evidence: meta.evidence || text.desc || `Comprensión lectora del texto ${text.title}.`
+    };
+
+    text.diagnosticTags = meta.diagnosticTags || [text.topic || text.id];
+    text.weaknessLabel = meta.weaknessLabel || text.title;
+    text.methodology = text.methodology || literacyMethodology;
+    text.assessmentCriteria = text.assessmentCriteria || literacyAssessment.reading;
+
+    if (!text.selfAssessment) {
+      text.selfAssessment = [
+        'I can understand the general idea of the text.',
+        'I can find specific information in the text.',
+        'I can identify useful vocabulary.',
+        'I can answer comprehension questions with evidence.',
+        'I can connect the text with my own life.'
+      ];
+    }
+  });
+
+
+  // ------------------------------------------------------------
+  // 8. ENRIQUECIMIENTO AUTOMÁTICO DE WRITING
+  // ------------------------------------------------------------
+
+  writingExercises.forEach(exercise => {
+    const meta = writingCompetencyMap[exercise.id] || {};
+    const inferredLevel = meta.cefr || exercise.level || findWritingPathLevel(exercise.id) || 'A1';
+
+    exercise.id = exercise.id;
+    exercise.level = exercise.level || inferredLevel;
+    exercise.skill = 'writing';
+    exercise.sourceType = 'writing';
+
+    exercise.routeMeta = {
+      type: 'writing',
+      level: inferredLevel,
+      sequence: getWritingSequence(exercise.id),
+      requiredScore: literacyRouteRules.requiredScore,
+      homologationScore: literacyRouteRules.homologationScore,
+      estimatedMinutes: exercise.estimatedMinutes || 20,
+      isRequired: true
+    };
+
+    exercise.homologation = {
+      canHomologate: true,
+      group: meta.homologationGroup || exercise.id,
+      minimumDiagnosticScore: literacyRouteRules.homologationScore,
+      weaknessLabel: meta.weaknessLabel || exercise.title,
+      evidence: meta.evidence || exercise.desc || `Producción escrita del ejercicio ${exercise.title}.`
+    };
+
+    exercise.diagnosticTags = meta.diagnosticTags || [exercise.type || exercise.id];
+    exercise.weaknessLabel = meta.weaknessLabel || exercise.title;
+    exercise.methodology = exercise.methodology || literacyMethodology;
+    exercise.assessmentCriteria = exercise.assessmentCriteria || literacyAssessment.writing;
+
+    if (!exercise.selfAssessment) {
+      exercise.selfAssessment = [
+        'Puedo entender la consigna de escritura.',
+        'Puedo organizar una frase o párrafo en inglés.',
+        'Puedo revisar errores básicos.',
+        'Puedo mejorar mi producción después de recibir feedback.'
+      ];
+    }
+  });
+
+
+  // ------------------------------------------------------------
+  // 9. DIAGNÓSTICO DE READING
+  // ------------------------------------------------------------
+
+  const readingDiagnosticBlueprint = {
+    id: 'reading_diagnostic_a1_a2',
+    title: 'Diagnóstico de Reading A1–A2',
+    description: 'Evalúa comprensión lectora global y específica.',
+    levels: ['A1', 'A2'],
+    rules: literacyRouteRules,
+    items: [
+      {
+        id: 'diag_reading_a1_school_1',
+        level: 'A1',
+        skill: 'reading',
+        mapsTo: ['school_day'],
+        tags: ['routine', 'school', 'specific_information'],
+        q: 'Mini text: Tom walks to school every morning because his school is near his house. How does Tom get to school?',
+        opts: ['By bus', 'By car', 'He walks', 'By train'],
+        a: 2,
+        exp: 'The text says he walks to school every morning.'
+      },
+      {
+        id: 'diag_reading_a1_family_1',
+        level: 'A1',
+        skill: 'reading',
+        mapsTo: ['my_family'],
+        tags: ['family', 'jobs', 'detail'],
+        q: 'Mini text: Sofia’s father is an engineer and her mother works as a nurse. What is her father’s job?',
+        opts: ['Doctor', 'Engineer', 'Teacher', 'Nurse'],
+        a: 1,
+        exp: 'Her father is an engineer.'
+      },
+      {
+        id: 'diag_reading_a1_room_1',
+        level: 'A1',
+        skill: 'reading',
+        mapsTo: ['my_room_a1'],
+        tags: ['home', 'prepositions', 'there_is_are'],
+        q: 'Mini text: There is a bed next to the window. Where is the bed?',
+        opts: ['Under the desk', 'Next to the window', 'Behind the door', 'In the wardrobe'],
+        a: 1,
+        exp: 'The bed is next to the window.'
+      },
+      {
+        id: 'diag_reading_a1_restaurant_1',
+        level: 'A1',
+        skill: 'reading',
+        mapsTo: ['at_the_restaurant_a1'],
+        tags: ['restaurant', 'id_like', 'food'],
+        q: 'Mini dialogue: Customer: I’d like a chicken sandwich and a glass of orange juice. What drink does the customer order?',
+        opts: ['Water', 'Tea', 'Orange juice', 'Coffee'],
+        a: 2,
+        exp: 'The customer orders orange juice.'
+      },
+      {
+        id: 'diag_reading_a1_past_1',
+        level: 'A1',
+        skill: 'reading',
+        mapsTo: ['yesterday_at_home_a1'],
+        tags: ['past_simple', 'details'],
+        q: 'Mini text: Yesterday, I cleaned my room and helped my mother in the kitchen. What did the person clean?',
+        opts: ['The kitchen', 'The bathroom', 'The room', 'The garden'],
+        a: 2,
+        exp: 'The text says: I cleaned my room.'
+      },
+      {
+        id: 'diag_reading_a2_london_1',
+        level: 'A2',
+        skill: 'reading',
+        mapsTo: ['london'],
+        tags: ['city', 'tourism', 'specific_information'],
+        q: 'Mini text: The River Thames runs through the heart of London. What river runs through London?',
+        opts: ['The Seine', 'The Thames', 'The Nile', 'The Rhine'],
+        a: 1,
+        exp: 'The River Thames runs through London.'
+      },
+      {
+        id: 'diag_reading_a2_weather_1',
+        level: 'A2',
+        skill: 'reading',
+        mapsTo: ['british_weather'],
+        tags: ['weather', 'main_idea'],
+        q: 'Mini text: The weather in the UK is very changeable. Why do British people often talk about the weather?',
+        opts: ['Because it is always sunny', 'Because it is very changeable', 'Because it never rains', 'Because it is always hot'],
+        a: 1,
+        exp: 'The text says the weather is very changeable.'
+      },
+      {
+        id: 'diag_reading_a2_health_1',
+        level: 'A2',
+        skill: 'reading',
+        mapsTo: ['healthy_lifestyle'],
+        tags: ['health', 'recommendations'],
+        q: 'Mini text: Experts recommend at least thirty minutes of moderate physical activity every day. How much exercise do experts recommend?',
+        opts: ['Ten minutes', 'At least thirty minutes', 'Two hours', 'Five minutes'],
+        a: 1,
+        exp: 'Experts recommend at least thirty minutes.'
+      },
+      {
+        id: 'diag_reading_a2_tech_1',
+        level: 'A2',
+        skill: 'reading',
+        mapsTo: ['technology_life'],
+        tags: ['technology', 'advantages_disadvantages'],
+        q: 'Mini text: Many people spend too much time looking at screens and not enough time interacting face-to-face. What is one disadvantage of technology?',
+        opts: ['It helps people study', 'It connects people', 'People spend too much time on screens', 'It makes life easier'],
+        a: 2,
+        exp: 'The disadvantage mentioned is too much screen time.'
+      }
+    ]
+  };
+
+
+  // ------------------------------------------------------------
+  // 10. DIAGNÓSTICO DE WRITING
+  // ------------------------------------------------------------
+
+  const writingDiagnosticBlueprint = {
+    id: 'writing_diagnostic_a1_a2',
+    title: 'Diagnóstico de Writing A1–A2',
+    description: 'Evalúa sintaxis, transformación, corrección y producción escrita controlada.',
+    levels: ['A1', 'A2'],
+    rules: literacyRouteRules,
+    items: [
+      {
+        id: 'diag_writing_a1_order_1',
+        level: 'A1',
+        skill: 'writing',
+        mapsTo: ['word_order_1'],
+        tags: ['word_order', 'affirmative'],
+        q: 'Choose the correct sentence.',
+        opts: ['She is a teacher.', 'She a teacher is.', 'Is she a teacher.'],
+        a: 0,
+        exp: 'Correct order: subject + be + article + noun.'
+      },
+      {
+        id: 'diag_writing_a1_question_1',
+        level: 'A1',
+        skill: 'writing',
+        mapsTo: ['word_order_a1_questions', 'transform_questions'],
+        tags: ['questions', 'word_order'],
+        q: 'Choose the correct question.',
+        opts: ['Where you live?', 'Where do you live?', 'Where does you live?'],
+        a: 1,
+        exp: 'Correct question: Where do you live?'
+      },
+      {
+        id: 'diag_writing_a1_negative_1',
+        level: 'A1',
+        skill: 'writing',
+        mapsTo: ['transform_negatives', 'error_correction_a1_present'],
+        tags: ['negative', 'present_simple'],
+        q: 'Choose the correct negative sentence.',
+        opts: ['She no likes coffee.', 'She doesn’t like coffee.', 'She doesn’t likes coffee.'],
+        a: 1,
+        exp: 'With she: doesn’t + base verb.'
+      },
+      {
+        id: 'diag_writing_a1_continuous_1',
+        level: 'A1',
+        skill: 'writing',
+        mapsTo: ['transform_tenses'],
+        tags: ['present_continuous'],
+        q: 'Transform: “She reads a book.” → now. Choose the correct answer.',
+        opts: ['She is reading a book.', 'She reading a book.', 'She readsing a book.'],
+        a: 0,
+        exp: 'Present continuous: she is reading.'
+      },
+      {
+        id: 'diag_writing_a1_profile_1',
+        level: 'A1',
+        skill: 'writing',
+        mapsTo: ['free_writing_intro', 'free_writing_my_profile'],
+        tags: ['personal_profile'],
+        q: 'Choose the best sentence for a personal profile.',
+        opts: ['My name Ana.', 'My name is Ana.', 'Name is my Ana.'],
+        a: 1,
+        exp: 'Correct structure: My name is Ana.'
+      },
+      {
+        id: 'diag_writing_a1_dictation_proxy_1',
+        level: 'A1',
+        skill: 'writing',
+        mapsTo: ['dictation_a1_routines'],
+        tags: ['dictation', 'spelling'],
+        q: 'Choose the correctly written sentence.',
+        opts: ['I wake up at six o’clock every morning.', 'I wake at six every morning up.', 'I waking up at six o’clock.'],
+        a: 0,
+        exp: 'The sentence has correct order and spelling.'
+      },
+      {
+        id: 'diag_writing_a2_past_future_1',
+        level: 'A2',
+        skill: 'writing',
+        mapsTo: ['word_order_3', 'free_writing_email'],
+        tags: ['past_simple', 'future'],
+        q: 'Choose the correct sentence.',
+        opts: ['Did you enjoyed the party?', 'Did you enjoy the party?', 'You did enjoy the party?'],
+        a: 1,
+        exp: 'After did, use the base verb: enjoy.'
+      },
+      {
+        id: 'diag_writing_a2_mixed_1',
+        level: 'A2',
+        skill: 'writing',
+        mapsTo: ['fill_gaps_mixed', 'error_correction_a1_mixed'],
+        tags: ['mixed_grammar', 'past_continuous'],
+        q: 'Choose the correct completion: “I ___ TV when you called.”',
+        opts: ['watched', 'was watching', 'am watching'],
+        a: 1,
+        exp: 'Past continuous: was watching.'
+      },
+      {
+        id: 'diag_writing_a2_email_1',
+        level: 'A2',
+        skill: 'writing',
+        mapsTo: ['free_writing_email'],
+        tags: ['email', 'informal_writing'],
+        q: 'Choose the best opening for an informal email.',
+        opts: ['Dear Sir or Madam,', 'Hi David!', 'To whom it may concern,'],
+        a: 1,
+        exp: 'Hi David! is appropriate for an informal email.'
+      },
+      {
+        id: 'diag_writing_a2_opinion_1',
+        level: 'A2',
+        skill: 'writing',
+        mapsTo: ['free_writing_opinion'],
+        tags: ['opinion', 'connectors'],
+        q: 'Choose the best phrase to introduce an opinion.',
+        opts: ['Yesterday I went...', 'In my opinion...', 'There is a table...'],
+        a: 1,
+        exp: 'In my opinion is used to express an opinion.'
+      }
+    ]
+  };
+
+
+  // ------------------------------------------------------------
+  // 11. CONFIGURACIONES CENTRALES
+  // ------------------------------------------------------------
+
+  const readingRouteConfig = {
+    type: 'reading',
+    source: 'readingTexts',
+    version: '5.1',
+    rules: literacyRouteRules,
+    path: readingLearningPath,
+    competencies: readingCompetencyMap,
+    diagnostic: readingDiagnosticBlueprint
+  };
+
+  const writingRouteConfig = {
+    type: 'writing',
+    source: 'writingExercises',
+    version: '5.1',
+    rules: literacyRouteRules,
+    path: writingLearningPath,
+    competencies: writingCompetencyMap,
+    diagnostic: writingDiagnosticBlueprint
+  };
+
+  const literacyRouteConfig = {
+    version: '5.1',
+    methodology: literacyMethodology,
+    assessment: literacyAssessment,
+    reading: readingRouteConfig,
+    writing: writingRouteConfig
+  };
+
+
+  // ------------------------------------------------------------
+  // 12. DIAGNÓSTICO GLOBAL A1–A2
+  // ------------------------------------------------------------
+  // El app.js v4 usa diagnosticTest si existe.
+  // Aquí componemos Grammar + Reading + Writing.
+
+  const grammarItems =
+    typeof grammarDiagnosticBlueprint !== 'undefined'
+      ? grammarDiagnosticBlueprint.items || []
+      : [];
+
+  var diagnosticTest = {
+    id: 'main_placement_test_a1_a2',
+    title: 'Prueba diagnóstica integral A1–A2',
+    description: 'Evalúa gramática, reading y writing para ubicar, homologar y asignar refuerzos.',
+    levels: ['A1', 'A2'],
+    rules: {
+      passScore: 80,
+      homologationScore: 85,
+      reinforcementThreshold: 75
+    },
+    sections: [
+      {
+        id: 'grammar',
+        title: 'Grammar',
+        weight: 0.5,
+        items: grammarItems
+      },
+      {
+        id: 'reading',
+        title: 'Reading',
+        weight: 0.25,
+        items: readingDiagnosticBlueprint.items
+      },
+      {
+        id: 'writing',
+        title: 'Writing',
+        weight: 0.25,
+        items: writingDiagnosticBlueprint.items
+      }
+    ]
+  };
+
+
+  // ------------------------------------------------------------
+  // 13. UTILIDADES GLOBALES
+  // ------------------------------------------------------------
+
+  function getReadingTextsByLevel(level) {
+    return readingTexts.filter(text => text.level === level);
+  }
+
+  function getWritingExercisesByLevel(level) {
+    return writingExercises.filter(ex => ex.level === level);
+  }
+
+  function getLiteracyWeaknessLabel(type, id) {
+    if (type === 'reading') return getReadingWeaknessLabel(id);
+    if (type === 'writing') return getWritingWeaknessLabel(id);
+    return id;
+  }
+
+  function getReadingDiagnosticItemsByLevel(level) {
+    return readingDiagnosticBlueprint.items.filter(item => item.level === level);
+  }
+
+  function getWritingDiagnosticItemsByLevel(level) {
+    return writingDiagnosticBlueprint.items.filter(item => item.level === level);
+  }
+
+
+  // ------------------------------------------------------------
+  // 14. EXPORTACIÓN PARA NAVEGADOR
+  // ------------------------------------------------------------
+
+  if (typeof window !== 'undefined') {
+    window.readingTexts = readingTexts;
+    window.writingExercises = writingExercises;
+
+    window.readingLearningPath = readingLearningPath;
+    window.writingLearningPath = writingLearningPath;
+
+    window.readingCompetencyMap = readingCompetencyMap;
+    window.writingCompetencyMap = writingCompetencyMap;
+
+    window.readingDiagnosticBlueprint = readingDiagnosticBlueprint;
+    window.writingDiagnosticBlueprint = writingDiagnosticBlueprint;
+
+    window.readingRouteConfig = readingRouteConfig;
+    window.writingRouteConfig = writingRouteConfig;
+    window.literacyRouteConfig = literacyRouteConfig;
+
+    window.diagnosticTest = diagnosticTest;
+
+    window.getReadingText = getReadingText;
+    window.getWritingExercise = getWritingExercise;
+    window.getReadingTextsByLevel = getReadingTextsByLevel;
+    window.getWritingExercisesByLevel = getWritingExercisesByLevel;
+    window.getReadingWeaknessLabel = getReadingWeaknessLabel;
+    window.getWritingWeaknessLabel = getWritingWeaknessLabel;
+    window.getLiteracyWeaknessLabel = getLiteracyWeaknessLabel;
+    window.getReadingDiagnosticItemsByLevel = getReadingDiagnosticItemsByLevel;
+    window.getWritingDiagnosticItemsByLevel = getWritingDiagnosticItemsByLevel;
+  }
+
+
+  // ------------------------------------------------------------
+  // 15. EXPORTACIÓN PARA NODE
+  // ------------------------------------------------------------
+
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+      readingTexts,
+      writingExercises,
+      readingLearningPath,
+      writingLearningPath,
+      readingCompetencyMap,
+      writingCompetencyMap,
+      readingDiagnosticBlueprint,
+      writingDiagnosticBlueprint,
+      readingRouteConfig,
+      writingRouteConfig,
+      literacyRouteConfig,
+      diagnosticTest
+    };
+  }
+
+})();

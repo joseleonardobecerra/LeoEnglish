@@ -312,3 +312,1023 @@ const writingExercises = [
     ]
   }
 ];
+// =====================================================
+// EXPANSIÓN INSTRUCCIONAL A1/A2 PARA READING & WRITING
+// Mantiene la base original y agrega nuevos textos,
+// ejercicios, etapas, evaluación, portafolio y metodología.
+// =====================================================
+
+
+// -----------------------------------------------------
+// 1. ETAPAS DIDÁCTICAS PARA READING & WRITING
+// -----------------------------------------------------
+
+const readingWritingDidacticStages = [
+  {
+    id:'pre_reading',
+    name:'1. Pre-reading / Activación',
+    purpose:'Activar vocabulario, contexto y predicciones antes de leer.',
+    teacherAction:'Presenta imágenes, palabras clave, preguntas guía o una situación inicial.',
+    studentAction:'Predice el tema, reconoce palabras conocidas y conecta el texto con su vida.',
+    examples:[
+      'Look at the title and predict',
+      'Choose 5 words you know',
+      'What do you think the text is about?',
+      'Match pictures with keywords'
+    ]
+  },
+  {
+    id:'first_reading',
+    name:'2. First Reading / Comprensión global',
+    purpose:'Comprender la idea general sin detenerse en cada palabra.',
+    teacherAction:'Da una pregunta global antes de leer.',
+    studentAction:'Lee para identificar tema, personajes, lugar, tiempo e intención.',
+    examples:[
+      'Who is the text about?',
+      'Where does it happen?',
+      'What is the main idea?',
+      'Choose the best title'
+    ]
+  },
+  {
+    id:'focused_reading',
+    name:'3. Focused Reading / Comprensión específica',
+    purpose:'Buscar información puntual dentro del texto.',
+    teacherAction:'Propone preguntas de selección, verdadero/falso o completar espacios.',
+    studentAction:'Relee, ubica evidencia y responde con precisión.',
+    examples:[
+      'True or False',
+      'Fill in the blank',
+      'Find the sentence',
+      'Answer comprehension questions'
+    ]
+  },
+  {
+    id:'language_noticing',
+    name:'4. Language Noticing',
+    purpose:'Observar vocabulario, conectores, estructuras gramaticales y patrones del texto.',
+    teacherAction:'Guía el análisis de frases útiles, tiempos verbales y expresiones.',
+    studentAction:'Subraya estructuras, traduce palabras clave y clasifica ejemplos.',
+    examples:[
+      'Underline all present simple verbs',
+      'Find time expressions',
+      'Find adjectives',
+      'Find phrases you can reuse'
+    ]
+  },
+  {
+    id:'guided_writing',
+    name:'5. Guided Writing',
+    purpose:'Usar el texto como modelo para producir escritura controlada.',
+    teacherAction:'Entrega plantillas, frases guía o modelos incompletos.',
+    studentAction:'Escribe frases o párrafos breves siguiendo una estructura.',
+    examples:[
+      'Complete the paragraph',
+      'Transform the text',
+      'Write about yourself using the model',
+      'Use 5 phrases from the text'
+    ]
+  },
+  {
+    id:'accuracy_practice',
+    name:'6. Accuracy Practice',
+    purpose:'Mejorar precisión gramatical, puntuación, ortografía y sintaxis.',
+    teacherAction:'Propone ejercicios de corrección de errores, dictado o transformación.',
+    studentAction:'Corrige, reescribe, compara y justifica sus cambios.',
+    examples:[
+      'Error correction',
+      'Dictation',
+      'Sentence transformation',
+      'Word order'
+    ]
+  },
+  {
+    id:'communicative_output',
+    name:'7. Communicative Output',
+    purpose:'Crear un producto escrito u oral con sentido real.',
+    teacherAction:'Plantea una tarea comunicativa conectada con el tema.',
+    studentAction:'Produce un texto, audio, diálogo, correo, publicación o presentación.',
+    examples:[
+      'Write a personal routine',
+      'Write an email',
+      'Describe your family',
+      'Create a travel plan'
+    ]
+  },
+  {
+    id:'portfolio',
+    name:'8. Portfolio Evidence',
+    purpose:'Guardar evidencia del aprendizaje en un portafolio digital.',
+    teacherAction:'Define criterios claros de entrega.',
+    studentAction:'Entrega una producción final revisada y reflexionada.',
+    examples:[
+      'Final paragraph',
+      'Corrected version',
+      'Audio reading',
+      'Digital poster',
+      'Personal text'
+    ]
+  },
+  {
+    id:'reflection',
+    name:'9. Reflexión heutagógica',
+    purpose:'Desarrollar autonomía, metacognición y conciencia de mejora.',
+    teacherAction:'Formula preguntas de reflexión.',
+    studentAction:'Identifica errores, estrategias y próximos pasos.',
+    examples:[
+      'What did I understand?',
+      'What words are useful for me?',
+      'What mistakes did I correct?',
+      'How will I improve my next text?'
+    ]
+  }
+];
+
+
+// -----------------------------------------------------
+// 2. NUEVOS TEXTOS DE READING
+// Compatibles con choice y fill.
+// True/False se trabaja como choice con opts ['True','False'].
+// -----------------------------------------------------
+
+const readingExpansionTexts = [
+  {
+    id:'my_room_a1',
+    title:'My Bedroom',
+    level:'A1',
+    levelColor:'#2563EB',
+    topic:'Casa y objetos',
+    questions:7,
+    desc:'Texto A1 para practicar there is/are, preposiciones y vocabulario de la casa.',
+    body:`My bedroom is small, but I like it very much. There is a <span class="word-hl" data-tr="cama">bed</span> next to the window. There is a small <span class="word-hl" data-tr="escritorio">desk</span> under the window, and my computer is on the desk. There are two <span class="word-hl" data-tr="sillas">chairs</span> in my room. My school books are in a blue <span class="word-hl" data-tr="morral / mochila">backpack</span>. There is a poster of my favourite singer on the wall. My clothes are in the <span class="word-hl" data-tr="armario / clóset">wardrobe</span>. I always keep my room clean because I study there every afternoon.`,
+    qs:[
+      {type:'choice', q:'True or False: The bedroom is very big.', opts:['True','False'], a:1, exp:'The text says: "My bedroom is small."'},
+      {type:'choice', q:'Where is the bed?', opts:['Next to the window','Under the desk','Behind the door'], a:0, exp:'"There is a bed next to the window."'},
+      {type:'fill', q:'The computer is on the ___.', a:'desk', exp:'The text says the computer is on the desk.'},
+      {type:'choice', q:'How many chairs are there?', opts:['One','Two','Three'], a:1, exp:'"There are two chairs in my room."'},
+      {type:'fill', q:'The school books are in a blue ___.', a:'backpack', exp:'The school books are in a blue backpack.'},
+      {type:'choice', q:'True or False: There is a poster on the wall.', opts:['True','False'], a:0, exp:'There is a poster of the favourite singer on the wall.'},
+      {type:'choice', q:'Why does the writer keep the room clean?', opts:['Because they sleep there','Because they study there','Because it is very big'], a:1, exp:'"I study there every afternoon."'}
+    ],
+    skillFocus:['Reading for detail','Prepositions of place','There is / There are'],
+    communicativeTask:'Describe your bedroom using there is, there are and prepositions.',
+    portfolioEvidence:'My bedroom description'
+  },
+
+  {
+    id:'my_best_friend_a1',
+    title:'My Best Friend',
+    level:'A1',
+    levelColor:'#9333EA',
+    topic:'Personas y descripciones',
+    questions:7,
+    desc:'Texto A1 para describir personas con to be, have/has y adjetivos.',
+    body:`My best friend is Daniel. He is thirteen years old and he is from Colombia. He is tall and friendly. He has short black hair and brown eyes. Daniel likes playing football and listening to music. He can play the guitar, but he cannot sing very well. At school, he is very good at English and science. We usually do our homework together after class. Daniel is a good friend because he is kind and funny.`,
+    qs:[
+      {type:'choice', q:'How old is Daniel?', opts:['Twelve','Thirteen','Fourteen'], a:1, exp:'The text says Daniel is thirteen years old.'},
+      {type:'choice', q:'True or False: Daniel is from Colombia.', opts:['True','False'], a:0, exp:'"He is from Colombia."'},
+      {type:'fill', q:'Daniel has short black ___ and brown eyes.', a:'hair', exp:'The text says he has short black hair.'},
+      {type:'choice', q:'What sport does Daniel like?', opts:['Basketball','Football','Tennis'], a:1, exp:'Daniel likes playing football.'},
+      {type:'choice', q:'What instrument can Daniel play?', opts:['The piano','The guitar','The violin'], a:1, exp:'"He can play the guitar."'},
+      {type:'choice', q:'True or False: Daniel can sing very well.', opts:['True','False'], a:1, exp:'The text says he cannot sing very well.'},
+      {type:'fill', q:'Daniel is a good friend because he is kind and ___.', a:'funny', exp:'The text says he is kind and funny.'}
+    ],
+    skillFocus:['Reading for specific information','Adjectives','Can / Can’t'],
+    communicativeTask:'Write about your best friend using age, appearance, likes and abilities.',
+    portfolioEvidence:'My best friend paragraph'
+  },
+
+  {
+    id:'at_the_restaurant_a1',
+    title:'At the Restaurant',
+    level:'A1',
+    levelColor:'#EA580C',
+    topic:'Comida y pedidos',
+    questions:7,
+    desc:'Diálogo A1 para practicar I’d like, comida y solicitudes corteses.',
+    body:`Waiter: Good afternoon. Are you ready to order?<br>
+Customer: Yes, please. I’d like a chicken sandwich and a glass of orange juice.<br>
+Waiter: Would you like a salad with your sandwich?<br>
+Customer: No, thank you. I’d like some chips, please.<br>
+Waiter: Anything else?<br>
+Customer: Yes, I’d like a small chocolate cake.<br>
+Waiter: Of course. That is twelve dollars fifty.<br>
+Customer: Here you are.<br>
+Waiter: Thank you. Enjoy your meal!`,
+    qs:[
+      {type:'choice', q:'Where does the dialogue happen?', opts:['At school','At a restaurant','At a hospital'], a:1, exp:'The waiter and customer are ordering food.'},
+      {type:'fill', q:'The customer would like a chicken ___.', a:'sandwich', exp:'The customer says: "I’d like a chicken sandwich."'},
+      {type:'choice', q:'What drink does the customer order?', opts:['Water','Tea','Orange juice'], a:2, exp:'The customer orders orange juice.'},
+      {type:'choice', q:'True or False: The customer wants a salad.', opts:['True','False'], a:1, exp:'The customer says: "No, thank you."'},
+      {type:'fill', q:'The customer would like some ___ with the sandwich.', a:'chips', exp:'The customer asks for chips.'},
+      {type:'choice', q:'What dessert does the customer want?', opts:['Ice cream','Chocolate cake','Fruit'], a:1, exp:'A small chocolate cake.'},
+      {type:'choice', q:'How much is the food?', opts:['Ten dollars','Twelve dollars fifty','Twenty dollars'], a:1, exp:'"That is twelve dollars fifty."'}
+    ],
+    skillFocus:['Dialogue reading','I’d like','Food vocabulary'],
+    communicativeTask:'Create your own restaurant dialogue.',
+    portfolioEvidence:'Restaurant role-play script'
+  },
+
+  {
+    id:'weekend_plans_a1',
+    title:'Weekend Plans',
+    level:'A1',
+    levelColor:'#0D9488',
+    topic:'Planes futuros',
+    questions:7,
+    desc:'Texto A1 para practicar going to y expresiones de futuro.',
+    body:`This weekend, Laura is going to visit her grandparents. On Saturday morning, she is going to take the bus to their town. Her grandmother is going to cook lunch, and her grandfather is going to show her old family photos. In the afternoon, Laura and her cousins are going to play in the park. On Sunday, they are going to have breakfast together and then Laura is going to come back home. She is very excited because she loves spending time with her family.`,
+    qs:[
+      {type:'choice', q:'Who is Laura going to visit?', opts:['Her teacher','Her grandparents','Her friends'], a:1, exp:'Laura is going to visit her grandparents.'},
+      {type:'choice', q:'True or False: Laura is going to travel by train.', opts:['True','False'], a:1, exp:'She is going to take the bus.'},
+      {type:'fill', q:'Her grandmother is going to cook ___.', a:'lunch', exp:'The text says her grandmother is going to cook lunch.'},
+      {type:'choice', q:'What is her grandfather going to show her?', opts:['New books','Old family photos','A new car'], a:1, exp:'Old family photos.'},
+      {type:'fill', q:'Laura and her cousins are going to play in the ___.', a:'park', exp:'They are going to play in the park.'},
+      {type:'choice', q:'When is Laura going to come back home?', opts:['On Friday','On Saturday','On Sunday'], a:2, exp:'On Sunday she is going to come back home.'},
+      {type:'choice', q:'How does Laura feel?', opts:['Bored','Excited','Angry'], a:1, exp:'She is very excited.'}
+    ],
+    skillFocus:['Going to','Family vocabulary','Future plans'],
+    communicativeTask:'Write your weekend plans using going to.',
+    portfolioEvidence:'My weekend plans'
+  },
+
+  {
+    id:'yesterday_at_home_a1',
+    title:'Yesterday at Home',
+    level:'A1',
+    levelColor:'#C05621',
+    topic:'Pasado simple',
+    questions:7,
+    desc:'Texto A1 para practicar pasado simple y pasado de to be.',
+    body:`Yesterday was a quiet day. I was at home with my family. In the morning, I cleaned my room and helped my mother in the kitchen. We cooked rice, chicken and salad for lunch. In the afternoon, my brother watched a movie, and I studied English for one hour. Later, we played cards in the living room. At night, I called my grandmother and then I went to bed early. It was a simple but nice day.`,
+    qs:[
+      {type:'choice', q:'True or False: Yesterday was a busy and noisy day.', opts:['True','False'], a:1, exp:'The text says it was a quiet day.'},
+      {type:'choice', q:'Where was the writer yesterday?', opts:['At school','At home','At the park'], a:1, exp:'"I was at home with my family."'},
+      {type:'fill', q:'In the morning, the writer cleaned their ___.', a:'room', exp:'"I cleaned my room."'},
+      {type:'choice', q:'What did they cook for lunch?', opts:['Rice, chicken and salad','Fish and chips','Soup and bread'], a:0, exp:'They cooked rice, chicken and salad.'},
+      {type:'choice', q:'What did the brother do?', opts:['He studied English','He watched a movie','He called grandmother'], a:1, exp:'The brother watched a movie.'},
+      {type:'fill', q:'At night, the writer called their ___.', a:'grandmother', exp:'The writer called their grandmother.'},
+      {type:'choice', q:'How was the day?', opts:['Simple but nice','Terrible','Very expensive'], a:0, exp:'"It was a simple but nice day."'}
+    ],
+    skillFocus:['Past simple','Was / Were','Daily activities'],
+    communicativeTask:'Write about your day yesterday using past simple.',
+    portfolioEvidence:'Yesterday paragraph'
+  },
+
+  {
+    id:'school_rules_a1',
+    title:'School Rules',
+    level:'A1',
+    levelColor:'#DC2626',
+    topic:'Instrucciones y reglas',
+    questions:7,
+    desc:'Texto A1 para trabajar imperativos, can/can’t y reglas escolares.',
+    body:`Every school has rules. At my school, students must arrive on time. We can use our phones only during the break. In class, we must listen to the teacher and raise our hand before speaking. We must not run in the corridors because it is dangerous. We can play football in the playground, but we cannot play inside the classroom. We must keep the classroom clean and respect our classmates. These rules help us learn and stay safe.`,
+    qs:[
+      {type:'choice', q:'True or False: Students can arrive late.', opts:['True','False'], a:1, exp:'Students must arrive on time.'},
+      {type:'choice', q:'When can students use their phones?', opts:['In every class','Only during the break','At night'], a:1, exp:'Only during the break.'},
+      {type:'fill', q:'Students must raise their ___ before speaking.', a:'hand', exp:'They must raise their hand.'},
+      {type:'choice', q:'Why must students not run in the corridors?', opts:['Because it is boring','Because it is dangerous','Because it is expensive'], a:1, exp:'It is dangerous.'},
+      {type:'choice', q:'Where can students play football?', opts:['In the playground','Inside the classroom','In the library'], a:0, exp:'They can play football in the playground.'},
+      {type:'fill', q:'Students must keep the classroom ___.', a:'clean', exp:'They must keep the classroom clean.'},
+      {type:'choice', q:'What do the rules help students do?', opts:['Learn and stay safe','Sleep more','Buy food'], a:0, exp:'The rules help students learn and stay safe.'}
+    ],
+    skillFocus:['Imperatives','Can / Can’t','School vocabulary'],
+    communicativeTask:'Create five rules for your classroom.',
+    portfolioEvidence:'Classroom rules poster'
+  }
+];
+
+
+// -----------------------------------------------------
+// 3. NUEVOS EJERCICIOS DE WRITING
+// Compatibles con: order, transform, free, error, dictation.
+// -----------------------------------------------------
+
+const writingExpansionExercises = [
+  {
+    id:'error_correction_a1_present',
+    title:'Caza de errores: presente simple',
+    type:'error',
+    typeLabel:'Corrección',
+    typeColor:'#E53E3E',
+    desc:'Corrige errores frecuentes en presente simple, to be y adverbios de frecuencia.',
+    tasks:[
+      {
+        wrong:'She go to school every day.',
+        answer:'She goes to school every day.',
+        tip:'En presente simple, he/she/it agrega -s o -es al verbo.'
+      },
+      {
+        wrong:'He are my brother.',
+        answer:'He is my brother.',
+        tip:'Con he usamos is, no are.'
+      },
+      {
+        wrong:'I no like coffee.',
+        answer:"I don't like coffee.",
+        tip:'La negación en presente simple usa don’t / doesn’t.'
+      },
+      {
+        wrong:'Does she likes music?',
+        answer:'Does she like music?',
+        tip:'Después de does, el verbo va en forma base.'
+      },
+      {
+        wrong:'They is at home.',
+        answer:'They are at home.',
+        tip:'Con they usamos are.'
+      },
+      {
+        wrong:'He usually is late.',
+        answer:'He is usually late.',
+        tip:'Con el verbo to be, el adverbio de frecuencia va después del verbo.'
+      }
+    ],
+    learningGoal:'Reconocer y corregir errores A1 de estructura básica.',
+    portfolioEvidence:'Lista personal de errores corregidos'
+  },
+
+  {
+    id:'error_correction_a1_mixed',
+    title:'Caza de errores: A1 mixto',
+    type:'error',
+    typeLabel:'Corrección',
+    typeColor:'#C05621',
+    desc:'Corrige errores de pasado, futuro, modales, comparativos y there is/are.',
+    tasks:[
+      {
+        wrong:'Yesterday I go to the cinema.',
+        answer:'Yesterday I went to the cinema.',
+        tip:'Yesterday indica pasado simple.'
+      },
+      {
+        wrong:'She can speaks English.',
+        answer:'She can speak English.',
+        tip:'Después de can usamos verbo base.'
+      },
+      {
+        wrong:'There is two chairs in the room.',
+        answer:'There are two chairs in the room.',
+        tip:'Two chairs es plural, por eso usamos there are.'
+      },
+      {
+        wrong:'I am going visit my aunt.',
+        answer:'I am going to visit my aunt.',
+        tip:'La estructura es be going to + verbo base.'
+      },
+      {
+        wrong:'This house is more big than that house.',
+        answer:'This house is bigger than that house.',
+        tip:'Big es adjetivo corto: bigger than.'
+      },
+      {
+        wrong:'Did you watched TV last night?',
+        answer:'Did you watch TV last night?',
+        tip:'Después de did, el verbo va en forma base.'
+      }
+    ],
+    learningGoal:'Integrar estructuras A1 y detectar errores comunes.',
+    portfolioEvidence:'A1 correction challenge'
+  },
+
+  {
+    id:'dictation_a1_routines',
+    title:'Dictado A1: rutinas',
+    type:'dictation',
+    typeLabel:'Dictado',
+    typeColor:'#805AD5',
+    desc:'Escucha y escribe frases sobre rutinas, horarios y hábitos.',
+    tasks:[
+      {
+        audio:'I wake up at six o’clock every morning.',
+        answer:'I wake up at six o’clock every morning.',
+        tip:'Recuerda escribir o’clock correctamente.'
+      },
+      {
+        audio:'She usually has breakfast at home.',
+        answer:'She usually has breakfast at home.',
+        tip:'Usually va antes del verbo principal.'
+      },
+      {
+        audio:'They go to school by bus.',
+        answer:'They go to school by bus.',
+        tip:'By bus no lleva artículo.'
+      },
+      {
+        audio:'He does his homework after lunch.',
+        answer:'He does his homework after lunch.',
+        tip:'He does, no he do.'
+      },
+      {
+        audio:'We watch TV in the evening.',
+        answer:'We watch TV in the evening.',
+        tip:'Partes del día: in the evening.'
+      }
+    ],
+    learningGoal:'Fortalecer escucha, ortografía y estructura de frases A1.',
+    portfolioEvidence:'Dictation score and corrected sentences'
+  },
+
+  {
+    id:'dictation_a1_restaurant',
+    title:'Dictado A1: restaurante',
+    type:'dictation',
+    typeLabel:'Dictado',
+    typeColor:'#9333EA',
+    desc:'Escucha y escribe frases útiles para pedir comida.',
+    tasks:[
+      {
+        audio:'I would like a chicken sandwich, please.',
+        answer:'I would like a chicken sandwich, please.',
+        tip:'Would like es una forma cortés.'
+      },
+      {
+        audio:'Can I have the menu, please?',
+        answer:'Can I have the menu, please?',
+        tip:'Pregunta cortés con Can I have...?'
+      },
+      {
+        audio:'Would you like some orange juice?',
+        answer:'Would you like some orange juice?',
+        tip:'Some se usa en ofrecimientos.'
+      },
+      {
+        audio:'The bill is twelve dollars fifty.',
+        answer:'The bill is twelve dollars fifty.',
+        tip:'Bill significa cuenta.'
+      },
+      {
+        audio:'Enjoy your meal.',
+        answer:'Enjoy your meal.',
+        tip:'Expresión común en restaurantes.'
+      }
+    ],
+    learningGoal:'Practicar frases funcionales de restaurante.',
+    portfolioEvidence:'Restaurant dictation practice'
+  },
+
+  {
+    id:'free_writing_my_profile',
+    title:'Writing guiado: My Profile',
+    type:'free',
+    typeLabel:'Producción',
+    typeColor:'#059669',
+    desc:'Escribe un perfil personal usando información básica A1.',
+    tasks:[
+      {
+        prompt:'Write a short personal profile. Include your name, age, city, nationality, family and hobbies.',
+        hint:'Usa: My name is..., I am..., I live in..., I like...',
+        example:'My name is Ana. I am 13 years old. I live in Cúcuta. I am Colombian. I have one brother. I like music and football.',
+        minWords:45
+      },
+      {
+        prompt:'Write a short introduction for a new English class.',
+        hint:'Incluye saludo, nombre, lugar de origen y algo que te gusta.',
+        example:'Hello! My name is David. I am from Colombia. I am a student. I like playing video games and listening to music.',
+        minWords:35
+      }
+    ],
+    learningGoal:'Producir textos breves de presentación personal.',
+    portfolioEvidence:'Personal profile paragraph'
+  },
+
+  {
+    id:'free_writing_my_routine',
+    title:'Writing guiado: My Daily Routine',
+    type:'free',
+    typeLabel:'Producción',
+    typeColor:'#0D9488',
+    desc:'Escribe una rutina diaria usando presente simple y adverbios de frecuencia.',
+    tasks:[
+      {
+        prompt:'Write about your daily routine from morning to night.',
+        hint:'Usa: wake up, have breakfast, go to school/work, have lunch, do homework, go to bed.',
+        example:'I wake up at six o’clock. I usually have breakfast at home. I go to school by bus. In the afternoon, I do my homework.',
+        minWords:60
+      },
+      {
+        prompt:'Write about your weekend routine.',
+        hint:'Usa always, usually, sometimes y never.',
+        example:'On Saturdays, I usually wake up late. I sometimes play football with my friends. I never go to school on Sundays.',
+        minWords:50
+      }
+    ],
+    learningGoal:'Escribir rutinas con orden temporal y frecuencia.',
+    portfolioEvidence:'My daily routine paragraph'
+  },
+
+  {
+    id:'free_writing_last_weekend',
+    title:'Writing guiado: Last Weekend',
+    type:'free',
+    typeLabel:'Producción',
+    typeColor:'#C05621',
+    desc:'Escribe sobre actividades pasadas usando pasado simple.',
+    tasks:[
+      {
+        prompt:'Write about what you did last weekend.',
+        hint:'Usa: went, watched, played, visited, studied, ate, called.',
+        example:'Last weekend, I visited my grandmother. We cooked lunch together. In the afternoon, I watched a movie and played cards.',
+        minWords:55
+      },
+      {
+        prompt:'Write about a special day in the past.',
+        hint:'Usa was/were y verbos en pasado.',
+        example:'It was my birthday. I was very happy. My family cooked dinner and we listened to music.',
+        minWords:50
+      }
+    ],
+    learningGoal:'Narrar eventos simples del pasado.',
+    portfolioEvidence:'Past experience paragraph'
+  },
+
+  {
+    id:'transform_a1_integrated',
+    title:'Transformación A1 integrada',
+    type:'transform',
+    typeLabel:'Transformación',
+    typeColor:'#3182CE',
+    desc:'Transforma oraciones entre afirmativo, negativo, pregunta, pasado y futuro.',
+    tasks:[
+      {
+        prompt:'"She likes pizza." → Cambia a negativo.',
+        answer:"She doesn't like pizza.",
+        tip:'She usa doesn’t + verbo base.'
+      },
+      {
+        prompt:'"They are playing football." → Cambia a pregunta.',
+        answer:'Are they playing football?',
+        tip:'En presente continuo, el verbo be va antes del sujeto.'
+      },
+      {
+        prompt:'"I go to school every day." → Cambia a pasado con yesterday.',
+        answer:'I went to school yesterday.',
+        tip:'Go en pasado es went.'
+      },
+      {
+        prompt:'"He can swim." → Cambia a negativo.',
+        answer:"He can't swim.",
+        tip:'Can negativo es can’t.'
+      },
+      {
+        prompt:'"We visit our cousins." → Cambia a futuro con going to.',
+        answer:'We are going to visit our cousins.',
+        tip:'We are going to + verbo base.'
+      },
+      {
+        prompt:'"There is a book on the table." → Cambia a plural.',
+        answer:'There are books on the table.',
+        tip:'Plural: there are books.'
+      }
+    ],
+    learningGoal:'Conectar varias estructuras A1 en una práctica de transformación.',
+    portfolioEvidence:'Integrated grammar transformation'
+  },
+
+  {
+    id:'word_order_a1_questions',
+    title:'Ordena preguntas A1',
+    type:'order',
+    typeLabel:'Sintaxis',
+    typeColor:'#2563EB',
+    desc:'Ordena palabras para formar preguntas básicas correctas.',
+    tasks:[
+      {
+        prompt:'Forma una pregunta:',
+        words:['your','What','name?','is'],
+        answer:'What is your name?',
+        tip:'Wh-question + be + subject.'
+      },
+      {
+        prompt:'Forma una pregunta:',
+        words:['you','Where','live?','do'],
+        answer:'Where do you live?',
+        tip:'Where + do + subject + verb base.'
+      },
+      {
+        prompt:'Forma una pregunta:',
+        words:['she','Does','English?','speak'],
+        answer:'Does she speak English?',
+        tip:'Does + she + verbo base.'
+      },
+      {
+        prompt:'Forma una pregunta:',
+        words:['doing','are','What','you','now?'],
+        answer:'What are you doing now?',
+        tip:'Presente continuo: What + are + subject + verb-ing.'
+      },
+      {
+        prompt:'Forma una pregunta:',
+        words:['you','Did','TV','watch','yesterday?'],
+        answer:'Did you watch TV yesterday?',
+        tip:'Did + subject + verb base.'
+      },
+      {
+        prompt:'Forma una pregunta:',
+        words:['going','you','What','to','are','do?'],
+        answer:'What are you going to do?',
+        tip:'What + be + subject + going to + verb.'
+      }
+    ],
+    learningGoal:'Automatizar el orden de preguntas A1.',
+    portfolioEvidence:'A1 question builder'
+  }
+];
+
+
+// -----------------------------------------------------
+// 4. ENRIQUECIMIENTO DE TEXTOS EXISTENTES
+// -----------------------------------------------------
+
+const readingTextEnhancements = {
+  school_day:{
+    learningGoal:'Comprender una rutina escolar usando presente simple, horarios y vocabulario académico.',
+    beforeReading:[
+      'What time do you start school?',
+      'How do you go to school?',
+      'What is your favourite subject?'
+    ],
+    afterReadingTask:'Write five sentences about your school day.',
+    portfolioEvidence:'My school day paragraph'
+  },
+  my_family:{
+    learningGoal:'Comprender una descripción familiar usando possessives, jobs and adjectives.',
+    beforeReading:[
+      'How many people are there in your family?',
+      'Who lives with you?',
+      'What jobs do people in your family have?'
+    ],
+    afterReadingTask:'Create a family tree and describe three people.',
+    portfolioEvidence:'My family tree'
+  },
+  daily_routine:{
+    learningGoal:'Comprender una rutina diaria con horarios, verbos comunes y adverbios de frecuencia.',
+    beforeReading:[
+      'What time do you wake up?',
+      'What do you usually eat for breakfast?',
+      'What do you do in the evening?'
+    ],
+    afterReadingTask:'Write your routine using first, then, after that and finally.',
+    portfolioEvidence:'My daily routine'
+  },
+  shopping_day:{
+    learningGoal:'Comprender una situación de compras con precios, tiendas y cantidades.',
+    beforeReading:[
+      'Where do you usually go shopping?',
+      'Do you prefer paying by cash or card?',
+      'What clothes do you like buying?'
+    ],
+    afterReadingTask:'Create a shopping dialogue with prices.',
+    portfolioEvidence:'Shopping role play'
+  },
+  london:{
+    learningGoal:'Comprender una descripción turística usando lugares de ciudad y preposiciones.',
+    beforeReading:[
+      'What famous cities do you know?',
+      'What places can tourists visit?',
+      'What is your favourite city?'
+    ],
+    afterReadingTask:'Write a short tourist description of your city.',
+    portfolioEvidence:'My city guide'
+  },
+  british_weather:{
+    learningGoal:'Comprender un texto sobre clima, estaciones y descripciones.',
+    beforeReading:[
+      'What is the weather like today?',
+      'Do you like rainy days?',
+      'What is your favourite season?'
+    ],
+    afterReadingTask:'Write a weather report for your city.',
+    portfolioEvidence:'Weather report'
+  },
+  healthy_lifestyle:{
+    learningGoal:'Comprender recomendaciones sobre hábitos saludables y estilo de vida.',
+    beforeReading:[
+      'What healthy habits do you have?',
+      'How often do you exercise?',
+      'How many hours do you sleep?'
+    ],
+    afterReadingTask:'Write five healthy lifestyle tips.',
+    portfolioEvidence:'Healthy habits checklist'
+  },
+  technology_life:{
+    learningGoal:'Comprender ideas principales sobre tecnología y vida diaria.',
+    beforeReading:[
+      'How often do you use your phone?',
+      'What apps do you use every day?',
+      'Is technology good or bad for students?'
+    ],
+    afterReadingTask:'Write a short opinion about technology.',
+    portfolioEvidence:'Technology opinion paragraph'
+  },
+  colombian_festival:{
+    learningGoal:'Comprender un texto cultural sobre tradiciones colombianas.',
+    beforeReading:[
+      'What festivals do you know in Colombia?',
+      'What food do people eat at festivals?',
+      'Do you like dancing?'
+    ],
+    afterReadingTask:'Describe a local festival or celebration.',
+    portfolioEvidence:'My local festival'
+  }
+};
+
+
+// -----------------------------------------------------
+// 5. FUNCIONES DE ENRIQUECIMIENTO
+// -----------------------------------------------------
+
+function enrichReadingText(text) {
+  const enhancement = readingTextEnhancements[text.id] || {};
+
+  text.questions = Array.isArray(text.qs) ? text.qs.length : text.questions || 0;
+
+  if (!text.learningGoal) {
+    text.learningGoal =
+      enhancement.learningGoal ||
+      `Comprender un texto de nivel ${text.level} sobre ${text.topic} e identificar información general y específica.`;
+  }
+
+  if (!text.beforeReading) {
+    text.beforeReading = enhancement.beforeReading || [
+      'Look at the title. What do you think the text is about?',
+      'Choose five words you know.',
+      'Predict one thing that will appear in the text.'
+    ];
+  }
+
+  if (!text.skillFocus) {
+    text.skillFocus = [
+      'Reading for gist',
+      'Reading for detail',
+      'Vocabulary in context'
+    ];
+  }
+
+  if (!text.afterReadingTask) {
+    text.afterReadingTask =
+      enhancement.afterReadingTask ||
+      'Write a short personal response connected to the text.';
+  }
+
+  if (!text.communicativeTask) {
+    text.communicativeTask =
+      'Use the text as a model and create a short personal production.';
+  }
+
+  if (!text.portfolioEvidence) {
+    text.portfolioEvidence =
+      enhancement.portfolioEvidence ||
+      `Portfolio evidence based on ${text.title}.`;
+  }
+
+  if (!text.selfAssessment) {
+    text.selfAssessment = [
+      'I can understand the general idea of the text.',
+      'I can find specific information in the text.',
+      'I can identify useful words and expressions.',
+      'I can answer comprehension questions.',
+      'I can write a short response connected to the topic.'
+    ];
+  }
+
+  if (!text.stages) {
+    text.stages = readingWritingDidacticStages;
+  }
+
+  return text;
+}
+
+function enrichWritingExercise(exercise) {
+  if (!exercise.learningGoal) {
+    exercise.learningGoal = `Desarrollar escritura A1/A2 mediante ejercicios de tipo ${exercise.type}.`;
+  }
+
+  if (!exercise.canDo) {
+    exercise.canDo = [
+      'I can understand the writing task.',
+      'I can use simple English structures.',
+      'I can correct or improve my written production.'
+    ];
+  }
+
+  if (!exercise.stages) {
+    exercise.stages = readingWritingDidacticStages;
+  }
+
+  if (!exercise.successCriteria) {
+    exercise.successCriteria = [
+      'Complete the task carefully.',
+      'Use correct word order.',
+      'Check grammar and spelling.',
+      'Review feedback and correct mistakes.'
+    ];
+  }
+
+  if (!exercise.selfAssessment) {
+    exercise.selfAssessment = [
+      'Puedo completar el ejercicio con apoyo.',
+      'Puedo reconocer mis errores frecuentes.',
+      'Puedo corregir y mejorar mi escritura.',
+      'Puedo usar esta estructura en una producción personal.'
+    ];
+  }
+
+  if (!exercise.portfolioEvidence) {
+    exercise.portfolioEvidence = `Writing evidence: ${exercise.title}`;
+  }
+
+  return exercise;
+}
+
+
+// -----------------------------------------------------
+// 6. INTEGRACIÓN NO DESTRUCTIVA
+// -----------------------------------------------------
+
+const existingReadingIds = new Set(readingTexts.map(item => item.id));
+
+readingExpansionTexts.forEach(item => {
+  if (!existingReadingIds.has(item.id)) {
+    readingTexts.push(item);
+    existingReadingIds.add(item.id);
+  }
+});
+
+const existingWritingIds = new Set(writingExercises.map(item => item.id));
+
+writingExpansionExercises.forEach(item => {
+  if (!existingWritingIds.has(item.id)) {
+    writingExercises.push(item);
+    existingWritingIds.add(item.id);
+  }
+});
+
+readingTexts.forEach(enrichReadingText);
+writingExercises.forEach(enrichWritingExercise);
+
+
+// -----------------------------------------------------
+// 7. PROGRAMA GENERAL DE READING & WRITING
+// -----------------------------------------------------
+
+const readingWritingProgram = {
+  levelRange:'A1-A2',
+  name:'Reading & Writing Lab',
+  description:'Laboratorio de comprensión lectora y escritura basado en metodologías activas, práctica virtual, retroalimentación inmediata y portafolio digital.',
+  approach:'Communicative reading and writing + active learning + heutagogical reflection',
+  totalReadings:readingTexts.length,
+  totalWritingExercises:writingExercises.length,
+  coreSkills:[
+    'Reading for gist',
+    'Reading for specific information',
+    'Vocabulary in context',
+    'Sentence accuracy',
+    'Paragraph writing',
+    'Error correction',
+    'Dictation',
+    'Guided production',
+    'Personal reflection'
+  ],
+  mechanics:[
+    'Multiple choice',
+    'True / False',
+    'Fill in the blanks',
+    'Word order',
+    'Sentence transformation',
+    'Error correction',
+    'Dictation',
+    'Free writing'
+  ],
+  learningPath:[
+    {
+      unit:1,
+      title:'Identity and School Life',
+      readings:['school_day','my_family','my_best_friend_a1'],
+      writings:['free_writing_my_profile','word_order_a1_questions'],
+      finalEvidence:'Personal profile + school day paragraph'
+    },
+    {
+      unit:2,
+      title:'Home, Family and Descriptions',
+      readings:['my_room_a1','my_family'],
+      writings:['error_correction_a1_present','free_writing_my_profile'],
+      finalEvidence:'My bedroom and family description'
+    },
+    {
+      unit:3,
+      title:'Daily Routines and Habits',
+      readings:['daily_routine','school_day'],
+      writings:['dictation_a1_routines','free_writing_my_routine'],
+      finalEvidence:'My daily routine paragraph'
+    },
+    {
+      unit:4,
+      title:'Food, Restaurants and Shopping',
+      readings:['at_the_restaurant_a1','shopping_day'],
+      writings:['dictation_a1_restaurant','transform_a1_integrated'],
+      finalEvidence:'Restaurant dialogue + shopping role play'
+    },
+    {
+      unit:5,
+      title:'Rules, Abilities and Classroom Life',
+      readings:['school_rules_a1'],
+      writings:['error_correction_a1_mixed','word_order_a1_questions'],
+      finalEvidence:'Classroom rules poster'
+    },
+    {
+      unit:6,
+      title:'Past and Future',
+      readings:['yesterday_at_home_a1','weekend_plans_a1'],
+      writings:['free_writing_last_weekend','transform_a1_integrated'],
+      finalEvidence:'Past weekend paragraph + future plans paragraph'
+    },
+    {
+      unit:7,
+      title:'Culture, Travel and Wider World',
+      readings:['london','british_weather','colombian_festival'],
+      writings:['free_writing_last_weekend','error_correction_a1_mixed'],
+      finalEvidence:'My city or festival description'
+    }
+  ],
+  portfolioFinalProject:{
+    title:'My Reading & Writing Portfolio',
+    description:'El estudiante reúne sus mejores evidencias de lectura y escritura, corrige errores y presenta su progreso.',
+    requiredEvidence:[
+      'Personal profile',
+      'My family or best friend paragraph',
+      'My bedroom description',
+      'My daily routine',
+      'Restaurant dialogue',
+      'School rules poster',
+      'Last weekend paragraph',
+      'Weekend plans paragraph',
+      'Final self-assessment'
+    ],
+    finalReflection:[
+      'What text was easiest for me?',
+      'What text was most difficult?',
+      'What grammar mistakes did I correct?',
+      'What new words can I use now?',
+      'What will I improve in my next writing task?'
+    ]
+  },
+  assessmentRubric:[
+    {
+      criterion:'Reading comprehension',
+      excellent:'Understands main ideas and specific details with high accuracy.',
+      satisfactory:'Understands the main idea and most details.',
+      developing:'Needs support to identify details and evidence.'
+    },
+    {
+      criterion:'Vocabulary use',
+      excellent:'Uses new vocabulary accurately in personal sentences.',
+      satisfactory:'Uses some vocabulary with minor errors.',
+      developing:'Recognizes words but struggles to use them.'
+    },
+    {
+      criterion:'Writing accuracy',
+      excellent:'Produces clear A1/A2 sentences with good word order and few errors.',
+      satisfactory:'Communicates ideas with some grammar or spelling errors.',
+      developing:'Needs models to organize sentences.'
+    },
+    {
+      criterion:'Revision and correction',
+      excellent:'Identifies, corrects and explains frequent errors.',
+      satisfactory:'Corrects errors with feedback.',
+      developing:'Needs guided support to revise.'
+    },
+    {
+      criterion:'Autonomy',
+      excellent:'Uses strategies, reflects on progress and improves independently.',
+      satisfactory:'Reflects when prompted.',
+      developing:'Needs constant guidance to monitor progress.'
+    }
+  ]
+};
+
+
+// -----------------------------------------------------
+// 8. COMPATIBILIDAD NAVEGADOR Y NODE
+// -----------------------------------------------------
+
+if (typeof window !== 'undefined') {
+  window.readingTexts = readingTexts;
+  window.writingExercises = writingExercises;
+  window.readingWritingProgram = readingWritingProgram;
+  window.readingWritingDidacticStages = readingWritingDidacticStages;
+  window.readingExpansionTexts = readingExpansionTexts;
+  window.writingExpansionExercises = writingExpansionExercises;
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    readingTexts,
+    writingExercises,
+    readingWritingProgram,
+    readingWritingDidacticStages,
+    readingExpansionTexts,
+    writingExpansionExercises
+  };
+}

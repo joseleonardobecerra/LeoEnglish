@@ -2266,3 +2266,1073 @@ window.toggleAdminView = function() {
     window.showToast(state.adminView ? 'Modo Vista Previa: Candados desactivados' : 'Candados activados nuevamente', 'success');
     window.renderDashboard();
 };
+// ============================================================
+// LEOENGLISH v4.0 — RUTA ÚNICA + DIAGNÓSTICO + HOMOLOGACIÓN
+// Pega este bloque AL FINAL de tu app.js actual.
+// No borra tus motores de Grammar/Reading/Writing/Vocab: los integra en una sola ruta.
+// ============================================================
+
+(function leoUnifiedRouteV4(){
+    const PASS_SCORE = 80;
+    const HOMOLOGATION_SCORE = 85;
+
+    const routeBlueprint = [
+        {
+            level: 'A1',
+            title: 'A1 · Foundations',
+            description: 'Bases para comunicarte en situaciones cotidianas.',
+            color: '#1D9E75',
+            grammar: [
+                'to_be_pronouns', 'articles_dem', 'possessives', 'there_is_are',
+                'present_simple', 'present_cont', 'prepositions', 'imperatives',
+                'can_could', 'past_to_be', 'past_simple', 'future_going_to'
+            ],
+            vocab: [
+                'greetings', 'personal_information', 'countries_nationalities', 'numbers_vocab',
+                'family', 'people', 'classroom_objects', 'home_furniture', 'daily_routines',
+                'time_calendar', 'food_drink', 'restaurant_phrases', 'shopping_money',
+                'hobbies_free_time', 'clothes_accessories', 'weather_seasons', 'common_verbs'
+            ],
+            reading: [
+                'school_day', 'my_family', 'my_room_a1', 'my_best_friend_a1',
+                'at_the_restaurant_a1', 'weekend_plans_a1', 'yesterday_at_home_a1', 'school_rules_a1'
+            ],
+            writing: [
+                'free_writing_my_profile', 'word_order_a1_questions', 'dictation_a1_routines',
+                'free_writing_my_routine', 'dictation_a1_restaurant', 'free_writing_last_weekend',
+                'error_correction_a1_present', 'transform_a1_integrated'
+            ]
+        },
+        {
+            level: 'A2',
+            title: 'A2 · Expansion',
+            description: 'Consolida narración, comparación, futuro, obligación y experiencias.',
+            color: '#3182CE',
+            grammar: [
+                'comparisons', 'quantifiers', 'past_continuous', 'present_perfect',
+                'future_mixed', 'modals_obligation', 'conditionals', 'phrasal_gerunds'
+            ],
+            vocab: [],
+            reading: [
+                'shopping_day', 'london', 'british_weather',
+                'healthy_lifestyle', 'technology_life', 'colombian_festival'
+            ],
+            writing: [
+                'error_correction_a1_mixed'
+            ]
+        }
+    ];
+
+    const fallbackDiagnosticItems = [
+        {
+            id:'diag_a1_be_1',
+            level:'A1',
+            skill:'grammar',
+            mapsTo:['to_be_pronouns'],
+            q:'She ___ my sister.',
+            opts:['am','is','are'],
+            a:1
+        },
+        {
+            id:'diag_a1_present_1',
+            level:'A1',
+            skill:'grammar',
+            mapsTo:['present_simple'],
+            q:'He ___ football every Sunday.',
+            opts:['play','plays','playing'],
+            a:1
+        },
+        {
+            id:'diag_a1_there_1',
+            level:'A1',
+            skill:'grammar',
+            mapsTo:['there_is_are'],
+            q:'There ___ two books on the table.',
+            opts:['is','are','am'],
+            a:1
+        },
+        {
+            id:'diag_a1_can_1',
+            level:'A1',
+            skill:'grammar',
+            mapsTo:['can_could'],
+            q:'She can ___ English.',
+            opts:['speaks','speak','speaking'],
+            a:1
+        },
+        {
+            id:'diag_a1_past_1',
+            level:'A1',
+            skill:'grammar',
+            mapsTo:['past_simple'],
+            q:'Yesterday, I ___ a movie.',
+            opts:['watch','watched','watching'],
+            a:1
+        },
+        {
+            id:'diag_a1_future_1',
+            level:'A1',
+            skill:'grammar',
+            mapsTo:['future_going_to'],
+            q:'I am going ___ my grandmother tomorrow.',
+            opts:['visit','to visit','visiting'],
+            a:1
+        },
+        {
+            id:'diag_a2_comp_1',
+            level:'A2',
+            skill:'grammar',
+            mapsTo:['comparisons'],
+            q:'This book is ___ than that book.',
+            opts:['interesting','more interesting','most interesting'],
+            a:1
+        },
+        {
+            id:'diag_a2_quant_1',
+            level:'A2',
+            skill:'grammar',
+            mapsTo:['quantifiers'],
+            q:'I don’t have ___ money.',
+            opts:['many','much','a few'],
+            a:1
+        },
+        {
+            id:'diag_a2_pc_1',
+            level:'A2',
+            skill:'grammar',
+            mapsTo:['past_continuous'],
+            q:'I ___ TV when you called.',
+            opts:['was watching','watched','am watching'],
+            a:0
+        },
+        {
+            id:'diag_a2_pp_1',
+            level:'A2',
+            skill:'grammar',
+            mapsTo:['present_perfect'],
+            q:'She has ___ to London.',
+            opts:['go','went','been'],
+            a:2
+        },
+        {
+            id:'diag_a2_modal_1',
+            level:'A2',
+            skill:'grammar',
+            mapsTo:['modals_obligation'],
+            q:'You ___ wear a helmet on a motorcycle.',
+            opts:['must','can','would'],
+            a:0
+        },
+        {
+            id:'diag_a2_cond_1',
+            level:'A2',
+            skill:'grammar',
+            mapsTo:['conditionals'],
+            q:'If it rains, I ___ at home.',
+            opts:['stay','will stay','stayed'],
+            a:1
+        }
+    ];
+
+    let diagnosticSession = null;
+    const originalShowScreen = window.showScreen;
+    const originalDoReset = window.doReset;
+
+    function routeSafeSet(id, value) {
+        const el = document.getElementById(id);
+        if (el) el.textContent = value;
+    }
+
+    function routeEnsureState() {
+        state.scores = state.scores || {};
+        state.readingScores = state.readingScores || {};
+        state.writingDone = state.writingDone || {};
+        state.vocabScores = state.vocabScores || {};
+        state.activityLog = state.activityLog || [];
+
+        state.routeProgress = state.routeProgress || {};
+        state.routeProgress.completedActivities = state.routeProgress.completedActivities || {};
+        state.routeProgress.homologatedActivities = state.routeProgress.homologatedActivities || {};
+        state.routeProgress.reinforcementRequired = state.routeProgress.reinforcementRequired || {};
+        state.routeProgress.completedUnits = state.routeProgress.completedUnits || {};
+        state.routeProgress.placedLevel = state.routeProgress.placedLevel || null;
+        state.routeProgress.placedBand = state.routeProgress.placedBand || null;
+        state.routeProgress.diagnosticCompleted = !!state.routeProgress.diagnosticCompleted;
+        state.routeProgress.diagnosticHistory = state.routeProgress.diagnosticHistory || [];
+    }
+
+    function routeCollections() {
+        return {
+            grammar: typeof modulesData !== 'undefined' ? modulesData : {},
+            vocab: typeof vocabTopics !== 'undefined' ? vocabTopics : [],
+            reading: typeof readingTexts !== 'undefined' ? readingTexts : [],
+            writing: typeof writingExercises !== 'undefined' ? writingExercises : []
+        };
+    }
+
+    function getSource(type, sourceId) {
+        const data = routeCollections();
+
+        if (type === 'grammar') return data.grammar[sourceId];
+        if (type === 'vocab') return data.vocab.find(x => x.id === sourceId);
+        if (type === 'reading') return data.reading.find(x => x.id === sourceId);
+        if (type === 'writing') return data.writing.find(x => x.id === sourceId);
+
+        return null;
+    }
+
+    function sourceExists(type, id) {
+        return !!getSource(type, id);
+    }
+
+    function activityIcon(type) {
+        return {
+            grammar:'book-open',
+            vocab:'layers',
+            reading:'book-marked',
+            writing:'pen-line'
+        }[type] || 'circle';
+    }
+
+    function activityColor(type) {
+        return {
+            grammar:'#12375A',
+            vocab:'#1D9E75',
+            reading:'#3182CE',
+            writing:'#D85A30'
+        }[type] || '#12375A';
+    }
+
+    function activityTitle(type, source) {
+        if (!source) return 'Actividad';
+        if (type === 'grammar') return source.title || 'Gramática';
+        if (type === 'vocab') return source.title || 'Vocabulario';
+        if (type === 'reading') return source.title || 'Reading';
+        if (type === 'writing') return source.title || 'Writing';
+        return source.title || 'Actividad';
+    }
+
+    function createActivity(type, sourceId, level) {
+        const source = getSource(type, sourceId);
+        if (!source) return null;
+
+        return {
+            id: `${type}:${sourceId}`,
+            type,
+            sourceId,
+            level,
+            title: activityTitle(type, source),
+            color: source.color || source.levelColor || activityColor(type),
+            icon: activityIcon(type),
+            source
+        };
+    }
+
+    function inferGrammarLevel(id, mod) {
+        if (mod && mod.level) return mod.level;
+        if (routeBlueprint[0].grammar.includes(id)) return 'A1';
+        if (routeBlueprint[1].grammar.includes(id)) return 'A2';
+        return 'A1';
+    }
+
+    function buildLearningRoute() {
+        const data = routeCollections();
+        const used = new Set();
+
+        const levels = routeBlueprint.map(level => {
+            const activities = [];
+
+            ['grammar', 'vocab', 'reading', 'writing'].forEach(type => {
+                (level[type] || []).forEach(id => {
+                    if (sourceExists(type, id)) {
+                        const act = createActivity(type, id, level.level);
+                        if (act) {
+                            activities.push(act);
+                            used.add(`${type}:${id}`);
+                        }
+                    }
+                });
+            });
+
+            return { ...level, activities };
+        });
+
+        Object.entries(data.grammar).forEach(([id, mod]) => {
+            if (used.has(`grammar:${id}`)) return;
+
+            const level = inferGrammarLevel(id, mod);
+            const target = levels.find(l => l.level === level) || levels[0];
+            const act = createActivity('grammar', id, level);
+
+            if (act) target.activities.push(act);
+        });
+
+        data.vocab.forEach(topic => {
+            if (used.has(`vocab:${topic.id}`)) return;
+
+            const level = topic.level || 'A1';
+            const target = levels.find(l => l.level === level) || levels[0];
+            const act = createActivity('vocab', topic.id, level);
+
+            if (act) target.activities.push(act);
+        });
+
+        data.reading.forEach(text => {
+            if (used.has(`reading:${text.id}`)) return;
+
+            const level = text.level || 'A1';
+            const target = levels.find(l => l.level === level) || levels[0];
+            const act = createActivity('reading', text.id, level);
+
+            if (act) target.activities.push(act);
+        });
+
+        data.writing.forEach(ex => {
+            if (used.has(`writing:${ex.id}`)) return;
+
+            const level = ex.level || (String(ex.id).includes('a2') ? 'A2' : 'A1');
+            const target = levels.find(l => l.level === level) || levels[0];
+            const act = createActivity('writing', ex.id, level);
+
+            if (act) target.activities.push(act);
+        });
+
+        return levels.filter(level => level.activities.length > 0);
+    }
+
+    function flattenRoute() {
+        return buildLearningRoute().flatMap(level => level.activities);
+    }
+
+    function findRouteActivity(activityId) {
+        return flattenRoute().find(a => a.id === activityId);
+    }
+
+    function getActivityScore(activity) {
+        routeEnsureState();
+
+        if (state.routeProgress.homologatedActivities[activity.id]) return 100;
+
+        if (activity.type === 'grammar') return state.scores[activity.sourceId] ?? null;
+        if (activity.type === 'reading') return state.readingScores[activity.sourceId] ?? null;
+        if (activity.type === 'writing') return state.writingDone[activity.sourceId] ?? null;
+        if (activity.type === 'vocab') return state.vocabScores[activity.sourceId] ?? null;
+
+        return state.routeProgress.completedActivities[activity.id] ?? null;
+    }
+
+    function isActivityPassed(activity) {
+        const score = getActivityScore(activity);
+        return score !== null && score >= PASS_SCORE;
+    }
+
+    function isActivityHomologated(activity) {
+        routeEnsureState();
+        return !!state.routeProgress.homologatedActivities[activity.id];
+    }
+
+    function isActivityReinforcement(activity) {
+        routeEnsureState();
+
+        return !!(
+            state.routeProgress.reinforcementRequired[activity.sourceId] ||
+            state.routeProgress.reinforcementRequired[activity.id]
+        );
+    }
+
+    function isActivityLocked(activity, index, flat) {
+        if (state.role === 'admin' && state.adminView) return false;
+        if (index === 0) return false;
+        if (isActivityPassed(activity)) return false;
+        if (isActivityReinforcement(activity)) return false;
+
+        return !isActivityPassed(flat[index - 1]);
+    }
+
+    function routeSummary() {
+        const activities = flattenRoute();
+        const total = activities.length;
+        const passed = activities.filter(isActivityPassed).length;
+        const pct = total ? Math.round((passed / total) * 100) : 0;
+
+        return { total, passed, pct };
+    }
+
+    function hideOpenWorldNav() {
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            const onclick = btn.getAttribute('onclick') || '';
+
+            if (
+                onclick.includes('reading-hub') ||
+                onclick.includes('writing-hub') ||
+                onclick.includes('vocab-hub')
+            ) {
+                btn.style.display = 'none';
+            }
+        });
+
+        document.querySelectorAll('.nav-sep').forEach(sep => {
+            if (sep.textContent.toLowerCase().includes('mundo abierto')) {
+                sep.style.display = 'none';
+            }
+        });
+    }
+
+    function injectDiagnosticScreen() {
+        if (document.getElementById('screen-diagnostic')) return;
+
+        const main = document.getElementById('main-content');
+        if (!main) return;
+
+        const section = document.createElement('section');
+        section.id = 'screen-diagnostic';
+        section.className = 'screen';
+
+        section.innerHTML = `
+            <header class="page-header">
+                <div>
+                    <h2>Diagnóstico</h2>
+                    <p>Evalúa tu nivel, homologa lo que ya dominas y recibe refuerzos puntuales.</p>
+                </div>
+            </header>
+            <div id="diagnostic-content"></div>`;
+
+        main.appendChild(section);
+    }
+
+    function injectDiagnosticNavButton() {
+        if (document.getElementById('diagnostic-nav-btn')) return;
+
+        const navLinks = document.querySelector('.nav-links');
+        if (!navLinks) return;
+
+        const btn = document.createElement('button');
+        btn.className = 'nav-btn';
+        btn.id = 'diagnostic-nav-btn';
+        btn.setAttribute('onclick', "showScreen('diagnostic'); setActiveNav(this)");
+        btn.innerHTML = '<i data-lucide="scan-line"></i> <span class="nav-label">Diagnóstico</span>';
+
+        navLinks.insertBefore(btn, navLinks.children[2] || null);
+    }
+
+    function prepareUnifiedUI() {
+        routeEnsureState();
+        injectDiagnosticScreen();
+        injectDiagnosticNavButton();
+        hideOpenWorldNav();
+        lucide.createIcons();
+    }
+
+    function renderUnifiedRoute() {
+        const grid = document.getElementById('modules-status-grid');
+        if (!grid) return;
+
+        const route = buildLearningRoute();
+        const flat = route.flatMap(level => level.activities);
+        let globalIndex = 0;
+
+        if (!flat.length) {
+            grid.innerHTML = '<div class="activity-empty">No hay contenidos cargados todavía.</div>';
+            return;
+        }
+
+        grid.innerHTML = route.map(level => {
+            const completed = level.activities.filter(isActivityPassed).length;
+            const pct = level.activities.length
+                ? Math.round((completed / level.activities.length) * 100)
+                : 0;
+
+            const cards = level.activities.map(activity => {
+                const score = getActivityScore(activity);
+                const passed = isActivityPassed(activity);
+                const homologated = isActivityHomologated(activity);
+                const reinforcement = isActivityReinforcement(activity);
+                const locked = isActivityLocked(activity, globalIndex, flat);
+                const current = !passed && !locked;
+                const number = globalIndex + 1;
+
+                globalIndex++;
+
+                const status = homologated
+                    ? '✓ Homologado por diagnóstico'
+                    : reinforcement
+                        ? 'Refuerzo obligatorio'
+                        : passed
+                            ? `✓ Aprobado: ${score}%`
+                            : locked
+                                ? 'Bloqueado'
+                                : 'Siguiente actividad';
+
+                const statusColor = homologated || passed
+                    ? '#1D9E75'
+                    : reinforcement
+                        ? '#D7262E'
+                        : locked
+                            ? '#A0AEC0'
+                            : 'var(--primary-mid)';
+
+                const icon = locked
+                    ? 'lock'
+                    : homologated
+                        ? 'badge-check'
+                        : passed
+                            ? 'check-circle'
+                            : reinforcement
+                                ? 'alert-triangle'
+                                : activity.icon;
+
+                return `
+                    <div class="mod-card ${passed ? 'mod-done' : ''} ${current ? 'mod-current' : ''} ${locked ? 'mod-locked' : ''}"
+                         onclick="openRouteActivity('${activity.id}')">
+                        <div class="mod-icon-wrap" style="background:${locked ? '#EDF2F7' : activity.color};color:${locked ? '#A0AEC0' : 'white'}">
+                            <i data-lucide="${icon}"></i>
+                        </div>
+                        <div style="flex:1;min-width:0">
+                            <div class="mod-title">${number}. ${activity.title}</div>
+                            <div class="mod-status" style="color:${statusColor};font-weight:800;">
+                                ${activity.type.toUpperCase()} · ${status}
+                            </div>
+                            ${
+                                score != null
+                                    ? `<div class="mod-score-bar"><div class="mod-score-fill" style="width:${score}%;background:${activity.color}"></div></div>`
+                                    : ''
+                            }
+                        </div>
+                    </div>`;
+            }).join('');
+
+            return `
+                <div class="level-divider">
+                    <h4 style="color:${level.color};font-size:18px;font-weight:900;margin:24px 0 8px 0;border-bottom:2px solid ${level.color}30;padding-bottom:8px;">
+                        ${level.title}
+                    </h4>
+                    <div style="font-size:13px;color:#6B5F58;margin-bottom:14px;line-height:1.5">
+                        ${level.description} · Progreso: <strong>${pct}%</strong>
+                    </div>
+                </div>
+                <div class="modules-grid" style="margin-bottom:32px">${cards}</div>`;
+        }).join('');
+
+        lucide.createIcons();
+    }
+
+    window.openRouteActivity = function(activityId) {
+        const activity = findRouteActivity(activityId);
+        if (!activity) return window.showToast('Actividad no encontrada', 'error');
+
+        const flat = flattenRoute();
+        const idx = flat.findIndex(a => a.id === activityId);
+
+        if (isActivityLocked(activity, idx, flat)) {
+            return window.showToast('Debes aprobar la actividad anterior con 80% o más.', 'warn');
+        }
+
+        state.routeProgress.currentActivityId = activityId;
+
+        if (activity.type === 'grammar') {
+            return window.openModule(activity.sourceId);
+        }
+
+        if (activity.type === 'reading') {
+            window.showScreen('reading-hub');
+            setTimeout(() => window.openReading(activity.sourceId), 0);
+            return;
+        }
+
+        if (activity.type === 'writing') {
+            window.showScreen('writing-hub');
+            setTimeout(() => window.openWriting(activity.sourceId), 0);
+            return;
+        }
+
+        if (activity.type === 'vocab') {
+            window.showScreen('vocab-hub');
+            setTimeout(() => window.openVocabTopic(activity.sourceId), 0);
+        }
+    };
+
+    window.showScreen = function(screenId) {
+        prepareUnifiedUI();
+
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+
+        const el = document.getElementById('screen-' + screenId);
+        if (el) el.classList.add('active');
+
+        const main = document.getElementById('main-content');
+        if (main) main.scrollTop = 0;
+
+        if (screenId === 'dashboard') window.renderDashboard();
+        else if (screenId === 'reading-hub') window.renderReadingHub();
+        else if (screenId === 'writing-hub') window.renderWritingHub();
+        else if (screenId === 'vocab-hub') window.renderVocabHub();
+        else if (screenId === 'settings') window.renderSettings();
+        else if (screenId === 'diagnostic') window.renderDiagnostic();
+        else if (typeof originalShowScreen === 'function' && screenId !== 'module') originalShowScreen(screenId);
+
+        lucide.createIcons();
+    };
+
+    window.renderDashboard = function() {
+        prepareUnifiedUI();
+        updateHeaderUI();
+        setGreeting();
+
+        const summary = routeSummary();
+        const acc = state.totalAnswers > 0
+            ? Math.round((state.correctAnswers / state.totalAnswers) * 100) + '%'
+            : '—';
+
+        routeSafeSet('stat-xp', state.xp || 0);
+        routeSafeSet('stat-done', summary.passed);
+        routeSafeSet('stat-streak', state.streak || 1);
+        routeSafeSet('stat-accuracy', acc);
+        routeSafeSet('total-progress-pct', summary.pct + '%');
+
+        const totalFill = document.getElementById('total-progress-fill');
+        if (totalFill) totalFill.style.width = summary.pct + '%';
+
+        const data = routeCollections();
+        const avg = arr => arr.length
+            ? Math.round(arr.reduce((a, b) => a + b, 0) / arr.length)
+            : 0;
+
+        const grammar = avg(Object.keys(data.grammar).map(k => state.scores[k]).filter(v => typeof v === 'number'));
+        const reading = avg(Object.values(state.readingScores).filter(v => typeof v === 'number'));
+        const writing = avg(Object.values(state.writingDone).filter(v => typeof v === 'number'));
+        const vocab = avg(Object.values(state.vocabScores).filter(v => typeof v === 'number'));
+
+        const skills = [
+            { name:'Gramática', val:grammar, color:'#12375A' },
+            { name:'Vocabulario', val:vocab, color:'#1D9E75' },
+            { name:'Reading', val:reading, color:'#3182CE' },
+            { name:'Writing', val:writing, color:'#D85A30' }
+        ];
+
+        const barsEl = document.getElementById('skills-bars');
+        if (barsEl) {
+            barsEl.innerHTML = skills.map(s => `
+                <div class="skill-row-item">
+                    <div class="skill-info"><span>${s.name}</span><span>${s.val}%</span></div>
+                    <div class="s-bar"><div class="s-fill" style="width:${s.val}%;background:${s.color}"></div></div>
+                </div>`).join('');
+        }
+
+        renderFeedback(grammar, reading, writing, vocab);
+
+        const rank = typeof getrank === 'function'
+            ? getrank(summary.pct)
+            : { name:'Explorador Novato', cefr:'A1' };
+
+        routeSafeSet('rank-display', rank.name);
+        routeSafeSet('cefr-badge', state.routeProgress.placedLevel || rank.cefr);
+
+        renderUnifiedRoute();
+        renderActivity();
+        renderLeaderboard();
+    };
+
+    function getDiagnosticItems() {
+        if (typeof diagnosticTest !== 'undefined' && diagnosticTest?.sections) {
+            return diagnosticTest.sections.flatMap(section =>
+                (section.items || []).map(item => ({ ...item, section: section.id }))
+            );
+        }
+
+        if (typeof diagnosticTest !== 'undefined' && Array.isArray(diagnosticTest.items)) {
+            return diagnosticTest.items;
+        }
+
+        return fallbackDiagnosticItems;
+    }
+
+    window.renderDiagnostic = function() {
+        routeEnsureState();
+
+        const el = document.getElementById('diagnostic-content');
+        if (!el) return;
+
+        const last = state.routeProgress.diagnosticHistory?.[0];
+        const reinforcements = Object.keys(state.routeProgress.reinforcementRequired || {});
+        const homologated = Object.keys(state.routeProgress.homologatedActivities || {}).length;
+
+        el.innerHTML = `
+            <div class="card-theory animate-pop">
+                <h3>Prueba diagnóstica de nivel</h3>
+                <p>
+                    Esta prueba estima tu nivel, homologa actividades que ya dominas y marca refuerzos obligatorios.
+                    Por ahora evalúa A1 y A2. Luego podemos extenderla a B1, B2 y C1.
+                </p>
+
+                <div class="theory-grid">
+                    <div class="t-box" style="border-color:#12375A;background:#EAF0F7">
+                        <strong style="color:#12375A">Nivel actual</strong>
+                        <small>${state.routeProgress.placedBand || state.routeProgress.placedLevel || 'Sin diagnóstico'}</small>
+                    </div>
+
+                    <div class="t-box" style="border-color:#1D9E75;background:#EAF3DE">
+                        <strong style="color:#276749">Homologación</strong>
+                        <small>${homologated} actividades homologadas.</small>
+                    </div>
+
+                    <div class="t-box" style="border-color:#D7262E;background:#FFE7E4">
+                        <strong style="color:#9B2C2C">Refuerzos</strong>
+                        <small>${reinforcements.length} ítems pendientes.</small>
+                    </div>
+                </div>
+
+                ${
+                    last
+                        ? `<div class="tip-callout"><i data-lucide="info"></i> Último resultado: ${last.placedBand} · ${last.pct}% global.</div>`
+                        : ''
+                }
+
+                <div class="btn-row">
+                    <button class="btn-check" onclick="startDiagnostic()">
+                        <i data-lucide="scan-line"></i> Iniciar diagnóstico
+                    </button>
+
+                    <button class="btn-secondary" onclick="showScreen('dashboard');setActiveNavById('dashboard')">
+                        <i data-lucide="map"></i> Volver a la ruta
+                    </button>
+                </div>
+            </div>
+
+            <div id="diagnostic-zone"></div>`;
+
+        lucide.createIcons();
+    };
+
+    window.startDiagnostic = function() {
+        const items = getDiagnosticItems();
+
+        if (!items.length) {
+            return window.showToast('No hay preguntas diagnósticas cargadas.', 'warn');
+        }
+
+        diagnosticSession = {
+            items,
+            idx: 0,
+            correct: 0,
+            answers: []
+        };
+
+        renderDiagnosticQuestion();
+    };
+
+    function renderDiagnosticQuestion() {
+        if (!diagnosticSession) return;
+
+        const zone = document.getElementById('diagnostic-zone') || document.getElementById('diagnostic-content');
+        if (!zone) return;
+
+        if (diagnosticSession.idx >= diagnosticSession.items.length) {
+            return finishDiagnostic();
+        }
+
+        const item = diagnosticSession.items[diagnosticSession.idx];
+        const progress = Math.round((diagnosticSession.idx / diagnosticSession.items.length) * 100);
+
+        zone.innerHTML = `
+            <div class="exercise-card animate-pop" style="margin-top:20px">
+                <div class="ex-meta">
+                    <i data-lucide="scan-line"></i>
+                    Diagnóstico · ${item.level} · ${item.skill || 'grammar'} · ${diagnosticSession.idx + 1}/${diagnosticSession.items.length}
+                </div>
+
+                <div class="total-bar" style="margin-bottom:18px">
+                    <div class="total-fill" style="width:${progress}%"></div>
+                </div>
+
+                <div class="ex-q">${item.q}</div>
+
+                <div class="opts-grid">
+                    ${item.opts.map((o, i) => `
+                        <button class="opt-btn" onclick="checkDiagnosticAnswer(${i}, this)">
+                            ${o}
+                        </button>
+                    `).join('')}
+                </div>
+
+                <div id="diagnostic-fb"></div>
+            </div>`;
+
+        lucide.createIcons();
+    }
+
+    window.checkDiagnosticAnswer = function(chosen, btn) {
+        if (!diagnosticSession || isChecking) return;
+
+        isChecking = true;
+
+        const item = diagnosticSession.items[diagnosticSession.idx];
+        const ok = chosen === item.a;
+
+        document
+            .querySelectorAll('#diagnostic-zone .opt-btn, #diagnostic-content .opt-btn')
+            .forEach(b => b.disabled = true);
+
+        if (ok) {
+            btn.classList.add('correct');
+            diagnosticSession.correct++;
+        } else {
+            btn.classList.add('wrong');
+
+            const buttons = document.querySelectorAll('#diagnostic-zone .opt-btn, #diagnostic-content .opt-btn');
+            if (buttons[item.a]) buttons[item.a].classList.add('correct');
+        }
+
+        diagnosticSession.answers.push({ item, chosen, ok });
+
+        state.totalAnswers++;
+        if (ok) state.correctAnswers++;
+
+        setTimeout(() => {
+            diagnosticSession.idx++;
+            isChecking = false;
+            renderDiagnosticQuestion();
+        }, 900);
+
+        lucide.createIcons();
+    };
+
+    function finishDiagnostic() {
+        const answers = diagnosticSession.answers;
+        const items = diagnosticSession.items;
+
+        const byLevel = {};
+        const bySource = {};
+
+        answers.forEach(({ item, ok }) => {
+            byLevel[item.level] = byLevel[item.level] || { total:0, correct:0 };
+            byLevel[item.level].total++;
+
+            if (ok) byLevel[item.level].correct++;
+
+            (item.mapsTo || []).forEach(sourceId => {
+                bySource[sourceId] = bySource[sourceId] || {
+                    total:0,
+                    correct:0,
+                    level:item.level
+                };
+
+                bySource[sourceId].total++;
+                if (ok) bySource[sourceId].correct++;
+            });
+        });
+
+        const levelPct = Object.fromEntries(
+            Object.entries(byLevel).map(([level, data]) => [
+                level,
+                Math.round((data.correct / data.total) * 100)
+            ])
+        );
+
+        let placedLevel = 'A1';
+        let placedBand = 'A1 inicial';
+
+        if ((levelPct.A2 || 0) >= 75) {
+            placedLevel = 'B1';
+            placedBand = 'B1 inicial';
+        } else if ((levelPct.A2 || 0) >= 55) {
+            placedLevel = 'A2';
+            placedBand = 'A2 en progreso';
+        } else if ((levelPct.A1 || 0) >= 75) {
+            placedLevel = 'A2';
+            placedBand = 'A2 inicial';
+        } else if ((levelPct.A1 || 0) >= 55) {
+            placedLevel = 'A1';
+            placedBand = 'A1 en progreso';
+        }
+
+        const reinforcementItems = Object.entries(bySource)
+            .filter(([, data]) => Math.round((data.correct / data.total) * 100) < 75)
+            .map(([sourceId, data]) => ({
+                sourceId,
+                level:data.level,
+                pct:Math.round((data.correct / data.total) * 100)
+            }));
+
+        const result = {
+            date: new Date().toISOString(),
+            correct: diagnosticSession.correct,
+            total: items.length,
+            pct: Math.round((diagnosticSession.correct / items.length) * 100),
+            levelPct,
+            placedLevel,
+            placedBand,
+            reinforcementItems
+        };
+
+        diagnosticSession = null;
+
+        applyDiagnosticResult(result);
+        renderDiagnosticResult(result);
+    }
+
+    function applyDiagnosticResult(result) {
+        routeEnsureState();
+
+        state.routeProgress.diagnosticCompleted = true;
+        state.routeProgress.placedLevel = result.placedLevel;
+        state.routeProgress.placedBand = result.placedBand;
+
+        result.reinforcementItems.forEach(item => {
+            state.routeProgress.reinforcementRequired[item.sourceId] = true;
+        });
+
+        const route = flattenRoute();
+
+        route.forEach(activity => {
+            const isWeak = result.reinforcementItems.some(item => item.sourceId === activity.sourceId);
+            if (isWeak) return;
+
+            const homologateA1 =
+                activity.level === 'A1' &&
+                (result.levelPct.A1 || 0) >= HOMOLOGATION_SCORE;
+
+            const homologateA2 =
+                activity.level === 'A2' &&
+                (result.levelPct.A2 || 0) >= HOMOLOGATION_SCORE;
+
+            if (!homologateA1 && !homologateA2) return;
+
+            state.routeProgress.homologatedActivities[activity.id] = true;
+
+            if (activity.type === 'grammar') {
+                state.scores[activity.sourceId] = Math.max(state.scores[activity.sourceId] || 0, 100);
+            }
+
+            if (activity.type === 'reading') {
+                state.readingScores[activity.sourceId] = Math.max(state.readingScores[activity.sourceId] || 0, 100);
+            }
+
+            if (activity.type === 'writing') {
+                state.writingDone[activity.sourceId] = Math.max(state.writingDone[activity.sourceId] || 0, 100);
+            }
+
+            if (activity.type === 'vocab') {
+                state.vocabScores[activity.sourceId] = Math.max(state.vocabScores[activity.sourceId] || 0, 100);
+            }
+        });
+
+        state.routeProgress.diagnosticHistory.unshift(result);
+        state.routeProgress.diagnosticHistory = state.routeProgress.diagnosticHistory.slice(0, 5);
+
+        addXP(result.pct >= 80 ? 80 : result.pct >= 60 ? 50 : 25, false);
+        logActivity(`Diagnóstico completado: ${result.placedBand}`, 25, '#D7262E');
+
+        saveState();
+    }
+
+    function renderDiagnosticResult(result) {
+        const zone = document.getElementById('diagnostic-zone') || document.getElementById('diagnostic-content');
+        if (!zone) return;
+
+        const homologatedCount = Object.keys(state.routeProgress.homologatedActivities || {}).length;
+
+        zone.innerHTML = `
+            <div class="results-card animate-pop" style="margin-top:20px">
+                <div class="results-score">${result.placedLevel}</div>
+
+                <p class="results-msg">
+                    <strong>${result.placedBand}</strong> · Resultado global: ${result.pct}%
+                </p>
+
+                <div class="results-detail">
+                    <span class="results-pill pill-good">${homologatedCount} homologadas</span>
+                    <span class="results-pill pill-bad">${result.reinforcementItems.length} refuerzos</span>
+                    <span class="results-pill pill-xp">${result.correct}/${result.total}</span>
+                </div>
+
+                <div class="card-theory" style="box-shadow:none;border:1px dashed #E6BFA6;text-align:left;margin-top:18px">
+                    <h3>Refuerzos sugeridos</h3>
+                    ${
+                        result.reinforcementItems.length
+                            ? `<ul style="padding-left:20px;line-height:1.9">
+                                ${result.reinforcementItems.map(item => `
+                                    <li>
+                                        <strong>${item.sourceId}</strong> · desempeño ${item.pct}%
+                                    </li>
+                                `).join('')}
+                               </ul>`
+                            : '<p>Excelente. No se detectaron refuerzos obligatorios en este diagnóstico.</p>'
+                    }
+                </div>
+
+                <div class="btn-row">
+                    <button class="btn-check" onclick="showScreen('dashboard');setActiveNavById('dashboard')">
+                        <i data-lucide="map"></i> Ver mi ruta ajustada
+                    </button>
+
+                    <button class="btn-secondary" onclick="startDiagnostic()">
+                        <i data-lucide="refresh-cw"></i> Repetir diagnóstico
+                    </button>
+                </div>
+            </div>`;
+
+        lucide.createIcons();
+    }
+
+    window.doReset = async function() {
+        if (typeof originalDoReset === 'function') {
+            state.routeProgress = {
+                completedActivities: {},
+                homologatedActivities: {},
+                reinforcementRequired: {},
+                completedUnits: {},
+                placedLevel: null,
+                placedBand: null,
+                diagnosticCompleted: false,
+                diagnosticHistory: []
+            };
+        }
+
+        window.closeModal();
+
+        const role = state.role;
+        const userName = state.userName;
+
+        state = {
+            role,
+            adminView: false,
+            xp: 0,
+            level: 1,
+            streak: 1,
+            dailyXP: 0,
+            dailyGoal: 50,
+            totalAnswers: 0,
+            correctAnswers: 0,
+            modulesCompleted: 0,
+            activityLog: [],
+            scores: {},
+            readingScores: {},
+            writingDone: {},
+            vocabScores: {},
+            userName,
+            routeProgress: {
+                completedActivities: {},
+                homologatedActivities: {},
+                reinforcementRequired: {},
+                completedUnits: {},
+                placedLevel: null,
+                placedBand: null,
+                diagnosticCompleted: false,
+                diagnosticHistory: []
+            }
+        };
+
+        await saveState();
+        location.reload();
+    };
+
+    window.__leoRoute = buildLearningRoute;
+    window.__leoRouteSummary = routeSummary;
+    window.__leoPrepareUnifiedUI = prepareUnifiedUI;
+
+    prepareUnifiedUI();
+})();
+
+/* ============================================================
+   FIN DEL BLOQUE v4.0
+   ============================================================ */

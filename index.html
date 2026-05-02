@@ -7,12 +7,12 @@
 
     <meta 
         name="description" 
-        content="LeoEnglish es una plataforma interactiva para aprender inglés con gramática, vocabulario, reading, writing, gamificación y progreso personalizado."
+        content="LeoEnglish es una plataforma interactiva para aprender inglés con ruta guiada, diagnóstico de nivel, homologación, refuerzos personalizados, gramática, vocabulario, reading, writing y gamificación."
     >
 
     <meta name="theme-color" content="#12375A">
 
-    <title>LeoEnglish | Plataforma de Aprendizaje</title>
+    <title>LeoEnglish | Ruta de Aprendizaje</title>
 
     <!-- ESTILOS PRINCIPALES -->
     <link rel="stylesheet" href="style.css">
@@ -40,7 +40,7 @@
             <h2 id="auth-title">¡Hola! Inicia sesión</h2>
 
             <p>
-                Cada estudiante tiene su propio progreso, racha, XP y ruta de aprendizaje.
+                Cada estudiante tiene su propia ruta, diagnóstico, progreso, racha y XP.
             </p>
 
             <!-- VISTA DE INICIO DE SESIÓN -->
@@ -124,7 +124,13 @@
             </div>
 
             <button class="btn-google" onclick="handleGoogleLogin()">
-                <svg width="20" height="20" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <svg 
+                    width="20" 
+                    height="20" 
+                    viewBox="0 0 48 48" 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    aria-hidden="true"
+                >
                     <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
                     <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
                     <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
@@ -189,23 +195,14 @@
                     <span class="nav-label">Mi Ruta</span>
                 </button>
 
-                <div class="nav-sep">
-                    <span>Mundo Abierto</span>
-                </div>
-
-                <button class="nav-btn" onclick="showScreen('reading-hub'); setActiveNav(this)">
-                    <i data-lucide="book-marked"></i>
-                    <span class="nav-label">Reading</span>
+                <button class="nav-btn" id="diagnostic-nav-btn" onclick="showScreen('diagnostic'); setActiveNav(this)">
+                    <i data-lucide="scan-line"></i>
+                    <span class="nav-label">Diagnóstico</span>
                 </button>
 
-                <button class="nav-btn" onclick="showScreen('writing-hub'); setActiveNav(this)">
-                    <i data-lucide="pen-line"></i>
-                    <span class="nav-label">Writing</span>
-                </button>
-
-                <button class="nav-btn" onclick="showScreen('vocab-hub'); setActiveNav(this)">
-                    <i data-lucide="layers"></i>
-                    <span class="nav-label">Vocabulario</span>
+                <button class="nav-btn" onclick="showScreen('settings'); setActiveNav(this)">
+                    <i data-lucide="settings"></i>
+                    <span class="nav-label">Configuración</span>
                 </button>
 
             </div>
@@ -242,7 +239,7 @@
         <main class="main-content" id="main-content">
 
             <!-- ========================================== -->
-            <!-- DASHBOARD                                 -->
+            <!-- DASHBOARD / MI RUTA                       -->
             <!-- ========================================== -->
             <section id="screen-dashboard" class="screen active">
 
@@ -250,11 +247,20 @@
                     <div>
                         <h2 id="greeting-text">¡Buenos días, Estudiante!</h2>
                         <p>
-                            Aquí tienes tu resumen de progreso según el Marco Europeo de Lenguas.
+                            Aquí tienes tu ruta de aprendizaje personalizada según el Marco Europeo de Lenguas.
                         </p>
                     </div>
 
                     <div class="header-actions">
+                        <button 
+                            class="icon-btn" 
+                            onclick="showScreen('diagnostic')" 
+                            title="Hacer diagnóstico"
+                            aria-label="Hacer diagnóstico"
+                        >
+                            <i data-lucide="scan-line"></i>
+                        </button>
+
                         <button 
                             class="icon-btn" 
                             onclick="showScreen('settings')" 
@@ -277,9 +283,21 @@
                         </h3>
 
                         <p>
-                            Gramática, vocabulario, reading y writing inspirados en Londres,
-                            libros, té, buses rojos, paraguas y comunicación real.
+                            Una sola ruta con gramática, vocabulario, reading, writing,
+                            dictados, refuerzos, diagnóstico y avance por nivel.
                         </p>
+
+                        <div class="btn-row" style="justify-content:flex-start;margin-top:18px;">
+                            <button class="btn-check" onclick="showScreen('diagnostic')">
+                                <i data-lucide="scan-line"></i>
+                                Hacer diagnóstico
+                            </button>
+
+                            <button class="btn-secondary" onclick="document.getElementById('modules-status-grid')?.scrollIntoView({behavior:'smooth'});">
+                                <i data-lucide="map"></i>
+                                Ver mi ruta
+                            </button>
+                        </div>
                     </div>
 
                     <div class="brand-hero-doodles" aria-hidden="true">
@@ -312,7 +330,7 @@
 
                         <div>
                             <div class="stat-num" id="stat-done">0</div>
-                            <div class="stat-lbl">Completados</div>
+                            <div class="stat-lbl">Actividades completadas</div>
                         </div>
                     </div>
 
@@ -355,7 +373,7 @@
 
                         <div class="course-progress">
                             <div class="progress-lbl-row">
-                                <span class="progress-lbl">Progreso Total del Curso</span>
+                                <span class="progress-lbl">Progreso Total de la Ruta</span>
                                 <span class="total-pct" id="total-progress-pct">0%</span>
                             </div>
 
@@ -380,7 +398,7 @@
                                 <div class="fb-item fb-info">
                                     <i data-lucide="info"></i>
                                     <span>
-                                        ¡Bienvenido! Completa tu primer módulo para recibir feedback personalizado.
+                                        Completa tu diagnóstico o tu primera actividad para recibir feedback personalizado.
                                     </span>
                                 </div>
                             </div>
@@ -417,7 +435,7 @@
                 <div class="section-header">
                     <h3>Ruta de Aprendizaje</h3>
                     <span class="section-sub">
-                        Avanza paso a paso. Requiere 80% para desbloquear la siguiente lección.
+                        Todo el contenido vive aquí: gramática, vocabulario, reading y writing.
                     </span>
                 </div>
 
@@ -431,7 +449,7 @@
 
                 <div id="activity-log" class="activity-log">
                     <div class="activity-empty">
-                        Aún no hay actividad. ¡Empieza una lección!
+                        Aún no hay actividad. ¡Empieza una lección o haz el diagnóstico!
                     </div>
                 </div>
 
@@ -439,7 +457,84 @@
 
 
             <!-- ========================================== -->
-            <!-- MÓDULO                                    -->
+            <!-- DIAGNÓSTICO                               -->
+            <!-- ========================================== -->
+            <section id="screen-diagnostic" class="screen">
+
+                <header class="page-header">
+                    <div>
+                        <h2>Diagnóstico de nivel</h2>
+                        <p>
+                            Evalúa tu nivel, homologa lo que ya dominas y recibe refuerzos obligatorios.
+                        </p>
+                    </div>
+
+                    <div class="header-actions">
+                        <button 
+                            class="icon-btn" 
+                            onclick="showScreen('dashboard')" 
+                            title="Volver a mi ruta"
+                            aria-label="Volver a mi ruta"
+                        >
+                            <i data-lucide="map"></i>
+                        </button>
+                    </div>
+                </header>
+
+                <div id="diagnostic-content">
+
+                    <div class="card-theory animate-pop">
+                        <h3>Prueba diagnóstica</h3>
+
+                        <p>
+                            Esta prueba revisa tus conocimientos actuales, estima tu nivel y ajusta tu ruta.
+                            Si demuestras dominio, algunas actividades podrán quedar homologadas.
+                        </p>
+
+                        <div class="theory-grid">
+                            <div class="t-box" style="border-color:#12375A;background:#EAF0F7">
+                                <strong style="color:#12375A">Diagnosticar</strong>
+                                <small>Identifica tu nivel probable según tu desempeño.</small>
+                            </div>
+
+                            <div class="t-box" style="border-color:#1D9E75;background:#EAF3DE">
+                                <strong style="color:#276749">Homologar</strong>
+                                <small>Marca como dominado lo que ya sabes hacer bien.</small>
+                            </div>
+
+                            <div class="t-box" style="border-color:#D7262E;background:#FFE7E4">
+                                <strong style="color:#9B2C2C">Reforzar</strong>
+                                <small>Te muestra los temas que aún debes completar.</small>
+                            </div>
+                        </div>
+
+                        <div class="tip-callout">
+                            <i data-lucide="lightbulb"></i>
+                            Responde con honestidad. La prueba no busca castigarte, sino ubicarte mejor.
+                        </div>
+
+                        <div class="btn-row">
+                            <button class="btn-check" onclick="startDiagnostic()">
+                                <i data-lucide="scan-line"></i>
+                                Iniciar diagnóstico
+                            </button>
+
+                            <button class="btn-secondary" onclick="showScreen('dashboard')">
+                                <i data-lucide="map"></i>
+                                Volver a mi ruta
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="diagnostic-zone"></div>
+
+                </div>
+
+            </section>
+
+
+            <!-- ========================================== -->
+            <!-- MÓDULO DE GRAMÁTICA / ACTIVIDAD PRINCIPAL -->
             <!-- ========================================== -->
             <section id="screen-module" class="screen">
                 <div id="module-content"></div>
@@ -447,7 +542,8 @@
 
 
             <!-- ========================================== -->
-            <!-- READING HUB                               -->
+            <!-- CONTENEDOR INTERNO: READING                -->
+            <!-- No aparece en el menú. Se abre desde ruta. -->
             <!-- ========================================== -->
             <section id="screen-reading-hub" class="screen">
 
@@ -455,9 +551,19 @@
                     <div>
                         <h2>Reading</h2>
                         <p>
-                            Comprensión lectora con textos graduados por nivel,
-                            preguntas interactivas y vocabulario contextual.
+                            Comprensión lectora integrada a tu ruta de aprendizaje.
                         </p>
+                    </div>
+
+                    <div class="header-actions">
+                        <button 
+                            class="icon-btn" 
+                            onclick="showScreen('dashboard')" 
+                            title="Volver a mi ruta"
+                            aria-label="Volver a mi ruta"
+                        >
+                            <i data-lucide="map"></i>
+                        </button>
                     </div>
                 </header>
 
@@ -467,7 +573,8 @@
 
 
             <!-- ========================================== -->
-            <!-- WRITING HUB                               -->
+            <!-- CONTENEDOR INTERNO: WRITING                -->
+            <!-- No aparece en el menú. Se abre desde ruta. -->
             <!-- ========================================== -->
             <section id="screen-writing-hub" class="screen">
 
@@ -475,9 +582,19 @@
                     <div>
                         <h2>Writing</h2>
                         <p>
-                            Practica escritura con orden de frases, transformación,
-                            corrección de errores, dictado y producción guiada.
+                            Escritura, corrección, dictado y producción guiada dentro de tu ruta.
                         </p>
+                    </div>
+
+                    <div class="header-actions">
+                        <button 
+                            class="icon-btn" 
+                            onclick="showScreen('dashboard')" 
+                            title="Volver a mi ruta"
+                            aria-label="Volver a mi ruta"
+                        >
+                            <i data-lucide="map"></i>
+                        </button>
                     </div>
                 </header>
 
@@ -487,7 +604,8 @@
 
 
             <!-- ========================================== -->
-            <!-- VOCAB HUB                                 -->
+            <!-- CONTENEDOR INTERNO: VOCABULARIO            -->
+            <!-- No aparece en el menú. Se abre desde ruta. -->
             <!-- ========================================== -->
             <section id="screen-vocab-hub" class="screen">
 
@@ -495,8 +613,19 @@
                     <div>
                         <h2>Vocabulario</h2>
                         <p>
-                            Tarjetas, juegos, audio, práctica temática y repetición activa.
+                            Tarjetas, audio, práctica temática y repetición activa dentro de tu ruta.
                         </p>
+                    </div>
+
+                    <div class="header-actions">
+                        <button 
+                            class="icon-btn" 
+                            onclick="showScreen('dashboard')" 
+                            title="Volver a mi ruta"
+                            aria-label="Volver a mi ruta"
+                        >
+                            <i data-lucide="map"></i>
+                        </button>
                     </div>
                 </header>
 
@@ -516,6 +645,17 @@
                         <p>
                             Personaliza tu experiencia de aprendizaje, meta diaria y progreso.
                         </p>
+                    </div>
+
+                    <div class="header-actions">
+                        <button 
+                            class="icon-btn" 
+                            onclick="showScreen('dashboard')" 
+                            title="Volver a mi ruta"
+                            aria-label="Volver a mi ruta"
+                        >
+                            <i data-lucide="map"></i>
+                        </button>
                     </div>
                 </header>
 

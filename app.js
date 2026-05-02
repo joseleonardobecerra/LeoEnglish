@@ -760,28 +760,37 @@ function finishModule() {
     lucide.createIcons();
     saveState();
 }
-
 // ============================================================
 // READING HUB
+// Soporta: choice, True/False y fill
 // ============================================================
+
 window.renderReadingHub = function() {
     const el = document.getElementById('reading-hub-content');
     if (!el) return;
+
     el.innerHTML = `
         <div class="reading-grid">
             ${readingTexts.map(r => {
                 const score = state.readingScores[r.id];
                 const done = score != null;
-                return `<div class="reading-card" onclick="openReading('${r.id}')">
+                const totalQuestions = Array.isArray(r.qs) ? r.qs.length : r.questions;
+
+                return `
+                <div class="reading-card" onclick="openReading('${r.id}')">
                     <div class="reading-card-banner" style="background:${r.levelColor}"></div>
                     <div class="reading-card-body">
-                        <span class="reading-level-badge" style="background:${r.levelColor}20;color:${r.levelColor}">${r.level} · ${r.topic}</span>
+                        <span class="reading-level-badge" style="background:${r.levelColor}20;color:${r.levelColor}">
+                            ${r.level} · ${r.topic}
+                        </span>
                         <div class="reading-card-title">${r.title}</div>
                         <div class="reading-card-desc">${r.desc}</div>
                     </div>
                     <div class="reading-card-footer">
-                        <span>${r.questions} preguntas</span>
-                        <span style="font-weight:700;color:${done?'#38A169':'#A0AEC0'}">${done ? `✓ ${score}%` : 'Sin completar'}</span>
+                        <span>${totalQuestions} preguntas</span>
+                        <span style="font-weight:700;color:${done ? '#38A169' : '#A0AEC0'}">
+                            ${done ? `✓ ${score}%` : 'Sin completar'}
+                        </span>
                     </div>
                 </div>`;
             }).join('')}
@@ -793,67 +802,178 @@ window.openReading = function(id) {
     currentReadingQIdx = 0;
     currentReadingScore = 0;
     isChecking = false;
+
     const r = readingTexts.find(x => x.id === id);
     if (!r) return;
+
     const el = document.getElementById('reading-hub-content');
+    if (!el) return;
+
     el.innerHTML = `
         <div style="margin-bottom:12px">
             <button class="back-btn" onclick="renderReadingHub()">
                 <i data-lucide="arrow-left"></i> Volver a textos
             </button>
         </div>
+
         <div class="reading-lesson-wrap">
             <div class="reading-text-area">
                 <div class="reading-title">${r.title}</div>
-                <div class="reading-meta">Nivel ${r.level} · ${r.topic} · Toca las palabras <span style="border-bottom:2px solid #63B3ED;color:#2B6CB0;font-weight:600">subrayadas</span> para ver la traducción</div>
+                <div class="reading-meta">
+                    Nivel ${r.level} · ${r.topic} · 
+                    Toca las palabras 
+                    <span style="border-bottom:2px solid #63B3ED;color:#2B6CB0;font-weight:600">
+                        subrayadas
+                    </span> 
+                    para ver la traducción
+                </div>
                 <div class="reading-body">${r.body}</div>
             </div>
+
             <div class="reading-qs">
                 <h4>Preguntas de comprensión</h4>
                 <div id="reading-q-zone"></div>
             </div>
         </div>`;
+
     lucide.createIcons();
     renderReadingQ(r);
 };
+
+function normalizeSimpleAnswer(str) {
+    return String(str || '')
+        .trim()
+        .toLowerCase()
+        .replace(/[’]/g, "'")
+        .replace(/[.,!?¿¡;:]/g, '')
+        .replace(/\s+/g, ' ');
+}
 
 function renderReadingQ(r) {
     if (currentReadingQIdx >= r.qs.length) {
         finishReading(r);
         return;
     }
+
     const q = r.qs[currentReadingQIdx];
+    window.currentReadingQuestion = q;
     isChecking = false;
+
     const zone = document.getElementById('reading-q-zone');
+    if (!zone) return;
+
+    let bodyHtml = '';
+
+    if (!q.type || q.type === 'choice') {
+        bodyHtml = `
+            <div class="opts-grid">
+                ${q.opts.map((o, i) => `
+                    <button class="opt-btn" onclick="checkReadingQ(${i}, this)">
+                        ${o}
+                    </button>
+                `).join('')}
+            </div>`;
+    }
+
+    else if (q.type === 'fill') {
+        bodyHtml = `
+            <input 
+                type="text" 
+                id="rq-input" 
+                class="write-input" 
+                placeholder="Escribe la palabra exacta..." 
+                autocomplete="off"
+                onkeypress="if(event.key==='Enter')checkReadingFill()"
+            >
+
+            <div class="btn-row" style="margin-top:10px">
+                <button class="btn-check" onclick="checkReadingFill()">
+                    <i data-lucide="check"></i> Comprobar
+                </button>
+            </div>`;
+    }
+
+    else {
+        bodyHtml = `
+            <div class="ex-feedback error">
+                <i data-lucide="alert-circle"></i>
+                <span>Tipo de pregunta no soportado: ${q.type}</span>
+            </div>`;
+    }
+
     zone.innerHTML = `
         <div style="margin-bottom:10px;font-size:12px;color:#A0AEC0;font-weight:700">
             Pregunta ${currentReadingQIdx + 1} de ${r.qs.length}
         </div>
-        <div class="ex-q" style="font-size:16px;text-align:left;margin-bottom:16px">${q.q}</div>
-        <div class="opts-grid">
-            ${q.opts.map((o, i) => `<button class="opt-btn" onclick="checkReadingQ(${i},${q.a},this,'${q.exp.replace(/'/g,"\\'")}',document.getElementById('rq-fb'))">${o}</button>`).join('')}
+
+        <div class="ex-q" style="font-size:16px;text-align:left;margin-bottom:16px">
+            ${q.q}
         </div>
+
+        ${bodyHtml}
+
         <div id="rq-fb"></div>`;
+
     lucide.createIcons();
+
+    if (q.type === 'fill') {
+        setTimeout(() => {
+            const input = document.getElementById('rq-input');
+            if (input) input.focus();
+        }, 100);
+    }
 }
 
-window.checkReadingQ = function(chosen, correct, btn, exp, fbEl) {
+window.checkReadingQ = function(chosen, btn) {
     if (isChecking) return;
+
+    const q = window.currentReadingQuestion;
+    if (!q) return;
+
+    const correct = q.a;
+    const exp = q.exp || '';
+
     isChecking = true;
     state.totalAnswers++;
-    document.querySelectorAll('.opts-grid .opt-btn').forEach(b => b.disabled = true);
+
+    document.querySelectorAll('.opts-grid .opt-btn').forEach(b => {
+        b.disabled = true;
+    });
+
+    const fbEl = document.getElementById('rq-fb');
+
     if (chosen === correct) {
         btn.classList.add('correct');
-        state.correctAnswers++; currentReadingScore++;
-        if (fbEl) fbEl.innerHTML = `<div class="ex-feedback success"><i data-lucide="check-circle"></i><span>¡Correcto! ${exp}</span></div>`;
+        state.correctAnswers++;
+        currentReadingScore++;
+
+        if (fbEl) {
+            fbEl.innerHTML = `
+                <div class="ex-feedback success">
+                    <i data-lucide="check-circle"></i>
+                    <span>¡Correcto! ${exp}</span>
+                </div>`;
+        }
+
         addXP(10, true);
     } else {
         btn.classList.add('wrong');
-        document.querySelectorAll('.opts-grid .opt-btn')[correct].classList.add('correct');
-        if (fbEl) fbEl.innerHTML = `<div class="ex-feedback error"><i data-lucide="x-circle"></i><span>Incorrecto. ${exp}</span></div>`;
+
+        const buttons = document.querySelectorAll('.opts-grid .opt-btn');
+        if (buttons[correct]) buttons[correct].classList.add('correct');
+
+        if (fbEl) {
+            fbEl.innerHTML = `
+                <div class="ex-feedback error">
+                    <i data-lucide="x-circle"></i>
+                    <span>Incorrecto. ${exp}</span>
+                </div>`;
+        }
     }
+
     lucide.createIcons();
     saveState();
+
     setTimeout(() => {
         const r = readingTexts.find(x => x.id === currentReadingId);
         currentReadingQIdx++;
@@ -861,50 +981,147 @@ window.checkReadingQ = function(chosen, correct, btn, exp, fbEl) {
     }, 1800);
 };
 
+window.checkReadingFill = function() {
+    if (isChecking) return;
+
+    const q = window.currentReadingQuestion;
+    const input = document.getElementById('rq-input');
+    const fbEl = document.getElementById('rq-fb');
+
+    if (!q || !input) return;
+
+    const val = normalizeSimpleAnswer(input.value);
+    const correct = normalizeSimpleAnswer(q.a);
+
+    if (!val) {
+        window.showToast('Escribe tu respuesta', 'warn');
+        return;
+    }
+
+    isChecking = true;
+    state.totalAnswers++;
+
+    if (val === correct) {
+        input.classList.add('correct');
+        state.correctAnswers++;
+        currentReadingScore++;
+
+        if (fbEl) {
+            fbEl.innerHTML = `
+                <div class="ex-feedback success">
+                    <i data-lucide="check-circle"></i>
+                    <span>¡Correcto! ${q.exp || ''}</span>
+                </div>`;
+        }
+
+        addXP(10, true);
+    } else {
+        input.classList.add('wrong');
+        input.value = q.a;
+
+        if (fbEl) {
+            fbEl.innerHTML = `
+                <div class="ex-feedback error">
+                    <i data-lucide="x-circle"></i>
+                    <span>Incorrecto. ${q.exp || `La respuesta correcta es "${q.a}".`}</span>
+                </div>`;
+        }
+    }
+
+    lucide.createIcons();
+    saveState();
+
+    setTimeout(() => {
+        const r = readingTexts.find(x => x.id === currentReadingId);
+        currentReadingQIdx++;
+        renderReadingQ(r);
+    }, 2200);
+};
+
 function finishReading(r) {
     const pct = Math.round((currentReadingScore / r.qs.length) * 100);
     const prev = state.readingScores[r.id];
+
     state.readingScores[r.id] = prev != null ? Math.max(prev, pct) : pct;
+
     const xpBonus = pct >= 80 ? 50 : pct >= 60 ? 30 : 15;
+
     addXP(xpBonus, false);
     logActivity(`Reading "${r.title}" completado`, xpBonus, r.levelColor);
+
     const stars = pct >= 80 ? 3 : pct >= 60 ? 2 : 1;
-    const starsHtml = [1,2,3].map(i => `<span class="star ${i<=stars?'lit':''}">★</span>`).join('');
+    const starsHtml = [1, 2, 3]
+        .map(i => `<span class="star ${i <= stars ? 'lit' : ''}">★</span>`)
+        .join('');
+
     const zone = document.getElementById('reading-q-zone');
+    if (!zone) return;
+
     zone.innerHTML = `
         <div class="results-card animate-pop" style="border:none;box-shadow:none;padding:20px 0">
             <div class="stars-row">${starsHtml}</div>
             <div class="results-score">${pct}%</div>
-            <p class="results-msg">${pct>=80?'¡Lectura dominada!':pct>=60?'Buena comprensión. Relee el texto.':'Vuelve a leer el texto con calma.'}</p>
+
+            <p class="results-msg">
+                ${pct >= 80 
+                    ? '¡Lectura dominada!' 
+                    : pct >= 60 
+                        ? 'Buena comprensión. Relee el texto.' 
+                        : 'Vuelve a leer el texto con calma.'}
+            </p>
+
             <div class="results-detail">
                 <span class="results-pill pill-good">✓ ${currentReadingScore}/${r.qs.length}</span>
                 <span class="results-pill pill-xp">+${xpBonus} XP</span>
             </div>
+
             <div class="btn-row">
-                <button class="btn-check" onclick="openReading('${r.id}')" style="background:#718096"><i data-lucide="refresh-cw"></i> Repetir</button>
-                <button class="btn-check" onclick="renderReadingHub()"><i data-lucide="book-marked"></i> Más textos</button>
+                <button class="btn-check" onclick="openReading('${r.id}')" style="background:#718096">
+                    <i data-lucide="refresh-cw"></i> Repetir
+                </button>
+
+                <button class="btn-check" onclick="renderReadingHub()">
+                    <i data-lucide="book-marked"></i> Más textos
+                </button>
             </div>
         </div>`;
+
     lucide.createIcons();
     saveState();
 }
 
+
 // ============================================================
 // WRITING HUB
+// Soporta: order, transform, free, error y dictation
 // ============================================================
+
 window.renderWritingHub = function() {
     const el = document.getElementById('writing-hub-content');
     if (!el) return;
+
     el.innerHTML = `
         <div class="writing-grid">
             ${writingExercises.map(ex => {
                 const done = state.writingDone[ex.id] != null;
                 const score = state.writingDone[ex.id];
-                return `<div class="writing-ex-card" onclick="openWriting('${ex.id}')">
-                    <span class="writing-type-badge" style="background:${ex.typeColor}20;color:${ex.typeColor}">${ex.typeLabel}</span>
+
+                return `
+                <div class="writing-ex-card" onclick="openWriting('${ex.id}')">
+                    <span class="writing-type-badge" style="background:${ex.typeColor}20;color:${ex.typeColor}">
+                        ${ex.typeLabel}
+                    </span>
+
                     <div class="writing-ex-title">${ex.title}</div>
                     <div class="writing-ex-desc">${ex.desc}</div>
-                    ${done ? `<div style="margin-top:10px;font-size:12px;font-weight:700;color:#38A169">✓ Completado: ${score}%</div>` : '<div style="margin-top:10px;font-size:12px;color:#A0AEC0">Sin completar</div>'}
+
+                    ${done 
+                        ? `<div style="margin-top:10px;font-size:12px;font-weight:700;color:#38A169">
+                            ✓ Completado: ${score}%
+                           </div>` 
+                        : `<div style="margin-top:10px;font-size:12px;color:#A0AEC0">
+                            Sin completar
+                           </div>`}
                 </div>`;
             }).join('')}
         </div>`;
@@ -913,75 +1130,145 @@ window.renderWritingHub = function() {
 window.openWriting = function(id) {
     const ex = writingExercises.find(x => x.id === id);
     if (!ex) return;
+
+    window.currentWritingExercise = ex;
+    window.currentWritingId = ex.id;
+
     const el = document.getElementById('writing-hub-content');
+    if (!el) return;
+
+    const icon = 
+        ex.type === 'dictation' ? 'headphones' :
+        ex.type === 'error' ? 'search' :
+        ex.type === 'order' ? 'move' :
+        ex.type === 'transform' ? 'pen-line' :
+        ex.type === 'free' ? 'file-pen-line' :
+        'pen-line';
+
+    el.innerHTML = `
+        <div style="margin-bottom:12px">
+            <button class="back-btn" onclick="renderWritingHub()">
+                <i data-lucide="arrow-left"></i> Volver
+            </button>
+        </div>
+
+        <div class="exercise-card animate-pop">
+            <div class="ex-meta">
+                <i data-lucide="${icon}"></i> ${ex.title}
+            </div>
+            <div id="w-${ex.type}-ui"></div>
+        </div>`;
+
+    lucide.createIcons();
 
     if (ex.type === 'order') {
         window.wOrderTasks = ex.tasks;
         window.wOrderIdx = 0;
         window.wOrderScore = 0;
-        el.innerHTML = `
-            <div style="margin-bottom:12px"><button class="back-btn" onclick="renderWritingHub()"><i data-lucide="arrow-left"></i> Volver</button></div>
-            <div class="exercise-card animate-pop">
-                <div class="ex-meta"><i data-lucide="move"></i> ${ex.title}</div>
-                <div id="w-order-ui"></div>
-            </div>`;
-        lucide.createIcons();
         renderWritingOrder();
-        return;
     }
 
-    if (ex.type === 'transform') {
+    else if (ex.type === 'transform') {
         window.wTransTasks = ex.tasks;
         window.wTransIdx = 0;
         window.wTransScore = 0;
-        el.innerHTML = `
-            <div style="margin-bottom:12px"><button class="back-btn" onclick="renderWritingHub()"><i data-lucide="arrow-left"></i> Volver</button></div>
-            <div class="exercise-card animate-pop">
-                <div class="ex-meta"><i data-lucide="pen-line"></i> ${ex.title}</div>
-                <div id="w-trans-ui"></div>
-            </div>`;
-        lucide.createIcons();
         renderWritingTransform();
-        return;
     }
 
-    if (ex.type === 'free') {
+    else if (ex.type === 'free') {
         window.wFreeTasks = ex.tasks;
         window.wFreeIdx = 0;
         window.wFreeScore = 0;
-        el.innerHTML = `
-            <div style="margin-bottom:12px"><button class="back-btn" onclick="renderWritingHub()"><i data-lucide="arrow-left"></i> Volver</button></div>
-            <div class="exercise-card animate-pop">
-                <div class="ex-meta"><i data-lucide="pen-line"></i> ${ex.title}</div>
-                <div id="w-free-ui"></div>
-            </div>`;
-        lucide.createIcons();
         renderWritingFree();
-        return;
+    }
+
+    else if (ex.type === 'error') {
+        window.wErrTasks = ex.tasks;
+        window.wErrIdx = 0;
+        window.wErrScore = 0;
+        renderWritingError();
+    }
+
+    else if (ex.type === 'dictation') {
+        window.wDicTasks = ex.tasks;
+        window.wDicIdx = 0;
+        window.wDicScore = 0;
+        renderWritingDictation();
+    }
+
+    else {
+        const ui = document.getElementById(`w-${ex.type}-ui`);
+        if (ui) {
+            ui.innerHTML = `
+                <div class="ex-feedback error">
+                    <i data-lucide="alert-circle"></i>
+                    Tipo de ejercicio no soportado: ${ex.type}
+                </div>`;
+            lucide.createIcons();
+        }
     }
 };
+
+function normalizeWritingAnswer(str) {
+    return String(str || '')
+        .trim()
+        .toLowerCase()
+        .replace(/[’]/g, "'")
+        .replace(/["“”]/g, '')
+        .replace(/[.,!?¿¡;:]/g, '')
+        .replace(/'/g, '')
+        .replace(/\s+/g, ' ');
+}
+
+
+// ------------------------------------------------------------
+// 1. WRITING ORDER
+// ------------------------------------------------------------
 
 function renderWritingOrder() {
     const ui = document.getElementById('w-order-ui');
     if (!ui) return;
+
     const t = window.wOrderTasks[window.wOrderIdx];
-    if (!t) { finishWriting('word_order_basic', window.wOrderScore, window.wOrderTasks.length); return; }
+
+    if (!t) {
+        finishWriting(window.currentWritingId, window.wOrderScore, window.wOrderTasks.length);
+        return;
+    }
+
     window.woAvail = [...t.words].sort(() => Math.random() - 0.5);
     window.woSel = [];
     window.woCurrent = t.answer;
+
     ui.innerHTML = `
+        <div style="margin-bottom:10px;font-size:12px;color:#A0AEC0;font-weight:700">
+            Ejercicio ${window.wOrderIdx + 1} de ${window.wOrderTasks.length}
+        </div>
+
         <div class="ex-q">${t.prompt}</div>
-        <div class="tip-callout" style="margin-bottom:16px"><i data-lucide="lightbulb"></i> ${t.tip}</div>
+
+        <div class="tip-callout" style="margin-bottom:16px">
+            <i data-lucide="lightbulb"></i> ${t.tip}
+        </div>
+
         <div class="order-zone" id="wo-zone">
             <div class="order-words-pool" id="wo-sel"></div>
         </div>
+
         <div class="order-words-pool" id="wo-avail"></div>
         <div id="wo-fb"></div>
+
         <div class="btn-row">
-            <button class="btn-check" id="wo-check-btn" onclick="checkWritingOrder()" disabled style="opacity:0.5;cursor:not-allowed">
+            <button 
+                class="btn-check" 
+                id="wo-check-btn" 
+                onclick="checkWritingOrder()" 
+                disabled 
+                style="opacity:0.5;cursor:not-allowed">
                 <i data-lucide="check"></i> Comprobar
             </button>
         </div>`;
+
     lucide.createIcons();
     refreshWritingOrder();
 }
@@ -989,136 +1276,618 @@ function renderWritingOrder() {
 function refreshWritingOrder() {
     const selEl = document.getElementById('wo-sel');
     const availEl = document.getElementById('wo-avail');
-    if (selEl) selEl.innerHTML = window.woSel.map((w,i)=>`<div class="order-word in-zone" onclick="woMove(${i},'back')">${w}</div>`).join('') || '<span style="color:#A0AEC0;font-size:13px">Selecciona palabras...</span>';
-    if (availEl) availEl.innerHTML = window.woAvail.map((w,i)=>`<div class="order-word" onclick="woMove(${i},'add')">${w}</div>`).join('');
+
+    if (selEl) {
+        selEl.innerHTML = window.woSel
+            .map((w, i) => `
+                <div class="order-word in-zone" onclick="woMove(${i},'back')">
+                    ${w}
+                </div>
+            `).join('') || 
+            '<span style="color:#A0AEC0;font-size:13px">Selecciona palabras...</span>';
+    }
+
+    if (availEl) {
+        availEl.innerHTML = window.woAvail
+            .map((w, i) => `
+                <div class="order-word" onclick="woMove(${i},'add')">
+                    ${w}
+                </div>
+            `).join('');
+    }
+
     const btn = document.getElementById('wo-check-btn');
-    if (btn) { const ok = window.woAvail.length === 0; btn.disabled = !ok; btn.style.opacity = ok ? '1' : '0.5'; btn.style.cursor = ok ? 'pointer' : 'not-allowed'; }
+
+    if (btn) {
+        const ok = window.woAvail.length === 0;
+        btn.disabled = !ok;
+        btn.style.opacity = ok ? '1' : '0.5';
+        btn.style.cursor = ok ? 'pointer' : 'not-allowed';
+    }
 }
 
 window.woMove = function(i, dir) {
-    if (dir === 'add') { window.woSel.push(window.woAvail.splice(i,1)[0]); }
-    else { window.woAvail.push(window.woSel.splice(i,1)[0]); }
+    if (dir === 'add') {
+        window.woSel.push(window.woAvail.splice(i, 1)[0]);
+    } else {
+        window.woAvail.push(window.woSel.splice(i, 1)[0]);
+    }
+
     refreshWritingOrder();
 };
 
 window.checkWritingOrder = function() {
     const sentence = window.woSel.join(' ').trim();
     const fb = document.getElementById('wo-fb');
+
     state.totalAnswers++;
+
     if (sentence === window.woCurrent.trim()) {
-        state.correctAnswers++; window.wOrderScore++;
-        if (fb) fb.innerHTML = `<div class="ex-feedback success"><i data-lucide="check-circle"></i> ¡Correcto! "${window.woCurrent}"</div>`;
+        state.correctAnswers++;
+        window.wOrderScore++;
+
+        if (fb) {
+            fb.innerHTML = `
+                <div class="ex-feedback success">
+                    <i data-lucide="check-circle"></i> 
+                    ¡Correcto! "${window.woCurrent}"
+                </div>`;
+        }
+
         addXP(15, true);
     } else {
-        if (fb) fb.innerHTML = `<div class="ex-feedback error"><i data-lucide="x-circle"></i> La frase correcta es: "<strong>${window.woCurrent}</strong>"</div>`;
+        if (fb) {
+            fb.innerHTML = `
+                <div class="ex-feedback error">
+                    <i data-lucide="x-circle"></i> 
+                    La frase correcta es: <strong>${window.woCurrent}</strong>
+                </div>`;
+        }
     }
+
     lucide.createIcons();
     saveState();
-    setTimeout(() => { window.wOrderIdx++; renderWritingOrder(); }, 1800);
+
+    setTimeout(() => {
+        window.wOrderIdx++;
+        renderWritingOrder();
+    }, 1800);
 };
 
+
+// ------------------------------------------------------------
+// 2. WRITING TRANSFORM
+// ------------------------------------------------------------
+
 function renderWritingTransform() {
-    const ui = document.getElementById('w-trans-ui');
+    const ui = document.getElementById('w-transform-ui');
     if (!ui) return;
+
     const t = window.wTransTasks[window.wTransIdx];
-    if (!t) { finishWriting('sentence_transform', window.wTransScore, window.wTransTasks.length); return; }
+
+    if (!t) {
+        finishWriting(window.currentWritingId, window.wTransScore, window.wTransTasks.length);
+        return;
+    }
+
+    window.currentTransformTask = t;
+
     ui.innerHTML = `
+        <div style="margin-bottom:10px;font-size:12px;color:#A0AEC0;font-weight:700">
+            Ejercicio ${window.wTransIdx + 1} de ${window.wTransTasks.length}
+        </div>
+
         <div class="ex-q" style="text-align:left">${t.prompt}</div>
-        <div class="tip-callout" style="margin-bottom:14px"><i data-lucide="lightbulb"></i> ${t.tip}</div>
-        <input type="text" id="wt-input" class="write-input" placeholder="Escribe la frase transformada..." autocomplete="off">
+
+        <div class="tip-callout" style="margin-bottom:14px">
+            <i data-lucide="lightbulb"></i> ${t.tip}
+        </div>
+
+        <input 
+            type="text" 
+            id="wt-input" 
+            class="write-input" 
+            placeholder="Escribe la frase transformada..." 
+            autocomplete="off"
+            onkeypress="if(event.key==='Enter')checkWritingTransform()"
+        >
+
         <div id="wt-fb"></div>
+
         <div class="btn-row">
-            <button class="btn-check" onclick="checkWritingTransform('${t.answer.replace(/'/g,"\\'")}')">
+            <button class="btn-check" onclick="checkWritingTransform()">
                 <i data-lucide="check"></i> Comprobar
             </button>
         </div>`;
+
     lucide.createIcons();
-    setTimeout(() => { const i = document.getElementById('wt-input'); if(i) i.focus(); }, 100);
+
+    setTimeout(() => {
+        const i = document.getElementById('wt-input');
+        if (i) i.focus();
+    }, 100);
 }
 
-window.checkWritingTransform = function(correct) {
+window.checkWritingTransform = function() {
+    const t = window.currentTransformTask;
     const inp = document.getElementById('wt-input');
-    if (!inp) return;
-    const val = inp.value.trim().toLowerCase();
     const fb = document.getElementById('wt-fb');
+
+    if (!t || !inp) return;
+
+    const val = normalizeWritingAnswer(inp.value);
+    const correct = normalizeWritingAnswer(t.answer);
+
+    if (!val) {
+        window.showToast('Escribe tu respuesta', 'warn');
+        return;
+    }
+
     state.totalAnswers++;
-    if (val === correct.toLowerCase()) {
-        state.correctAnswers++; window.wTransScore++;
+
+    if (val === correct) {
+        state.correctAnswers++;
+        window.wTransScore++;
         inp.classList.add('correct');
-        if (fb) fb.innerHTML = `<div class="ex-feedback success"><i data-lucide="check-circle"></i> ¡Perfecto!</div>`;
+
+        if (fb) {
+            fb.innerHTML = `
+                <div class="ex-feedback success">
+                    <i data-lucide="check-circle"></i> ¡Perfecto!
+                </div>`;
+        }
+
         addXP(15, true);
     } else {
         inp.classList.add('wrong');
-        if (fb) fb.innerHTML = `<div class="ex-feedback error"><i data-lucide="x-circle"></i> La respuesta correcta es: "<strong>${correct}</strong>"</div>`;
+
+        if (fb) {
+            fb.innerHTML = `
+                <div class="ex-feedback error">
+                    <i data-lucide="x-circle"></i> 
+                    La respuesta correcta es: <strong>${t.answer}</strong>
+                </div>`;
+        }
     }
+
     lucide.createIcons();
     saveState();
-    setTimeout(() => { window.wTransIdx++; renderWritingTransform(); }, 1800);
+
+    setTimeout(() => {
+        window.wTransIdx++;
+        renderWritingTransform();
+    }, 1800);
 };
+
+
+// ------------------------------------------------------------
+// 3. FREE WRITING
+// ------------------------------------------------------------
 
 function renderWritingFree() {
     const ui = document.getElementById('w-free-ui');
     if (!ui) return;
+
     const t = window.wFreeTasks[window.wFreeIdx];
-    if (!t) { finishWriting('free_writing', window.wFreeScore, window.wFreeTasks.length); return; }
+
+    if (!t) {
+        finishWriting(window.currentWritingId, window.wFreeScore, window.wFreeTasks.length);
+        return;
+    }
+
     ui.innerHTML = `
-        <div class="ex-q" style="text-align:left;margin-bottom:16px">${t.prompt}</div>
-        <div class="tip-callout" style="margin-bottom:12px"><i data-lucide="lightbulb"></i> <strong>Guía:</strong> ${t.hint}</div>
+        <div style="margin-bottom:10px;font-size:12px;color:#A0AEC0;font-weight:700">
+            Ejercicio ${window.wFreeIdx + 1} de ${window.wFreeTasks.length}
+        </div>
+
+        <div class="ex-q" style="text-align:left;margin-bottom:16px">
+            ${t.prompt}
+        </div>
+
+        <div class="tip-callout" style="margin-bottom:12px">
+            <i data-lucide="lightbulb"></i> 
+            <strong>Guía:</strong> ${t.hint}
+        </div>
+
         <div style="background:#F7FAFC;border:1px dashed #CBD5E0;border-radius:10px;padding:12px;margin-bottom:12px;font-size:13px;color:#718096">
             <strong>Ejemplo:</strong> ${t.example}
         </div>
-        <textarea id="wf-area" class="writing-textarea" placeholder="Escribe aquí tu respuesta en inglés..."></textarea>
+
+        <textarea 
+            id="wf-area" 
+            class="writing-textarea" 
+            placeholder="Escribe aquí tu respuesta en inglés..."></textarea>
+
         <div id="wf-fb"></div>
+
         <div class="btn-row">
             <button class="btn-check" onclick="checkFreeWriting(${t.minWords})">
                 <i data-lucide="send"></i> Enviar
             </button>
         </div>`;
+
     lucide.createIcons();
 }
 
 window.checkFreeWriting = function(minWords) {
     const area = document.getElementById('wf-area');
     const fb = document.getElementById('wf-fb');
+
     if (!area) return;
+
     const val = area.value.trim();
     const words = val.split(/\s+/).filter(w => w.length > 0).length;
-    if (words < 5) { window.showToast('Escribe al menos algunas oraciones.', 'warn'); return; }
+
+    if (words < 5) {
+        window.showToast('Escribe al menos algunas oraciones.', 'warn');
+        return;
+    }
+
     state.totalAnswers++;
+
     if (words >= minWords) {
-        state.correctAnswers++; window.wFreeScore++;
-        if (fb) fb.innerHTML = `<div class="ex-feedback success"><i data-lucide="check-circle"></i> ¡Muy bien! Escribiste ${words} palabras. Tu producción escrita está mejorando.</div>`;
+        state.correctAnswers++;
+        window.wFreeScore++;
+
+        if (fb) {
+            fb.innerHTML = `
+                <div class="ex-feedback success">
+                    <i data-lucide="check-circle"></i> 
+                    ¡Muy bien! Escribiste ${words} palabras. Tu producción escrita está mejorando.
+                </div>`;
+        }
+
         addXP(20, true);
     } else {
-        if (fb) fb.innerHTML = `<div class="ex-feedback error"><i data-lucide="alert-circle"></i> Escribiste ${words} palabras. Intenta añadir más detalles (mínimo ${minWords} palabras).</div>`;
+        if (fb) {
+            fb.innerHTML = `
+                <div class="ex-feedback error">
+                    <i data-lucide="alert-circle"></i> 
+                    Escribiste ${words} palabras. Intenta añadir más detalles. 
+                    Mínimo esperado: ${minWords} palabras.
+                </div>`;
+        }
     }
+
     lucide.createIcons();
     saveState();
-    setTimeout(() => { window.wFreeIdx++; renderWritingFree(); }, 2200);
+
+    setTimeout(() => {
+        window.wFreeIdx++;
+        renderWritingFree();
+    }, 2200);
 };
 
-function finishWriting(id, score, total) {
-    const pct = Math.round((score / total) * 100);
-    const prev = state.writingDone[id];
-    state.writingDone[id] = prev != null ? Math.max(prev, pct) : pct;
-    const xpBonus = pct >= 80 ? 40 : pct >= 60 ? 25 : 15;
-    addXP(xpBonus, false);
-    logActivity('Ejercicio de Writing completado', xpBonus, '#D85A30');
-    const ex = writingExercises.find(x => x.id === id);
-    const ui = document.getElementById('w-order-ui') || document.getElementById('w-trans-ui') || document.getElementById('w-free-ui');
+
+// ------------------------------------------------------------
+// 4. ERROR CORRECTION
+// ------------------------------------------------------------
+
+function renderWritingError() {
+    const ui = document.getElementById('w-error-ui');
     if (!ui) return;
+
+    const t = window.wErrTasks[window.wErrIdx];
+
+    if (!t) {
+        finishWriting(window.currentWritingId, window.wErrScore, window.wErrTasks.length);
+        return;
+    }
+
+    window.currentErrorTask = t;
+
+    ui.innerHTML = `
+        <div style="margin-bottom:10px;font-size:12px;color:#A0AEC0;font-weight:700">
+            Ejercicio ${window.wErrIdx + 1} de ${window.wErrTasks.length}
+        </div>
+
+        <div class="ex-q" style="text-align:left;color:#E53E3E;text-decoration:line-through;font-size:18px">
+            ${t.wrong}
+        </div>
+
+        <div class="tip-callout" style="margin-bottom:14px">
+            <i data-lucide="lightbulb"></i> ${t.tip}
+        </div>
+
+        <input 
+            type="text" 
+            id="we-input" 
+            class="write-input" 
+            placeholder="Escribe la oración correcta..." 
+            autocomplete="off"
+            onkeypress="if(event.key==='Enter')checkWritingError()"
+        >
+
+        <div id="we-fb"></div>
+
+        <div class="btn-row">
+            <button class="btn-check" onclick="checkWritingError()">
+                <i data-lucide="check"></i> Comprobar
+            </button>
+        </div>`;
+
+    lucide.createIcons();
+
+    setTimeout(() => {
+        const i = document.getElementById('we-input');
+        if (i) i.focus();
+    }, 100);
+}
+
+window.checkWritingError = function() {
+    const t = window.currentErrorTask;
+    const inp = document.getElementById('we-input');
+    const fb = document.getElementById('we-fb');
+
+    if (!t || !inp) return;
+
+    const val = normalizeWritingAnswer(inp.value);
+    const correct = normalizeWritingAnswer(t.answer);
+
+    if (!val) {
+        window.showToast('Escribe tu respuesta', 'warn');
+        return;
+    }
+
+    state.totalAnswers++;
+
+    if (val === correct) {
+        state.correctAnswers++;
+        window.wErrScore++;
+        inp.classList.add('correct');
+
+        if (fb) {
+            fb.innerHTML = `
+                <div class="ex-feedback success">
+                    <i data-lucide="check-circle"></i> 
+                    ¡Corrección perfecta!
+                </div>`;
+        }
+
+        addXP(15, true);
+    } else {
+        inp.classList.add('wrong');
+
+        if (fb) {
+            fb.innerHTML = `
+                <div class="ex-feedback error">
+                    <i data-lucide="x-circle"></i> 
+                    Corrección sugerida: <strong>${t.answer}</strong>
+                </div>`;
+        }
+    }
+
+    lucide.createIcons();
+    saveState();
+
+    setTimeout(() => {
+        window.wErrIdx++;
+        renderWritingError();
+    }, 2200);
+};
+
+
+// ------------------------------------------------------------
+// 5. DICTATION
+// ------------------------------------------------------------
+
+function renderWritingDictation() {
+    const ui = document.getElementById('w-dictation-ui');
+    if (!ui) return;
+
+    const t = window.wDicTasks[window.wDicIdx];
+
+    if (!t) {
+        finishWriting(window.currentWritingId, window.wDicScore, window.wDicTasks.length);
+        return;
+    }
+
+    window.currentDictationTask = t;
+
+    ui.innerHTML = `
+        <div style="margin-bottom:10px;font-size:12px;color:#A0AEC0;font-weight:700">
+            Dictado ${window.wDicIdx + 1} de ${window.wDicTasks.length}
+        </div>
+
+        <div class="ex-q" style="text-align:left;margin-bottom:14px">
+            Escucha el audio y escribe exactamente la frase.
+        </div>
+
+        <div class="tip-callout" style="margin-bottom:14px">
+            <i data-lucide="headphones"></i> 
+            Puedes escuchar la frase varias veces antes de responder.
+        </div>
+
+        <div class="btn-row" style="margin-bottom:14px">
+            <button class="btn-check" onclick="playCurrentDictation()" style="background:#805AD5">
+                <i data-lucide="volume-2"></i> Escuchar
+            </button>
+
+            <button class="btn-check" onclick="playCurrentDictationSlow()" style="background:#718096">
+                <i data-lucide="snail"></i> Lento
+            </button>
+        </div>
+
+        <input 
+            type="text" 
+            id="wd-input" 
+            class="write-input" 
+            placeholder="Escribe lo que escuchas..." 
+            autocomplete="off"
+            onkeypress="if(event.key==='Enter')checkWritingDictation()"
+        >
+
+        <div id="wd-fb"></div>
+
+        <div class="btn-row">
+            <button class="btn-check" onclick="checkWritingDictation()">
+                <i data-lucide="check"></i> Comprobar
+            </button>
+        </div>`;
+
+    lucide.createIcons();
+
+    setTimeout(() => {
+        const i = document.getElementById('wd-input');
+        if (i) i.focus();
+    }, 100);
+}
+
+window.playCurrentDictation = function() {
+    const t = window.currentDictationTask;
+    if (!t) return;
+
+    if (typeof window.playAudio === 'function') {
+        window.playAudio(t.audio, 'en-US');
+        return;
+    }
+
+    if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(t.audio);
+        utterance.lang = 'en-US';
+        utterance.rate = 0.95;
+        window.speechSynthesis.speak(utterance);
+    } else {
+        window.showToast('Tu navegador no soporta audio automático.', 'warn');
+    }
+};
+
+window.playCurrentDictationSlow = function() {
+    const t = window.currentDictationTask;
+    if (!t) return;
+
+    if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(t.audio);
+        utterance.lang = 'en-US';
+        utterance.rate = 0.68;
+        window.speechSynthesis.speak(utterance);
+    } else if (typeof window.playAudio === 'function') {
+        window.playAudio(t.audio, 'en-US');
+    } else {
+        window.showToast('Tu navegador no soporta audio automático.', 'warn');
+    }
+};
+
+window.checkWritingDictation = function() {
+    const t = window.currentDictationTask;
+    const inp = document.getElementById('wd-input');
+    const fb = document.getElementById('wd-fb');
+
+    if (!t || !inp) return;
+
+    const val = normalizeWritingAnswer(inp.value);
+    const correct = normalizeWritingAnswer(t.answer);
+
+    if (!val) {
+        window.showToast('Escribe lo que escuchaste', 'warn');
+        return;
+    }
+
+    state.totalAnswers++;
+
+    if (val === correct) {
+        state.correctAnswers++;
+        window.wDicScore++;
+        inp.classList.add('correct');
+
+        if (fb) {
+            fb.innerHTML = `
+                <div class="ex-feedback success">
+                    <i data-lucide="check-circle"></i> 
+                    ¡Dictado correcto! ${t.tip || ''}
+                </div>`;
+        }
+
+        addXP(18, true);
+    } else {
+        inp.classList.add('wrong');
+
+        if (fb) {
+            fb.innerHTML = `
+                <div class="ex-feedback error">
+                    <i data-lucide="x-circle"></i> 
+                    La frase correcta es: <strong>${t.answer}</strong><br>
+                    <small>${t.tip || ''}</small>
+                </div>`;
+        }
+    }
+
+    lucide.createIcons();
+    saveState();
+
+    setTimeout(() => {
+        window.wDicIdx++;
+        renderWritingDictation();
+    }, 2600);
+};
+
+
+// ------------------------------------------------------------
+// FINAL WRITING
+// ------------------------------------------------------------
+
+function getCurrentWritingUI() {
+    return (
+        document.getElementById('w-order-ui') ||
+        document.getElementById('w-transform-ui') ||
+        document.getElementById('w-free-ui') ||
+        document.getElementById('w-error-ui') ||
+        document.getElementById('w-dictation-ui')
+    );
+}
+
+function finishWriting(id, score, total) {
+    const pct = total > 0 ? Math.round((score / total) * 100) : 0;
+    const prev = state.writingDone[id];
+
+    state.writingDone[id] = prev != null ? Math.max(prev, pct) : pct;
+
+    const xpBonus = pct >= 80 ? 40 : pct >= 60 ? 25 : 15;
+
+    addXP(xpBonus, false);
+
+    const ex = writingExercises.find(x => x.id === id);
+    const title = ex ? ex.title : 'Writing';
+
+    logActivity(`Writing "${title}" completado`, xpBonus, '#D85A30');
+
+    const ui = getCurrentWritingUI();
+    if (!ui) return;
+
+    const stars = pct >= 80 ? 3 : pct >= 60 ? 2 : 1;
+    const starsHtml = [1, 2, 3]
+        .map(i => `<span class="star ${i <= stars ? 'lit' : ''}">★</span>`)
+        .join('');
+
     ui.innerHTML = `
         <div class="results-card animate-pop" style="border:none;box-shadow:none;padding:20px 0">
+            <div class="stars-row">${starsHtml}</div>
             <div class="results-score">${pct}%</div>
-            <p class="results-msg">${pct>=80?'¡Escritura excelente!':pct>=60?'Buen esfuerzo. Sigue practicando.':'La escritura mejora con la práctica.'}</p>
+
+            <p class="results-msg">
+                ${pct >= 80 
+                    ? '¡Escritura excelente!' 
+                    : pct >= 60 
+                        ? 'Buen esfuerzo. Sigue practicando.' 
+                        : 'La escritura mejora con práctica y corrección.'}
+            </p>
+
             <div class="results-detail">
                 <span class="results-pill pill-good">✓ ${score}/${total}</span>
                 <span class="results-pill pill-xp">+${xpBonus} XP</span>
             </div>
+
             <div class="btn-row">
-                <button class="btn-check" onclick="renderWritingHub()"><i data-lucide="pen-line"></i> Más ejercicios</button>
+                <button class="btn-check" onclick="openWriting('${id}')" style="background:#718096">
+                    <i data-lucide="refresh-cw"></i> Repetir
+                </button>
+
+                <button class="btn-check" onclick="renderWritingHub()">
+                    <i data-lucide="pen-line"></i> Más ejercicios
+                </button>
             </div>
         </div>`;
+
     lucide.createIcons();
     saveState();
 }

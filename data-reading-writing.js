@@ -2256,10 +2256,25 @@ if (typeof module !== 'undefined' && module.exports) {
   // El app.js v4 usa diagnosticTest si existe.
   // Aquí componemos Grammar + Reading + Writing.
 
+  // FIX: Guards robustos para los tres blueprints.
+  // Si data-grammar.js se carga después de este archivo (orden incorrecto de <script>),
+  // grammarItems quedaría vacío silenciosamente. Ahora se lanza un warning claro en consola
+  // y window.diagnosticTest se reconstruye en DOMContentLoaded como segundo intento.
   const grammarItems =
-    typeof grammarDiagnosticBlueprint !== 'undefined'
-      ? grammarDiagnosticBlueprint.items || []
-      : [];
+    typeof grammarDiagnosticBlueprint !== 'undefined' && grammarDiagnosticBlueprint !== null
+      ? (grammarDiagnosticBlueprint.items || [])
+      : (console.warn('[LeoEnglish] grammarDiagnosticBlueprint no está definida al construir diagnosticTest. ' +
+          'Verifica el orden de los <script>: data-grammar.js debe ir ANTES que data-reading-writing.js.'), []);
+
+  const readingItems =
+    typeof readingDiagnosticBlueprint !== 'undefined' && readingDiagnosticBlueprint !== null
+      ? (readingDiagnosticBlueprint.items || [])
+      : (console.warn('[LeoEnglish] readingDiagnosticBlueprint no está definida al construir diagnosticTest.'), []);
+
+  const writingItems =
+    typeof writingDiagnosticBlueprint !== 'undefined' && writingDiagnosticBlueprint !== null
+      ? (writingDiagnosticBlueprint.items || [])
+      : (console.warn('[LeoEnglish] writingDiagnosticBlueprint no está definida al construir diagnosticTest.'), []);
 
   var diagnosticTest = {
     id: 'main_placement_test_a1_a2',
@@ -2282,16 +2297,48 @@ if (typeof module !== 'undefined' && module.exports) {
         id: 'reading',
         title: 'Reading',
         weight: 0.25,
-        items: readingDiagnosticBlueprint.items
+        items: readingItems
       },
       {
         id: 'writing',
         title: 'Writing',
         weight: 0.25,
-        items: writingDiagnosticBlueprint.items
+        items: writingItems
       }
     ]
   };
+
+  // Segundo intento: si algún blueprint llegó vacío por orden de carga,
+  // se reconstruye diagnosticTest cuando el DOM esté listo.
+  if (typeof document !== 'undefined') {
+    document.addEventListener('DOMContentLoaded', function() {
+      var rebuilt = false;
+
+      if (!diagnosticTest.sections[0].items.length &&
+          typeof grammarDiagnosticBlueprint !== 'undefined' &&
+          grammarDiagnosticBlueprint.items && grammarDiagnosticBlueprint.items.length) {
+        diagnosticTest.sections[0].items = grammarDiagnosticBlueprint.items;
+        rebuilt = true;
+      }
+      if (!diagnosticTest.sections[1].items.length &&
+          typeof readingDiagnosticBlueprint !== 'undefined' &&
+          readingDiagnosticBlueprint.items && readingDiagnosticBlueprint.items.length) {
+        diagnosticTest.sections[1].items = readingDiagnosticBlueprint.items;
+        rebuilt = true;
+      }
+      if (!diagnosticTest.sections[2].items.length &&
+          typeof writingDiagnosticBlueprint !== 'undefined' &&
+          writingDiagnosticBlueprint.items && writingDiagnosticBlueprint.items.length) {
+        diagnosticTest.sections[2].items = writingDiagnosticBlueprint.items;
+        rebuilt = true;
+      }
+
+      if (rebuilt) {
+        window.diagnosticTest = diagnosticTest;
+        console.info('[LeoEnglish] diagnosticTest reconstruido en DOMContentLoaded con todos los blueprints.');
+      }
+    });
+  }
 
 
   // ------------------------------------------------------------

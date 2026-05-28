@@ -123,6 +123,7 @@ let currentErrors = 0;
 let currentReadingId = '';
 let currentReadingQIdx = 0;
 let currentReadingScore = 0;
+let readingTimer = null;   // FIX: ID del setTimeout activo de reading para poder cancelarlo
 
 let vocabCurrentTopic = null;
 let vocabMode = 'flash';
@@ -213,14 +214,19 @@ function escapeAttr(value) {
 }
 
 function normalizeAnswer(value) {
+    // FIX: Pipeline unificado para input Y q.a / task.answer.
+    // Antes: apostrofe curvo → recto y luego borrado podian diferir segun encoding del contenido.
+    // Orden: 1)trim 2)lowercase 3)unificar apostrofes/comillas a ASCII recto
+    //        4)eliminar puntuacion 5)borrar apostrofes (it's → its) 6)colapsar espacios.
     return String(value ?? '')
         .trim()
         .toLowerCase()
-        .replace(/[’]/g, "'")
-        .replace(/["“”]/g, '')
-        .replace(/[.,!?¿¡;:]/g, '')
+        .replace(/[\u2018\u2019\u02BC\u0060\u00B4']/g, "'")
+        .replace(/[\u201C\u201D\u00AB\u00BB\u201E"\u0022]/g, '"')
+        .replace(/[.,!?\u00BF\u00A1;:"]/g, '')
         .replace(/'/g, '')
-        .replace(/\s+/g, ' ');
+        .replace(/\s+/g, ' ')
+        .trim();
 }
 
 function average(values) {
@@ -417,6 +423,11 @@ function migrateLegacyGrammarScores(targetState) {
 
 onAuthStateChanged(auth, async user => {
     const loginOverlay = document.getElementById('login-overlay');
+    // FIX: Ocultamos el spinner de carga inicial (visible por defecto en HTML)
+    // solo cuando Firebase confirma el estado de sesión — evita el flash de
+    // contenido en móviles lentos donde el JS tarda en ejecutarse.
+    const appLoader = document.getElementById('app-loader');
+    if (appLoader) appLoader.classList.add('hidden');
 
     if (user) {
         if (loginOverlay) loginOverlay.classList.add('hidden');
@@ -831,6 +842,11 @@ window.openRouteActivity = function(activityId) {
 // ============================================================
 
 window.showScreen = function(screenId) {
+    // FIX: Al cambiar de pantalla siempre reseteamos isChecking.
+    // Evita que un setTimeout pendiente de un ejercicio anterior deje la bandera
+    // en true y bloquee la interacción en la siguiente actividad que el usuario abra.
+    isChecking = false;
+
     ensureDiagnosticScreen();
 
     document.querySelectorAll('.screen').forEach(screen => screen.classList.remove('active'));
@@ -1428,7 +1444,16 @@ function drawOrderUI() {
     const container = document.getElementById('order-ui');
     if (!container) return;
 
-    const allDone = window.orderAvail.length === 0;
+    // FIX: Si orderAvail o orderSel son undefined (ej. el usuario volvió atrás y
+    // re-entró al ejercicio antes de que renderGrammarExercise completara la
+    // inicialización), los reseteamos a array vacío para evitar TypeError y para
+    // que el botón "Evaluar" no aparezca habilitado sin palabras seleccionadas.
+    if (!Array.isArray(window.orderAvail)) window.orderAvail = [];
+    if (!Array.isArray(window.orderSel))   window.orderSel   = [];
+
+    // El botón "Evaluar" solo se habilita cuando el pool de disponibles está vacío
+    // Y hay al menos una palabra seleccionada (evita habilitarlo con todo vacío).
+    const allDone = window.orderAvail.length === 0 && window.orderSel.length > 0;
 
     container.innerHTML = `
         <div class="order-zone" id="order-zone">
@@ -1494,18 +1519,22 @@ window.checkChoice = function(index, btn) {
     const q = mod.exercises[currentExerciseIdx];
     const selected = q.opts[index];
 
-    const correct = typeof q.a === 'number'
-        ? q.opts[q.a]
-        : q.a;
+    // FIX: Calculamos el índice correcto una sola vez y lo usamos para TODO:
+    // lógica de acierto Y resaltado visual. Antes el resaltado usaba
+    // textContent.trim() que falla con espacios extra o HTML entities en el DOM.
+    const correctIndex = typeof q.a === 'number'
+        ? q.a
+        : q.opts.indexOf(q.a);
 
-    const ok = typeof q.a === 'number'
-        ? index === q.a
-        : selected === q.a;
+    const correct = q.opts[correctIndex] ?? q.a;  // texto legible para el feedback
+
+    const ok = index === correctIndex;
 
     isChecking = true;
     state.totalAnswers++;
 
-    document.querySelectorAll('.opt-btn').forEach(button => button.disabled = true);
+    const allBtns = document.querySelectorAll('.opt-btn');
+    allBtns.forEach(button => button.disabled = true);
 
     if (ok) {
         btn.classList.add('correct');
@@ -1517,11 +1546,9 @@ window.checkChoice = function(index, btn) {
     } else {
         btn.classList.add('wrong');
 
-        document.querySelectorAll('.opt-btn').forEach(button => {
-            if (button.textContent.trim() === String(correct).trim()) {
-                button.classList.add('correct');
-            }
-        });
+        // Resaltado por índice: directo, sin comparar texto, inmune a cualquier
+        // diferencia de espaciado o encoding entre el dato y el DOM.
+        if (allBtns[correctIndex]) allBtns[correctIndex].classList.add('correct');
 
         currentErrors++;
 
@@ -1720,6 +1747,15 @@ window.openReading = function(id) {
     const text = getReadingTexts().find(item => item.id === id);
     if (!text) return;
 
+    // FIX: Cancelar cualquier setTimeout pendiente del texto anterior antes de
+    // reinicializar el estado. Sin esto, el timer del texto anterior puede
+    // ejecutarse milisegundos después y avanzar currentReadingQIdx sobre el
+    // texto nuevo, saltándose la primera pregunta.
+    if (readingTimer !== null) {
+        clearTimeout(readingTimer);
+        readingTimer = null;
+    }
+
     currentReadingId = id;
     currentReadingQIdx = 0;
     currentReadingScore = 0;
@@ -1878,7 +1914,13 @@ window.checkReadingQ = function(chosen, btn) {
     ensureLucide();
     saveState();
 
-    setTimeout(() => {
+    // FIX: Guardamos el ID del timer para poder cancelarlo en openReading si el
+    // usuario navega antes de que expire. También hacemos snapshot del ID del texto
+    // activo ahora: si el timer escapa al clearTimeout, la comparación lo aborta.
+    const snapshotReadingId = currentReadingId;
+    readingTimer = setTimeout(() => {
+        readingTimer = null;
+        if (currentReadingId !== snapshotReadingId) return; // texto cambió, abortar
         const text = getReadingTexts().find(item => item.id === currentReadingId);
         currentReadingQIdx++;
         renderReadingQuestion(text);
@@ -1937,7 +1979,11 @@ window.checkReadingFill = function() {
     ensureLucide();
     saveState();
 
-    setTimeout(() => {
+    // FIX: mismo patrón que checkReadingQ — timer cancelable + snapshot defensivo.
+    const snapshotReadingId = currentReadingId;
+    readingTimer = setTimeout(() => {
+        readingTimer = null;
+        if (currentReadingId !== snapshotReadingId) return;
         const text = getReadingTexts().find(item => item.id === currentReadingId);
         currentReadingQIdx++;
         renderReadingQuestion(text);
@@ -2659,14 +2705,25 @@ function finishWriting(id, score, total) {
     addXP(xpBonus, false);
     logActivity(`Writing "${exercise?.title || id}" completado`, xpBonus, TYPE_META.writing.color);
 
-    const ui =
-        document.getElementById('w-order-ui') ||
-        document.getElementById('w-transform-ui') ||
-        document.getElementById('w-free-ui') ||
-        document.getElementById('w-error-ui') ||
-        document.getElementById('w-dictation-ui');
+    // FIX: Buscamos el contenedor por el tipo del ejercicio activo (window.currentWritingExercise).
+    // Antes se intentaban IDs hardcodeados; si el tipo era 'fill' u otro nuevo tipo,
+    // el getElementById devolvía null y la tarjeta de resultados nunca se renderizaba.
+    const activeType = window.currentWritingExercise?.type;
+    const ui = activeType
+        ? document.getElementById(`w-${activeType}-ui`)
+        : (
+            document.getElementById('w-order-ui') ||
+            document.getElementById('w-transform-ui') ||
+            document.getElementById('w-free-ui') ||
+            document.getElementById('w-error-ui') ||
+            document.getElementById('w-dictation-ui') ||
+            document.getElementById('w-fill-ui')
+          );
 
-    if (!ui) return;
+    if (!ui) {
+        console.warn(`[LeoEnglish] finishWriting: no se encontró el contenedor UI para tipo "${activeType || 'desconocido'}". La tarjeta de resultados no puede renderizarse.`);
+        return;
+    }
 
     renderResultCard({
         containerElement: ui,
@@ -3005,12 +3062,16 @@ window.checkVocabQuiz = function(index, btn) {
 
     const q = window.vqTasks[window.vqIdx];
     const selected = q.opts[index];
-    const ok = selected === q.answer;
+
+    // FIX: Calculamos el índice correcto para resaltar por posición, no por texto.
+    const correctIndex = q.opts.indexOf(q.answer);
+    const ok = index === correctIndex;
 
     isChecking = true;
     state.totalAnswers++;
 
-    document.querySelectorAll('.opt-btn').forEach(button => button.disabled = true);
+    const allBtns = document.querySelectorAll('.opt-btn');
+    allBtns.forEach(button => button.disabled = true);
 
     const fb = document.getElementById('vq-fb');
 
@@ -3032,11 +3093,8 @@ window.checkVocabQuiz = function(index, btn) {
     } else {
         btn.classList.add('wrong');
 
-        document.querySelectorAll('.opt-btn').forEach(button => {
-            if (button.textContent.trim() === q.answer) {
-                button.classList.add('correct');
-            }
-        });
+        // Resaltado por índice, inmune a espacios y HTML entities.
+        if (allBtns[correctIndex]) allBtns[correctIndex].classList.add('correct');
 
         if (fb) {
             fb.innerHTML = `
@@ -3305,14 +3363,13 @@ window.checkDiagnosticAnswer = function(chosen, btn) {
 
         const buttons = document.querySelectorAll('#diagnostic-zone .opt-btn, #diagnostic-content .opt-btn');
 
-        if (typeof correct === 'number' && buttons[correct]) {
-            buttons[correct].classList.add('correct');
-        } else {
-            buttons.forEach(button => {
-                if (button.textContent.trim() === String(correct).trim()) {
-                    button.classList.add('correct');
-                }
-            });
+        // FIX: mismo patrón que checkChoice/checkVocabQuiz — resaltado siempre por índice.
+        const correctIndex = typeof correct === 'number'
+            ? correct
+            : item.opts ? item.opts.indexOf(correct) : -1;
+
+        if (correctIndex >= 0 && buttons[correctIndex]) {
+            buttons[correctIndex].classList.add('correct');
         }
     }
 
@@ -3433,12 +3490,46 @@ function applyDiagnosticResult(result) {
 
     const route = flattenRoute();
 
+    // FIX: Antes se homologaban TODAS las actividades de un nivel con score >= 85%,
+    // incluyendo las que no tienen ninguna pregunta diagnóstica asociada.
+    // Ahora construimos el conjunto de sourceIds cubiertos por el diagnóstico
+    // (todos los mapsTo de cada item) y solo homologamos actividades que estén
+    // dentro de ese conjunto Y superen el umbral de score por nivel.
+    const coveredByDiagnostic = new Set();
+    diagnosticSession === null && (() => {
+        // diagnosticSession ya es null aquí; leemos del resultado
+        (result.reinforcementItems || []).forEach(item => {
+            possibleSourceIds(item.sourceId).forEach(id => coveredByDiagnostic.add(id));
+        });
+    })();
+
+    // Añadir también los sourceIds de las preguntas correctas (no solo refuerzos)
+    if (window.diagnosticTest && Array.isArray(window.diagnosticTest.sections)) {
+        window.diagnosticTest.sections.forEach(section => {
+            (section.items || []).forEach(item => {
+                (item.mapsTo || []).forEach(sourceId => {
+                    possibleSourceIds(sourceId).forEach(id => coveredByDiagnostic.add(id));
+                });
+            });
+        });
+    }
+
     route.forEach(activity => {
         const weak = result.reinforcementItems.some(item => sourceMatches(activity, item.sourceId));
         if (weak) return;
 
         const levelScore = result.levelPct[activity.level] || 0;
         if (levelScore < HOMOLOGATION_SCORE) return;
+
+        // FIX: Solo homologar si la actividad tiene cobertura diagnóstica real.
+        // Las actividades sin preguntas diagnósticas (ej. módulos de práctica libre
+        // añadidos después del diagnóstico) no se homologan automáticamente.
+        const resolvedId = getResolvedSourceId(activity.type, activity.sourceId);
+        const hasCoverage = coveredByDiagnostic.size === 0 // sin diagnóstico: permitir todo (retrocompat)
+            || coveredByDiagnostic.has(activity.sourceId)
+            || coveredByDiagnostic.has(resolvedId);
+
+        if (!hasCoverage) return;
 
         state.routeProgress.homologatedActivities[activity.id] = true;
         markActivityCompleted(activity.type, activity.sourceId, 100);
@@ -3774,15 +3865,28 @@ window.playAudio = function(text, lang = 'en-US', event = null, rate = 0.85) {
         return;
     }
 
-    window.speechSynthesis.cancel();
-
+    // FIX: iOS Safari solo permite speechSynthesis.speak() cuando se invoca
+    // sincrónicamente desde un gesto del usuario (click/tap). Si se llama desde
+    // un setTimeout (ej. auto-play del dictado), el audio se silencia sin error.
+    // Solución: cancelamos siempre (necesario para limpiar la cola en iOS),
+    // y en iOS diferimos con un requestAnimationFrame para mantenernos en el
+    // mismo frame del gesto antes de hablar.
     const utterance = new SpeechSynthesisUtterance(text);
-
     utterance.lang = lang;
     utterance.rate = rate;
     utterance.pitch = 1;
 
-    window.speechSynthesis.speak(utterance);
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+    window.speechSynthesis.cancel();
+
+    if (isIOS) {
+        // En iOS, cancel() es asíncrono internamente; un rAF lo deja terminar
+        // antes de llamar speak() y evita que la cola quede bloqueada.
+        requestAnimationFrame(() => window.speechSynthesis.speak(utterance));
+    } else {
+        window.speechSynthesis.speak(utterance);
+    }
 };
 
 let toastTimer = null;

@@ -23,6 +23,23 @@
 
 <body>
 
+    <!-- FIX: app-loader visible por defecto. Se oculta en onAuthStateChanged cuando
+         Firebase confirma el estado de sesión, eliminando el flash de contenido en
+         móviles lentos. El login-overlay ya NO tiene 'hidden' hardcodeado: Firebase
+         lo mostrará/ocultará según corresponda. -->
+    <div id="app-loader" style="
+        position: fixed; inset: 0; z-index: 9999;
+        display: flex; align-items: center; justify-content: center;
+        background: var(--bg, #0f172a);
+    ">
+        <div style="text-align:center; color:#94a3b8; font-family:sans-serif;">
+            <div style="width:40px;height:40px;border:3px solid #334155;border-top-color:#6366f1;
+                        border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 12px;"></div>
+            <span style="font-size:13px;">Cargando LeoEnglish…</span>
+        </div>
+    </div>
+    <style>@keyframes spin{to{transform:rotate(360deg)}}.hidden{display:none!important}</style>
+
     <!-- ========================================== -->
     <!-- PANTALLA DE LOGIN                          -->
     <!-- ========================================== -->
@@ -794,8 +811,17 @@
     <!-- SCRIPTS DE DATOS                           -->
     <!-- ========================================== -->
     <script src="data-grammar.js"></script>
+    <script src="data-grammar-b1.js"></script>
+    <script src="data-grammar-b2.js"></script>
+    <script src="data-grammar-c1.js"></script>
     <script src="data-reading-writing.js"></script>
+    <script src="data-reading-writing-b1.js"></script>
+    <script src="data-reading-writing-b2.js"></script>
+    <script src="data-reading-writing-c1.js"></script>
     <script src="data-vocab.js"></script>
+    <script src="data-vocab-b1.js"></script>
+    <script src="data-vocab-b2.js"></script>
+    <script src="data-vocab-c1.js"></script>
 
 
     <!-- ========================================== -->

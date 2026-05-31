@@ -217,6 +217,16 @@
                     <span class="nav-label">Diagnóstico</span>
                 </button>
 
+                <button class="nav-btn" onclick="showScreen('cefr-portfolio'); setActiveNav(this)">
+                    <i data-lucide="award"></i>
+                    <span class="nav-label">Mi Portfolio MCER</span>
+                </button>
+
+                <button class="nav-btn" onclick="showScreen('business-english'); setActiveNav(this)">
+                    <i data-lucide="briefcase"></i>
+                    <span class="nav-label">Business English</span>
+                </button>
+
                 <button class="nav-btn" onclick="showScreen('settings'); setActiveNav(this)">
                     <i data-lucide="settings"></i>
                     <span class="nav-label">Configuración</span>
@@ -822,12 +832,56 @@
     <script src="data-vocab-b1.js"></script>
     <script src="data-vocab-b2.js"></script>
     <script src="data-vocab-c1.js"></script>
+    <script src="data-cefr-framework.js"></script>
+    <script src="data-business-english.js"></script>
 
 
     <!-- ========================================== -->
     <!-- MOTOR PRINCIPAL                            -->
     <!-- ========================================== -->
     <script type="module" src="app.js"></script>
+
+        <!-- ========================================== -->
+        <!-- PANTALLA: PORTFOLIO MCER                   -->
+        <!-- ========================================== -->
+        <section id="screen-cefr-portfolio" class="screen">
+            <div class="screen-inner">
+                <div class="screen-header">
+                    <button class="back-btn" onclick="showScreen('dashboard');setActiveNavById('dashboard')">
+                        <i data-lucide="arrow-left"></i>
+                    </button>
+                    <div>
+                        <h2 class="screen-title">Mi Portfolio MCER</h2>
+                        <p class="screen-subtitle">Evidencias y competencias según el Marco Común Europeo de Referencia</p>
+                    </div>
+                </div>
+                <div id="cefr-portfolio-content">
+                    <!-- Renderizado dinámico por renderCefrPortfolio() en app.js -->
+                    <div class="empty-state"><i data-lucide="loader"></i><p>Cargando portfolio...</p></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- PANTALLA: BUSINESS ENGLISH                 -->
+        <!-- ========================================== -->
+        <section id="screen-business-english" class="screen">
+            <div class="screen-inner">
+                <div class="screen-header">
+                    <button class="back-btn" onclick="showScreen('dashboard');setActiveNavById('dashboard')">
+                        <i data-lucide="arrow-left"></i>
+                    </button>
+                    <div>
+                        <h2 class="screen-title">Business English</h2>
+                        <p class="screen-subtitle">Módulos opcionales de inglés profesional — MCER Cap. 4.1.2</p>
+                    </div>
+                </div>
+                <div id="business-english-content">
+                    <!-- Renderizado dinámico por renderBusinessEnglish() en app.js -->
+                    <div class="empty-state"><i data-lucide="loader"></i><p>Cargando módulos...</p></div>
+                </div>
+            </div>
+        </section>
 
 </body>
 </html>

@@ -3932,3 +3932,376 @@ window.onload = function() {
 window.__leoState = () => state;
 window.__leoRoute = buildLearningRoute;
 window.__leoRouteSummary = routeSummary;
+
+
+// ============================================================
+// 21. PORTFOLIO MCER — Dashboard de evidencias y competencias
+// ============================================================
+
+window.showScreen = (function(originalShowScreen) {
+  return function(screenId) {
+    originalShowScreen(screenId);
+    if (screenId === 'cefr-portfolio') renderCefrPortfolio();
+    if (screenId === 'business-english') renderBusinessEnglish();
+  };
+})(window.showScreen);
+
+
+function getCefrProgress() {
+  const cefr = window.cefrFramework;
+  if (!cefr) return null;
+
+  const currentLevel = state.routeProgress?.placedLevel || 'A1';
+  const levels = ['A1','A2','B1','B2','C1'];
+  const currentIdx = levels.indexOf(currentLevel);
+
+  // Calcular progreso real por destreza desde el state
+  const grammarAvg   = average(Object.values(state.scores         || {}));
+  const vocabAvg     = average(Object.values(state.vocabScores    || {}));
+  const readingAvg   = average(Object.values(state.readingScores  || {}));
+  const writingAvg   = average(Object.values(state.writingDone    || {}));
+  const businessAvg  = average(Object.values(state.businessScores || {}));
+
+  // Contar módulos completados por tipo
+  const route = buildLearningRoute ? buildLearningRoute() : [];
+  const allActs = route.flatMap(l => l.activities);
+
+  const countDone = (type) => allActs.filter(a => a.type === type && isActivityPassed(a)).length;
+  const countTotal = (type) => allActs.filter(a => a.type === type).length;
+
+  return {
+    currentLevel, currentIdx, levels,
+    grammarAvg, vocabAvg, readingAvg, writingAvg, businessAvg,
+    grammar:  { done: countDone('grammar'),  total: countTotal('grammar')  },
+    reading:  { done: countDone('reading'),  total: countTotal('reading')  },
+    writing:  { done: countDone('writing'),  total: countTotal('writing')  },
+    vocab:    { done: countDone('vocab'),    total: countTotal('vocab')    },
+    xp: state.xp || 0,
+    streak: state.streak || 1
+  };
+}
+
+
+function renderCefrPortfolio() {
+  const el = document.getElementById('cefr-portfolio-content');
+  if (!el) return;
+
+  const cefr = window.cefrFramework;
+  if (!cefr) {
+    el.innerHTML = `<div class="empty-state"><i data-lucide="alert-circle"></i><p>Framework MCER no cargado. Asegúrate de incluir data-cefr-framework.js.</p></div>`;
+    ensureLucide(); return;
+  }
+
+  const p = getCefrProgress();
+  if (!p) return;
+
+  const levels = ['A1','A2','B1','B2','C1'];
+  const profile = cefr.levelProfiles[p.currentLevel] || cefr.levelProfiles['A1'];
+  const req = cefr.evidenceRequirements[p.currentLevel] || {};
+
+  const skillData = [
+    { id:'grammar',  label:'Gramática',   icon:'book-open',  avg: p.grammarAvg,  done: p.grammar.done,  total: p.grammar.total,  cefrSkill:'grammar',  color:'#6366F1' },
+    { id:'vocab',    label:'Vocabulario', icon:'layers',     avg: p.vocabAvg,     done: p.vocab.done,    total: p.vocab.total,    cefrSkill:'vocabulary', color:'#059669' },
+    { id:'reading',  label:'Reading',     icon:'file-text',  avg: p.readingAvg,  done: p.reading.done,  total: p.reading.total,  cefrSkill:'reading',   color:'#0891B2' },
+    { id:'writing',  label:'Writing',     icon:'edit',       avg: p.writingAvg,  done: p.writing.done,  total: p.writing.total,  cefrSkill:'writing',   color:'#D97706' }
+  ];
+
+  // Descriptores MCER por destreza
+  function getDescriptor(skillKey) {
+    const level = p.currentLevel;
+    return cefr.descriptors[skillKey]?.[level]?.global || '';
+  }
+
+  function getCanDo(skillKey) {
+    const level = p.currentLevel;
+    return cefr.descriptors[skillKey]?.[level]?.canDo || [];
+  }
+
+  function getLinguisticDescriptor(key) {
+    return cefr.linguisticScales[key]?.descriptors[p.currentLevel] || '';
+  }
+
+  // Nivel MCER completado (evidencia)
+  function levelComplete(lvl) {
+    const r = cefr.evidenceRequirements[lvl];
+    if (!r) return false;
+    return p.grammarAvg >= r.grammar.minScore && p.readingAvg >= r.reading.minScore &&
+           p.writingAvg >= r.writing.minScore && p.vocabAvg >= r.vocab.minScore &&
+           p.xp >= r.totalXP;
+  }
+
+  // Barra de progreso hacia siguiente nivel
+  const nextLevel = levels[p.currentIdx + 1];
+  const nextReq = nextLevel ? cefr.evidenceRequirements[nextLevel] : null;
+  const overallPct = Math.min(100, Math.round((p.grammarAvg + p.vocabAvg + p.readingAvg + p.writingAvg) / 4));
+
+  el.innerHTML = `
+
+    <!-- ── CABECERA: NIVEL ACTUAL ── -->
+    <div class="cefr-level-header">
+      <div class="cefr-level-badge">
+        <span class="cefr-badge-label">Nivel actual</span>
+        <span class="cefr-badge-value">${p.currentLevel}</span>
+        <span class="cefr-badge-title">${profile.title.replace(p.currentLevel + ' — ', '')}</span>
+      </div>
+      <div class="cefr-level-info">
+        <p class="cefr-global-desc">${profile.globalDescriptor}</p>
+        <p class="cefr-comm-goal"><strong>Meta comunicativa:</strong> ${profile.communicativeGoal}</p>
+        <div class="cefr-level-progress">
+          <div class="cefr-level-bar-wrap">
+            <div class="cefr-level-bar-fill" style="width:${overallPct}%"></div>
+          </div>
+          <span class="cefr-level-pct">${overallPct}% hacia ${nextLevel || 'C2'}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── MAPA DE NIVELES ── -->
+    <div class="cefr-levels-map">
+      ${levels.map((lvl, i) => {
+        const done = levelComplete(lvl);
+        const active = lvl === p.currentLevel;
+        const locked = i > p.currentIdx + 1;
+        const inProgress = lvl === nextLevel;
+        return `
+          <div class="cefr-level-node ${done ? 'done' : ''} ${active ? 'active' : ''} ${locked ? 'locked' : ''} ${inProgress ? 'in-progress' : ''}">
+            <div class="cefr-node-circle">
+              ${done ? '<i data-lucide="check"></i>' : locked ? '<i data-lucide="lock"></i>' : lvl}
+            </div>
+            <span class="cefr-node-label">${lvl}</span>
+            ${i < levels.length - 1 ? '<div class="cefr-node-line ' + (done ? 'done' : '') + '"></div>' : ''}
+          </div>`;
+      }).join('')}
+    </div>
+
+    <!-- ── COMPETENCIAS POR DESTREZA ── -->
+    <h3 class="cefr-section-title"><i data-lucide="bar-chart-2"></i> Destrezas y competencias</h3>
+    <div class="cefr-skills-grid">
+      ${skillData.map(skill => {
+        const canDo = getCanDo(skill.cefrSkill);
+        const descriptor = getDescriptor(skill.cefrSkill);
+        const doneItems = Math.round((skill.avg / 100) * canDo.length);
+        return `
+          <div class="cefr-skill-card">
+            <div class="cefr-skill-header">
+              <div class="cefr-skill-icon" style="background:${skill.color}20;color:${skill.color}">
+                <i data-lucide="${skill.icon}"></i>
+              </div>
+              <div class="cefr-skill-meta">
+                <span class="cefr-skill-name">${skill.label}</span>
+                <span class="cefr-skill-score" style="color:${skill.color}">${skill.avg}%</span>
+              </div>
+            </div>
+            <div class="cefr-skill-bar-wrap">
+              <div class="cefr-skill-bar-fill" style="width:${skill.avg}%;background:${skill.color}"></div>
+            </div>
+            <p class="cefr-skill-desc">${descriptor}</p>
+            <div class="cefr-cando-list">
+              <p class="cefr-cando-title">Descriptores Can-Do (${doneItems}/${canDo.length})</p>
+              ${canDo.map((item, idx) => `
+                <div class="cefr-cando-item ${idx < doneItems ? 'done' : ''}">
+                  <i data-lucide="${idx < doneItems ? 'check-circle' : 'circle'}"></i>
+                  <span>${item}</span>
+                </div>`).join('')}
+            </div>
+            <div class="cefr-activity-count">
+              <i data-lucide="activity"></i>
+              <span>${skill.done} / ${skill.total} actividades completadas</span>
+            </div>
+          </div>`;
+      }).join('')}
+    </div>
+
+    <!-- ── COMPETENCIAS LINGÜÍSTICAS ── -->
+    <h3 class="cefr-section-title"><i data-lucide="sliders"></i> Competencias lingüísticas</h3>
+    <div class="cefr-linguistic-grid">
+      ${Object.entries(cefr.linguisticScales).map(([key, scale]) => {
+        const scores = { grammar: p.grammarAvg, vocabulary: p.vocabAvg, pronunciation: Math.round((p.grammarAvg + p.vocabAvg)/2), sociolinguistic: Math.round((p.readingAvg + p.writingAvg)/2) };
+        const score = scores[key] || 0;
+        return `
+          <div class="cefr-ling-card">
+            <div class="cefr-ling-header">
+              <span class="cefr-ling-name">${scale.label}</span>
+              <span class="cefr-ling-score">${score}%</span>
+            </div>
+            <div class="cefr-skill-bar-wrap" style="margin:6px 0">
+              <div class="cefr-skill-bar-fill" style="width:${score}%;background:#6366F1"></div>
+            </div>
+            <p class="cefr-skill-desc">${getLinguisticDescriptor(key)}</p>
+            <span class="cefr-ref">${scale.cefrRef}</span>
+          </div>`;
+      }).join('')}
+    </div>
+
+    <!-- ── EVIDENCIAS REQUERIDAS ── -->
+    <h3 class="cefr-section-title"><i data-lucide="clipboard-check"></i> Evidencias requeridas para completar ${p.currentLevel}</h3>
+    <div class="cefr-evidence-grid">
+      ${[
+        { label:'Módulos de gramática', done: p.grammar.done, req: req.grammar?.modules || 0, score: p.grammarAvg, minScore: req.grammar?.minScore || 0, icon:'book-open', color:'#6366F1' },
+        { label:'Textos de reading', done: p.reading.done, req: req.reading?.texts || 0, score: p.readingAvg, minScore: req.reading?.minScore || 0, icon:'file-text', color:'#0891B2' },
+        { label:'Ejercicios de writing', done: p.writing.done, req: req.writing?.exercises || 0, score: p.writingAvg, minScore: req.writing?.minScore || 0, icon:'edit', color:'#D97706' },
+        { label:'Tópicos de vocabulario', done: p.vocab.done, req: req.vocab?.topics || 0, score: p.vocabAvg, minScore: req.vocab?.minScore || 0, icon:'layers', color:'#059669' },
+        { label:'XP acumulados', done: p.xp, req: req.totalXP || 0, score: Math.min(100,Math.round((p.xp/(req.totalXP||1))*100)), minScore: 100, icon:'zap', color:'#F59E0B', isXP: true }
+      ].map(ev => {
+        const evDone = ev.isXP ? ev.done >= ev.req : (ev.done >= ev.req && ev.score >= ev.minScore);
+        const evPct = ev.isXP ? Math.min(100,Math.round((ev.done/Math.max(1,ev.req))*100)) : ev.score;
+        return `
+          <div class="cefr-evidence-card ${evDone ? 'done' : ''}">
+            <div class="cefr-ev-icon" style="background:${ev.color}15;color:${ev.color}"><i data-lucide="${ev.icon}"></i></div>
+            <div class="cefr-ev-body">
+              <span class="cefr-ev-label">${ev.label}</span>
+              <div class="cefr-ev-progress">
+                <div class="cefr-skill-bar-wrap">
+                  <div class="cefr-skill-bar-fill" style="width:${evPct}%;background:${ev.color}"></div>
+                </div>
+                <span class="cefr-ev-count">${ev.isXP ? ev.done + ' / ' + ev.req + ' XP' : ev.done + ' / ' + ev.req + ' · ' + ev.score + '%' }</span>
+              </div>
+              ${!evDone ? `<span class="cefr-ev-missing">Mínimo requerido: ${ev.isXP ? ev.req + ' XP' : ev.req + ' actividades con ≥' + ev.minScore + '%'}</span>` : '<span class="cefr-ev-ok"><i data-lucide="check-circle"></i> Completado</span>'}
+            </div>
+          </div>`;
+      }).join('')}
+    </div>
+
+    <!-- ── OBJETIVOS GRAMATICALES DEL NIVEL ── -->
+    <h3 class="cefr-section-title"><i data-lucide="target"></i> Objetivos gramaticales del nivel ${p.currentLevel}</h3>
+    <div class="cefr-grammar-targets">
+      ${(profile.grammarTargets || []).map(t => `
+        <span class="cefr-grammar-tag">${escapeHtml(t)}</span>`).join('')}
+    </div>
+
+    <!-- ── REFERENCIA MCER ── -->
+    <div class="cefr-mcer-ref">
+      <i data-lucide="info"></i>
+      <span>Fuente: Marco Común Europeo de Referencia para las Lenguas (MCER) — Consejo de Europa · ${profile.cefrRef}</span>
+    </div>
+  `;
+
+  ensureLucide();
+}
+
+
+// ============================================================
+// 22. BUSINESS ENGLISH — Renderizado de módulos opcionales
+// ============================================================
+
+function renderBusinessEnglish() {
+  const el = document.getElementById('business-english-content');
+  if (!el) return;
+
+  const biz = window.businessModules;
+  const paths = window.businessLearningPaths;
+
+  if (!biz || !paths) {
+    el.innerHTML = `<div class="empty-state"><i data-lucide="alert-circle"></i><p>Módulos de Business English no cargados.</p></div>`;
+    ensureLucide(); return;
+  }
+
+  const currentLevel = state.routeProgress?.placedLevel || 'A1';
+  const levels = ['A1','A2','B1','B2','C1'];
+  const currentIdx = levels.indexOf(currentLevel);
+
+  // B1 disponible desde nivel B1+, B2 desde B2+, C1 desde C1
+  const available = { B1: currentIdx >= 2, B2: currentIdx >= 3, C1: currentIdx >= 4 };
+
+  el.innerHTML = `
+    <div class="be-intro">
+      <div class="be-intro-icon">💼</div>
+      <div>
+        <h3 class="be-intro-title">Business English — Inglés profesional</h3>
+        <p class="be-intro-desc">Módulos opcionales alineados con el MCER (Cap. 4.1.2 — Uso de la lengua con fines específicos). Desbloquea cada nivel al completar la gramática correspondiente.</p>
+      </div>
+    </div>
+
+    ${['B1','B2','C1'].map(lvl => {
+      const path = paths[lvl];
+      const isAvailable = available[lvl];
+      const modules = (path.modules || []).map(id => biz[id]).filter(Boolean);
+      const doneCount = modules.filter(m => state.businessScores?.[m.id] >= 75).length;
+      const pct = modules.length ? Math.round((doneCount/modules.length)*100) : 0;
+
+      return `
+        <div class="be-level-section ${!isAvailable ? 'be-locked' : ''}">
+          <div class="be-level-header">
+            <div class="be-level-badge" style="background:${path.color}15;border-color:${path.color}40">
+              <span style="font-size:20px">${path.icon}</span>
+              <div>
+                <p class="be-level-title" style="color:${path.color}">${path.title}</p>
+                <p class="be-level-sub">${path.description}</p>
+              </div>
+            </div>
+            ${isAvailable ? `
+              <div class="be-level-progress-wrap">
+                <div class="be-level-bar-wrap">
+                  <div class="be-level-bar-fill" style="width:${pct}%;background:${path.color}"></div>
+                </div>
+                <span class="be-level-pct">${doneCount}/${modules.length} módulos</span>
+              </div>` : `
+              <div class="be-lock-msg">
+                <i data-lucide="lock"></i>
+                <span>Completa nivel ${lvl === 'B1' ? 'A2' : lvl === 'B2' ? 'B1' : 'B2'} para desbloquear</span>
+              </div>`}
+          </div>
+
+          ${isAvailable ? `
+            <div class="be-modules-grid">
+              ${modules.map(mod => {
+                const score = state.businessScores?.[mod.id];
+                const done = score >= 75;
+                const isCurrent = !done;
+                return `
+                  <div class="be-module-card ${done ? 'be-done' : ''}" onclick="${isAvailable ? `openBusinessModule('${mod.id}')` : ''}">
+                    <div class="be-mod-icon" style="background:${mod.color}15;color:${mod.color}">
+                      <i data-lucide="${mod.icon}"></i>
+                    </div>
+                    <div class="be-mod-body">
+                      <p class="be-mod-title">${escapeHtml(mod.title)}</p>
+                      <p class="be-mod-goal">${escapeHtml(mod.learningGoal || '')}</p>
+                      ${typeof score === 'number' ? `
+                        <div class="be-mod-bar-wrap">
+                          <div class="be-mod-bar-fill" style="width:${score}%;background:${mod.color}"></div>
+                        </div>
+                        <span class="be-mod-score">${score}%</span>` : `
+                        <span class="be-mod-tag">
+                          <i data-lucide="briefcase"></i> Opcional · MCER ${mod.level}
+                        </span>`}
+                    </div>
+                    ${done ? '<i data-lucide="check-circle" class="be-done-icon"></i>' : ''}
+                  </div>`;
+              }).join('')}
+            </div>` : ''}
+        </div>`;
+    }).join('')}
+
+    <div class="cefr-mcer-ref" style="margin-top:1.5rem">
+      <i data-lucide="info"></i>
+      <span>Fuente: MCER Cap. 4.1.2 — Uso de la lengua con fines específicos · Ámbito laboral y profesional</span>
+    </div>
+  `;
+
+  ensureLucide();
+}
+
+
+// ============================================================
+// 23. ABRIR MÓDULO BUSINESS ENGLISH
+// ============================================================
+
+window.openBusinessModule = function(id) {
+  const mod = window.businessModules?.[id];
+  if (!mod) return;
+
+  // Si tiene vocabulario (words), abrirlo como vocab topic
+  if (mod.words && mod.words.length) {
+    if (!state.businessScores) state.businessScores = {};
+    openVocabTopic ? openVocabTopic(id) : showToast('Función de vocabulario no disponible', 'warn');
+    return;
+  }
+
+  // Si tiene ejercicios, abrirlos como módulo de gramática
+  if (mod.exercises && mod.exercises.length) {
+    if (!window.modulesData) window.modulesData = {};
+    window.modulesData[id] = mod;
+    if (!state.businessScores) state.businessScores = {};
+    window.openGrammarModule ? window.openGrammarModule(id) : showToast('Función de módulo no disponible', 'warn');
+  }
+};

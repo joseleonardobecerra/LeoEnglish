@@ -866,6 +866,8 @@ window.showScreen = function(screenId) {
     else if (screenId === 'writing-hub') window.renderWritingHub();
     else if (screenId === 'vocab-hub') window.renderVocabHub();
     else if (screenId === 'settings') window.renderSettings();
+    else if (screenId === 'cefr-portfolio') { if (typeof renderCefrPortfolio === 'function') renderCefrPortfolio(); }
+    else if (screenId === 'business-english') { if (typeof renderBusinessEnglish === 'function') renderBusinessEnglish(); }
 
     ensureLucide();
 };
@@ -3937,15 +3939,8 @@ window.__leoRouteSummary = routeSummary;
 // ============================================================
 // 21. PORTFOLIO MCER — Dashboard de evidencias y competencias
 // ============================================================
-
-window.showScreen = (function(originalShowScreen) {
-  return function(screenId) {
-    originalShowScreen(screenId);
-    if (screenId === 'cefr-portfolio') renderCefrPortfolio();
-    if (screenId === 'business-english') renderBusinessEnglish();
-  };
-})(window.showScreen);
-
+// Los renders de cefr-portfolio y business-english están integrados
+// directamente en window.showScreen (sección 4) para evitar doble wrapping.
 
 function getCefrProgress() {
   const cefr = window.cefrFramework;

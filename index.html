@@ -801,6 +801,46 @@
 
             </section>
 
+            <!-- ========================================== -->
+            <!-- PANTALLA: PORTFOLIO MCER                   -->
+            <!-- ========================================== -->
+            <section id="screen-cefr-portfolio" class="screen">
+                <div class="screen-inner">
+                    <div class="screen-header">
+                        <button class="back-btn" onclick="showScreen('dashboard');setActiveNavById('dashboard')">
+                            <i data-lucide="arrow-left"></i>
+                        </button>
+                        <div>
+                            <h2 class="screen-title">Mi Portfolio MCER</h2>
+                            <p class="screen-subtitle">Evidencias y competencias según el Marco Común Europeo de Referencia</p>
+                        </div>
+                    </div>
+                    <div id="cefr-portfolio-content">
+                        <div class="empty-state"><i data-lucide="loader"></i><p>Cargando portfolio...</p></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========================================== -->
+            <!-- PANTALLA: BUSINESS ENGLISH                 -->
+            <!-- ========================================== -->
+            <section id="screen-business-english" class="screen">
+                <div class="screen-inner">
+                    <div class="screen-header">
+                        <button class="back-btn" onclick="showScreen('dashboard');setActiveNavById('dashboard')">
+                            <i data-lucide="arrow-left"></i>
+                        </button>
+                        <div>
+                            <h2 class="screen-title">Business English</h2>
+                            <p class="screen-subtitle">Módulos opcionales de inglés profesional — MCER Cap. 4.1.2</p>
+                        </div>
+                    </div>
+                    <div id="business-english-content">
+                        <div class="empty-state"><i data-lucide="loader"></i><p>Cargando módulos...</p></div>
+                    </div>
+                </div>
+            </section>
+
         </main>
     </div>
 
@@ -840,48 +880,6 @@
     <!-- MOTOR PRINCIPAL                            -->
     <!-- ========================================== -->
     <script type="module" src="app.js"></script>
-
-        <!-- ========================================== -->
-        <!-- PANTALLA: PORTFOLIO MCER                   -->
-        <!-- ========================================== -->
-        <section id="screen-cefr-portfolio" class="screen">
-            <div class="screen-inner">
-                <div class="screen-header">
-                    <button class="back-btn" onclick="showScreen('dashboard');setActiveNavById('dashboard')">
-                        <i data-lucide="arrow-left"></i>
-                    </button>
-                    <div>
-                        <h2 class="screen-title">Mi Portfolio MCER</h2>
-                        <p class="screen-subtitle">Evidencias y competencias según el Marco Común Europeo de Referencia</p>
-                    </div>
-                </div>
-                <div id="cefr-portfolio-content">
-                    <!-- Renderizado dinámico por renderCefrPortfolio() en app.js -->
-                    <div class="empty-state"><i data-lucide="loader"></i><p>Cargando portfolio...</p></div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ========================================== -->
-        <!-- PANTALLA: BUSINESS ENGLISH                 -->
-        <!-- ========================================== -->
-        <section id="screen-business-english" class="screen">
-            <div class="screen-inner">
-                <div class="screen-header">
-                    <button class="back-btn" onclick="showScreen('dashboard');setActiveNavById('dashboard')">
-                        <i data-lucide="arrow-left"></i>
-                    </button>
-                    <div>
-                        <h2 class="screen-title">Business English</h2>
-                        <p class="screen-subtitle">Módulos opcionales de inglés profesional — MCER Cap. 4.1.2</p>
-                    </div>
-                </div>
-                <div id="business-english-content">
-                    <!-- Renderizado dinámico por renderBusinessEnglish() en app.js -->
-                    <div class="empty-state"><i data-lucide="loader"></i><p>Cargando módulos...</p></div>
-                </div>
-            </div>
-        </section>
 
 </body>
 </html>

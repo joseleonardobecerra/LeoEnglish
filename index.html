@@ -10,7 +10,7 @@
         content="LeoEnglish es una plataforma interactiva para aprender inglés con ruta guiada, diagnóstico de nivel, homologación, refuerzos personalizados, gramática, vocabulario, reading, writing y gamificación."
     >
 
-    <meta name="theme-color" content="#12375A">
+    <meta name="theme-color" content="#F5821F">
 
     <title>LeoEnglish | Ruta de Aprendizaje</title>
 
@@ -44,20 +44,88 @@
     <!-- PANTALLA DE LOGIN                          -->
     <!-- ========================================== -->
     <div id="login-overlay" class="login-overlay hidden">
+
+        <!-- Panel izquierdo: identidad de la plataforma -->
+        <div class="login-pitch" aria-hidden="true">
+            <div class="login-pitch-inner">
+                <div class="login-logo-row">
+                    <div class="logo-icon"><i data-lucide="book-open"></i></div>
+                    <span class="login-logo-name">Leo<span>English</span></span>
+                </div>
+                <h2 class="login-pitch-headline">De A1 a C1.<br>Sin excusas.</h2>
+                <p class="login-pitch-sub">
+                    Una ruta adaptativa completa — gramática, vocabulario, reading y writing — 
+                    alineada al Marco Europeo. Tu progreso, tu racha, tu nivel.
+                </p>
+
+                <div class="login-features">
+                    <div class="lf-item">
+                        <div class="lf-icon" style="background:rgba(245,130,31,0.15);color:var(--brand)">
+                            <i data-lucide="route"></i>
+                        </div>
+                        <div>
+                            <strong>Ruta adaptativa A1 → C1</strong>
+                            <span>El sistema diagnostica tu nivel y construye tu camino</span>
+                        </div>
+                    </div>
+                    <div class="lf-item">
+                        <div class="lf-icon" style="background:rgba(34,197,94,0.13);color:var(--green)">
+                            <i data-lucide="flame"></i>
+                        </div>
+                        <div>
+                            <strong>Racha diaria + XP</strong>
+                            <span>Gamificación real que hace que vuelvas cada día</span>
+                        </div>
+                    </div>
+                    <div class="lf-item">
+                        <div class="lf-icon" style="background:rgba(139,92,246,0.13);color:var(--purple)">
+                            <i data-lucide="award"></i>
+                        </div>
+                        <div>
+                            <strong>Portfolio MCER oficial</strong>
+                            <span>Evidencias reales para cada nivel del Marco Europeo</span>
+                        </div>
+                    </div>
+                    <div class="lf-item">
+                        <div class="lf-icon" style="background:rgba(59,130,246,0.13);color:var(--blue)">
+                            <i data-lucide="briefcase"></i>
+                        </div>
+                        <div>
+                            <strong>Business English</strong>
+                            <span>Módulos profesionales B1/B2/C1 desbloqueables</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="login-level-strip">
+                    <span class="lls-label">Niveles disponibles</span>
+                    <div class="lls-levels">
+                        <span class="lls-node done">A1</span>
+                        <span class="lls-line"></span>
+                        <span class="lls-node done">A2</span>
+                        <span class="lls-line"></span>
+                        <span class="lls-node done">B1</span>
+                        <span class="lls-line"></span>
+                        <span class="lls-node done">B2</span>
+                        <span class="lls-line"></span>
+                        <span class="lls-node done">C1</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel derecho: formulario -->
         <div class="login-card">
 
             <div class="login-header">
-                <div class="logo-icon">
-                    <i data-lucide="book-open"></i>
-                </div>
-
+                <div class="logo-icon login-card-logo"><i data-lucide="book-open"></i></div>
                 <h1>Leo<span>English</span></h1>
             </div>
 
             <h2 id="auth-title">¡Hola! Inicia sesión</h2>
 
             <p>
-                Cada estudiante tiene su propia ruta, diagnóstico, progreso, racha y XP.
+                Cada estudiante tiene su propia ruta, diagnóstico, progreso y XP.
             </p>
 
             <!-- VISTA DE INICIO DE SESIÓN -->
@@ -157,8 +225,8 @@
                 Continuar con Google
             </button>
 
-        </div>
-    </div>
+        </div><!-- /login-card -->
+    </div><!-- /login-overlay -->
 
 
     <!-- ========================================== -->
@@ -336,14 +404,40 @@
                 </div>
 
 
+                <!-- EMPTY STATE — visible solo para usuarios nuevos (0 XP) -->
+                <div class="empty-state-banner" id="empty-state-banner">
+                    <div class="esb-left">
+                        <span class="esb-kicker">🚀 Tu aventura comienza aquí</span>
+                        <h3 class="esb-title">Descubre tu nivel real en 5 minutos</h3>
+                        <p class="esb-desc">
+                            Haz el diagnóstico gratuito. El sistema detecta tu nivel A1–C1 y construye tu ruta personal 
+                            con gramática, vocabulario, reading y writing.
+                        </p>
+                        <button class="btn-primary-full" onclick="showScreen('diagnostic')" style="margin-top:14px;width:fit-content;">
+                            <i data-lucide="scan-line"></i>
+                            Hacer diagnóstico gratis
+                        </button>
+                    </div>
+                    <div class="esb-path" aria-hidden="true">
+                        <div class="esb-node esb-future">A1</div>
+                        <div class="esb-connector"></div>
+                        <div class="esb-node esb-future">A2</div>
+                        <div class="esb-connector"></div>
+                        <div class="esb-node esb-future">B1</div>
+                        <div class="esb-connector"></div>
+                        <div class="esb-node esb-future">B2</div>
+                        <div class="esb-connector"></div>
+                        <div class="esb-node esb-target">C1 ✦</div>
+                    </div>
+                </div>
+
                 <!-- STATS ROW -->
                 <div class="stats-row">
 
                     <div class="stat-card">
-                        <div class="stat-icon" style="background:#EAF0F7;color:#12375A">
+                        <div class="stat-icon" style="background:rgba(245,130,31,0.14);color:var(--brand)">
                             <i data-lucide="zap"></i>
                         </div>
-
                         <div>
                             <div class="stat-num" id="stat-xp">0</div>
                             <div class="stat-lbl">XP Total</div>
@@ -351,10 +445,9 @@
                     </div>
 
                     <div class="stat-card">
-                        <div class="stat-icon" style="background:#EAF3DE;color:#1D9E75">
+                        <div class="stat-icon" style="background:rgba(34,197,94,0.13);color:var(--green)">
                             <i data-lucide="check-circle"></i>
                         </div>
-
                         <div>
                             <div class="stat-num" id="stat-done">0</div>
                             <div class="stat-lbl">Actividades completadas</div>
@@ -362,10 +455,9 @@
                     </div>
 
                     <div class="stat-card">
-                        <div class="stat-icon" style="background:#FFF3D8;color:#D99A2B">
+                        <div class="stat-icon" style="background:rgba(245,158,11,0.14);color:var(--amber)">
                             <i data-lucide="flame"></i>
                         </div>
-
                         <div>
                             <div class="stat-num" id="stat-streak">1</div>
                             <div class="stat-lbl">Días racha</div>
@@ -373,10 +465,9 @@
                     </div>
 
                     <div class="stat-card">
-                        <div class="stat-icon" style="background:#FFE7E4;color:#D7262E">
+                        <div class="stat-icon" style="background:rgba(139,92,246,0.13);color:var(--purple)">
                             <i data-lucide="target"></i>
                         </div>
-
                         <div>
                             <div class="stat-num" id="stat-accuracy">—</div>
                             <div class="stat-lbl">Precisión</div>
@@ -848,6 +939,31 @@
     <!-- ========================================== -->
     <!-- TOAST Y MODAL                              -->
     <!-- ========================================== -->
+    <!-- CONFETTI CANVAS -->
+    <canvas id="confetti-canvas" style="position:fixed;inset:0;pointer-events:none;z-index:9800;display:none;"></canvas>
+
+    <!-- LEVEL UP OVERLAY -->
+    <div id="levelup-overlay" style="display:none;position:fixed;inset:0;z-index:9700;
+        background:rgba(0,0,0,0.82);backdrop-filter:blur(10px);
+        display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px;">
+        <div id="levelup-box" style="
+            background:var(--bg-2);border:1px solid rgba(245,130,31,0.30);
+            border-radius:var(--r-2xl);padding:40px 48px;text-align:center;
+            box-shadow:var(--shadow-lg);animation:popIn 0.35s var(--ease-spring) both;max-width:360px;width:90%;">
+            <div style="font-size:56px;margin-bottom:10px;animation:bounceIn 0.5s var(--ease-spring) 0.1s both;">🏆</div>
+            <div style="font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--brand);margin-bottom:8px;">¡NIVEL SUBIDO!</div>
+            <div id="levelup-num" style="font-family:var(--font-display);font-size:52px;font-weight:800;letter-spacing:-.06em;color:var(--text-1);line-height:1;margin-bottom:8px;"></div>
+            <div id="levelup-cefr" style="font-size:14px;color:var(--text-2);margin-bottom:20px;line-height:1.5;"></div>
+            <button onclick="closeLevelUp()" style="
+                background:linear-gradient(135deg,var(--brand),var(--brand-deep));
+                color:#fff;border:none;border-radius:var(--r-sm);
+                padding:12px 28px;font-size:14px;font-weight:700;cursor:pointer;
+                font-family:var(--font);box-shadow:var(--shadow-brand);width:100%;">
+                ¡Seguir aprendiendo! 🚀
+            </button>
+        </div>
+    </div>
+
     <div id="toast" class="toast"></div>
 
     <div id="modal-overlay" class="modal-overlay" onclick="closeModal()">

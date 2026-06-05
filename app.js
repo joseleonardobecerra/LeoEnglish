@@ -920,6 +920,10 @@ window.renderDashboard = function() {
     safeSet('stat-accuracy', accuracy);
     safeSet('total-progress-pct', `${summary.pct}%`);
 
+    // Mostrar/ocultar empty state según si el usuario tiene XP
+    const esb = document.getElementById('empty-state-banner');
+    if (esb) esb.style.display = (state.xp === 0 && summary.passed === 0) ? 'flex' : 'none';
+
     const totalFill = document.getElementById('total-progress-fill');
     if (totalFill) totalFill.style.width = `${summary.pct}%`;
 
@@ -3738,25 +3742,173 @@ window.toggleAdminView = function() {
 function addXP(baseValue, showMessage) {
     const streakBonus = Math.min((state.streak || 1) * 0.05, 0.5);
     const totalXP = Math.round(baseValue * (1 + streakBonus));
+    const prevLevel = state.level;
 
     state.xp += totalXP;
     state.dailyXP += totalXP;
 
     let xpNext = Math.floor(100 * Math.pow(state.level, 1.5));
-
     while (state.xp >= xpNext) {
         state.level++;
         xpNext = Math.floor(100 * Math.pow(state.level, 1.5));
-        window.showToast(`¡NIVEL SUBIDO! 🎉 Nivel ${state.level}`, 'success');
     }
 
     updateHeaderUI();
     saveState();
 
     if (showMessage && totalXP > 0) {
-        window.showToast(`+${totalXP} XP ${streakBonus > 0 ? '🔥' : ''}`, 'success');
+        showXpBurst(totalXP, streakBonus > 0);
     }
+
+    if (state.level > prevLevel) {
+        setTimeout(() => showLevelUpCelebration(state.level), 600);
+    }
+
+    // Ocultar empty state si el usuario ya tiene XP
+    const esb = document.getElementById('empty-state-banner');
+    if (esb && state.xp > 0) esb.style.display = 'none';
 }
+
+// ── XP Burst flotante ──────────────────────────────────────
+function showXpBurst(xp, hasStreak) {
+    const el = document.createElement('div');
+    el.className = 'xp-burst';
+    el.textContent = `+${xp} XP${hasStreak ? ' 🔥' : ''}`;
+
+    // Posición aleatoria en la zona central superior
+    el.style.left = `${40 + Math.random() * 20}%`;
+    el.style.top  = `${30 + Math.random() * 20}%`;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 1000);
+}
+
+// ── Level Up Celebration ──────────────────────────────────
+function showLevelUpCelebration(level) {
+    const overlay = document.getElementById('levelup-overlay');
+    if (!overlay) return;
+
+    const rankInfo = getRank(routeSummary().pct);
+    const cefr = state.routeProgress.placedLevel || rankInfo.cefr;
+
+    document.getElementById('levelup-num').textContent = `Nivel ${level}`;
+    document.getElementById('levelup-cefr').textContent =
+        `Has alcanzado el nivel ${level} — Sigue así para dominar el ${cefr} 🎯`;
+
+    overlay.style.display = 'flex';
+    launchConfetti();
+}
+
+window.closeLevelUp = function() {
+    const overlay = document.getElementById('levelup-overlay');
+    if (overlay) overlay.style.display = 'none';
+    stopConfetti();
+};
+
+// ── Sistema de Confetti ────────────────────────────────────
+let confettiAnim = null;
+let confettiParticles = [];
+
+function launchConfetti() {
+    const canvas = document.getElementById('confetti-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+
+    canvas.style.display = 'block';
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const COLORS = ['#F5821F','#22C55E','#3B82F6','#F59E0B','#8B5CF6','#EF4444','#fff'];
+    confettiParticles = Array.from({length: 120}, () => ({
+        x: Math.random() * canvas.width,
+        y: Math.random() * -canvas.height * 0.5,
+        r: 4 + Math.random() * 7,
+        d: 1.5 + Math.random() * 3,
+        color: COLORS[Math.floor(Math.random() * COLORS.length)],
+        tilt: Math.random() * 20 - 10,
+        tiltAngle: 0,
+        tiltSpeed: 0.08 + Math.random() * 0.1,
+        shape: Math.random() > 0.5 ? 'rect' : 'circle',
+    }));
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        confettiParticles.forEach(p => {
+            ctx.save();
+            ctx.globalAlpha = 0.88;
+            ctx.fillStyle = p.color;
+            ctx.translate(p.x, p.y);
+            ctx.rotate(p.tiltAngle * Math.PI / 180);
+            if (p.shape === 'rect') {
+                ctx.fillRect(-p.r / 2, -p.r / 2, p.r, p.r * 0.5);
+            } else {
+                ctx.beginPath();
+                ctx.arc(0, 0, p.r / 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.restore();
+
+            p.y += p.d;
+            p.tiltAngle += p.tiltSpeed;
+            p.x += Math.sin(p.tiltAngle) * 1.2;
+        });
+
+        confettiParticles = confettiParticles.filter(p => p.y < canvas.height + 20);
+        if (confettiParticles.length > 0) {
+            confettiAnim = requestAnimationFrame(draw);
+        } else {
+            stopConfetti();
+        }
+    }
+    draw();
+
+    // Auto stop después de 4.5s
+    setTimeout(stopConfetti, 4500);
+}
+
+function stopConfetti() {
+    if (confettiAnim) { cancelAnimationFrame(confettiAnim); confettiAnim = null; }
+    const canvas = document.getElementById('confetti-canvas');
+    if (canvas) {
+        canvas.style.display = 'none';
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+    confettiParticles = [];
+}
+
+// ── Celebración de módulo completo ────────────────────────
+window.celebrateModuleComplete = function(moduleName, score, xpGained) {
+    const isExcellent = score >= 90;
+    window.openModal(`
+        <div style="text-align:center;padding:8px 0;">
+            <div style="font-size:52px;margin-bottom:10px;animation:bounceIn 0.5s var(--ease-spring) both;">
+                ${isExcellent ? '🌟' : '✅'}
+            </div>
+            <div style="font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
+                color:var(--green);margin-bottom:8px;">
+                ${isExcellent ? '¡Excelente!' : '¡Módulo completado!'}
+            </div>
+            <div style="font-family:var(--font-display);font-size:22px;font-weight:800;
+                letter-spacing:-.04em;color:var(--text-1);margin-bottom:6px;">
+                ${moduleName}
+            </div>
+            <div style="font-size:13px;color:var(--text-3);margin-bottom:18px;line-height:1.6;">
+                Puntuación: <strong style="color:${score>=80?'var(--green)':'var(--brand-light)'}">${score}%</strong>
+                &nbsp;·&nbsp;
+                <strong style="color:var(--brand-light)">+${xpGained} XP</strong>
+                ${isExcellent ? '<br><span style="color:var(--amber)">⭐ ¡Resultado perfecto!</span>' : ''}
+            </div>
+            <button onclick="closeModal()" style="
+                background:linear-gradient(135deg,var(--brand),var(--brand-deep));
+                color:#fff;border:none;border-radius:var(--r-sm);
+                padding:11px 26px;font-size:14px;font-weight:700;cursor:pointer;
+                font-family:var(--font);box-shadow:var(--shadow-brand);width:100%;">
+                Continuar 🚀
+            </button>
+        </div>
+    `);
+    if (isExcellent) launchConfetti();
+};
 
 function updateHeaderUI() {
     const xpCurrentLevelBase = state.level === 1
@@ -3891,17 +4043,27 @@ window.playAudio = function(text, lang = 'en-US', event = null, rate = 0.85) {
     }
 };
 
-let toastTimer = null;
+// toastTimer eliminado — toast ahora crea elemento dinámico por llamada
 
 window.showToast = function(message, type = 'success') {
-    const toast = document.getElementById('toast');
-    if (!toast) return;
+    // Eliminar toast anterior si existe
+    const prev = document.getElementById('toast');
+    if (prev) { prev.remove(); }
 
-    toast.textContent = message;
-    toast.className = `toast toast-${type} show`;
+    const icons = { success:'check-circle', error:'x-circle', warn:'alert-triangle', info:'info' };
+    const toast = document.createElement('div');
+    toast.id = 'toast';
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `<i data-lucide="${icons[type] || 'info'}"></i><span class="toast-text">${message}</span>`;
+    document.body.appendChild(toast);
 
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => toast.classList.remove('show'), 2400);
+    if (window.lucide) lucide.createIcons({ nodes: [toast] });
+
+    const timer = setTimeout(() => {
+        toast.classList.add('removing');
+        setTimeout(() => toast.remove(), 250);
+    }, 2800);
+    toast.addEventListener('click', () => { clearTimeout(timer); toast.remove(); });
 };
 
 window.openModal = function(html) {

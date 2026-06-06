@@ -209,6 +209,26 @@ function escapeHtml(value) {
         .replace(/'/g, '&#039;');
 }
 
+/**
+ * shuffleOptsWithCorrect — Fisher-Yates shuffle sobre las opciones.
+ * Devuelve { shuffledOpts, newCorrectIndex }.
+ * Se llama en cada render para que la posición de la correcta
+ * sea aleatoria e impredecible.
+ */
+function shuffleOptsWithCorrect(q) {
+    const opts = [...(q.opts || [])];
+    const correctText = typeof q.a === 'number' ? opts[q.a] : String(q.a);
+
+    // Fisher-Yates
+    for (let i = opts.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [opts[i], opts[j]] = [opts[j], opts[i]];
+    }
+
+    const newCorrectIndex = opts.indexOf(correctText);
+    return { shuffledOpts: opts, newCorrectIndex };
+}
+
 function escapeAttr(value) {
     return escapeHtml(value).replace(/`/g, '&#096;');
 }
@@ -243,6 +263,10 @@ function getNowTime() {
 function ensureLucide() {
     if (window.lucide && typeof window.lucide.createIcons === 'function') {
         window.lucide.createIcons();
+    }
+    // Phosphor Icons auto-initializes; re-run if needed for dynamic content
+    if (window.__PhosphorIcons && typeof window.__PhosphorIcons.renderIcons === 'function') {
+        window.__PhosphorIcons.renderIcons();
     }
 }
 
@@ -920,10 +944,6 @@ window.renderDashboard = function() {
     safeSet('stat-accuracy', accuracy);
     safeSet('total-progress-pct', `${summary.pct}%`);
 
-    // Mostrar/ocultar empty state según si el usuario tiene XP
-    const esb = document.getElementById('empty-state-banner');
-    if (esb) esb.style.display = (state.xp === 0 && summary.passed === 0) ? 'flex' : 'none';
-
     const totalFill = document.getElementById('total-progress-fill');
     if (totalFill) totalFill.style.width = `${summary.pct}%`;
 
@@ -1035,48 +1055,36 @@ function renderUnifiedRoute() {
                         : 'var(--primary-mid)';
 
             return `
-                <div 
-                    class="mod-card ${passed ? 'mod-done' : ''} ${current ? 'mod-current' : ''} ${locked ? 'mod-locked' : ''}"
+                <div
+                    class="mod-card ${passed ? 'mod-done' : ''} ${current ? 'mod-current' : ''} ${locked ? 'mod-locked' : ''} ${reinforcement ? 'mod-reinforcement' : ''}"
                     onclick="openRouteActivity('${activity.id}')"
+                    title="${escapeHtml(activity.title)}"
                 >
-                    <div 
-                        class="mod-icon-wrap" 
-                        style="background:${locked ? '#EDF2F7' : activity.color};color:${locked ? '#A0AEC0' : 'white'}"
-                    >
-                        <i data-lucide="${icon}"></i>
-                    </div>
-
-                    <div style="flex:1;min-width:0">
-                        <div class="mod-title">
-                            ${number}. ${escapeHtml(activity.title)}
+                    <div class="mod-header">
+                        <div class="mod-icon-wrap" style="background:${locked ? 'var(--bg-4)' : activity.color};color:${locked ? 'var(--text-4)' : 'white'}">
+                            <i data-lucide="${icon}"></i>
                         </div>
-
-                        <div class="mod-status" style="color:${statusColor};font-weight:800;">
-                            ${TYPE_META[activity.type].label} · ${status}
-                        </div>
-
-                        ${typeof score === 'number'
-                            ? `<div class="mod-score-bar">
-                                <div class="mod-score-fill" style="width:${score}%;background:${activity.color}"></div>
-                               </div>`
-                            : ''}
+                        <div class="mod-title">${number}. ${escapeHtml(activity.title)}</div>
                     </div>
+                    <div class="mod-status" style="color:${statusColor}">
+                        ${TYPE_META[activity.type].label} · ${status}
+                    </div>
+                    ${typeof score === 'number'
+                        ? `<div class="mod-score-bar"><div class="mod-score-fill" style="width:${score}%;background:${activity.color}"></div></div>`
+                        : ''}
                 </div>
             `;
         }).join('');
 
         return `
             <div class="level-divider">
-                <h4 style="color:${level.color};font-size:18px;font-weight:900;margin:24px 0 8px 0;border-bottom:2px solid ${level.color}30;padding-bottom:8px;">
+                <h4 style="color:${level.color};border-bottom:2px solid ${level.color}40;">
                     ${escapeHtml(level.title)}
+                    <span style="font-size:11px;font-weight:700;color:var(--text-4);margin-left:6px;">${pct}%</span>
                 </h4>
-
-                <div style="font-size:13px;color:#6B5F58;margin-bottom:14px;line-height:1.5">
-                    ${escapeHtml(level.description)} · Progreso: <strong>${pct}%</strong>
-                </div>
+                <p>${escapeHtml(level.description)}</p>
             </div>
-
-            <div class="modules-grid" style="margin-bottom:32px">
+            <div class="modules-grid">
                 ${cards}
             </div>
         `;
@@ -1353,9 +1361,12 @@ function renderGrammarExercise() {
     let bodyHtml = '';
 
     if (q.type === 'choice') {
+        const { shuffledOpts: _gOpts, newCorrectIndex: _gCI } = shuffleOptsWithCorrect(q);
+        // Store shuffled correct index so checkChoice reads it
+        window._currentCorrectIndex = _gCI;
         bodyHtml = `
             <div class="opts-grid">
-                ${(q.opts || []).map((opt, index) => `
+                ${_gOpts.map((opt, index) => `
                     <button class="opt-btn" onclick="checkChoice(${index}, this)">
                         ${escapeHtml(opt)}
                     </button>
@@ -1528,11 +1539,12 @@ window.checkChoice = function(index, btn) {
     // FIX: Calculamos el índice correcto una sola vez y lo usamos para TODO:
     // lógica de acierto Y resaltado visual. Antes el resaltado usaba
     // textContent.trim() que falla con espacios extra o HTML entities en el DOM.
-    const correctIndex = typeof q.a === 'number'
-        ? q.a
-        : q.opts.indexOf(q.a);
+    // Use shuffled index if available (set at render time)
+    const correctIndex = (typeof window._currentCorrectIndex === 'number')
+        ? window._currentCorrectIndex
+        : (typeof q.a === 'number' ? q.a : q.opts.indexOf(q.a));
 
-    const correct = q.opts[correctIndex] ?? q.a;  // texto legible para el feedback
+    const correct = document.querySelectorAll('.opt-btn')[correctIndex]?.textContent?.trim() ?? q.a;
 
     const ok = index === correctIndex;
 
@@ -1819,8 +1831,13 @@ function renderReadingQuestion(text) {
 
     if (!q.type || q.type === 'choice') {
         bodyHtml = `
-            <div class="opts-grid">
-                ${(q.opts || []).map((opt, index) => `
+            <div class="opts-grid" data-correct="${(() => {
+                const { shuffledOpts: _rOpts, newCorrectIndex: _rCI } = shuffleOptsWithCorrect(q);
+                window._readingOpts = _rOpts;
+                window._readingCorrectIndex = _rCI;
+                return _rCI;
+            })()}">
+                ${(window._readingOpts || q.opts || []).map((opt, index) => `
                     <button class="opt-btn" onclick="checkReadingQ(${index}, this)">
                         ${escapeHtml(opt)}
                     </button>
@@ -1876,7 +1893,10 @@ window.checkReadingQ = function(chosen, btn) {
     const q = window.currentReadingQuestion;
     if (!q) return;
 
-    const correct = q.a;
+    // Use shuffled index if available
+    const correct = (typeof window._readingCorrectIndex === 'number')
+        ? window._readingCorrectIndex
+        : q.a;
     const ok = chosen === correct;
 
     isChecking = true;
@@ -1905,7 +1925,7 @@ window.checkReadingQ = function(chosen, btn) {
         btn.classList.add('wrong');
 
         const buttons = document.querySelectorAll('.opts-grid .opt-btn');
-        if (buttons[correct]) buttons[correct].classList.add('correct');
+        if (buttons[correct] !== undefined && buttons[correct]) buttons[correct].classList.add('correct');
 
         if (fb) {
             fb.innerHTML = `
@@ -3052,7 +3072,12 @@ function renderVocabQuestion() {
         <div class="ex-q">${escapeHtml(q.q)}</div>
 
         <div class="opts-grid">
-            ${q.opts.map((opt, index) => `
+            ${(() => {
+                const { shuffledOpts: _vOpts, newCorrectIndex: _vCI } = shuffleOptsWithCorrect({opts: q.opts, a: q.answer});
+                window._vocabOpts = _vOpts;
+                window._vocabCorrectIndex = _vCI;
+                return _vOpts;
+            })().map((opt, index) => `
                 <button class="opt-btn" onclick="checkVocabQuiz(${index}, this)">
                     ${escapeHtml(opt)}
                 </button>
@@ -3067,10 +3092,12 @@ window.checkVocabQuiz = function(index, btn) {
     if (isChecking) return;
 
     const q = window.vqTasks[window.vqIdx];
-    const selected = q.opts[index];
+    const selected = (window._vocabOpts || q.opts)[index];
 
-    // FIX: Calculamos el índice correcto para resaltar por posición, no por texto.
-    const correctIndex = q.opts.indexOf(q.answer);
+    // Use shuffled correct index set at render time
+    const correctIndex = (typeof window._vocabCorrectIndex === 'number')
+        ? window._vocabCorrectIndex
+        : q.opts.indexOf(q.answer);
     const ok = index === correctIndex;
 
     isChecking = true;
@@ -3331,7 +3358,12 @@ function renderDiagnosticQuestion() {
             <div class="ex-q">${escapeHtml(item.q)}</div>
 
             <div class="opts-grid">
-                ${(item.opts || []).map((opt, index) => `
+                ${(() => {
+                    const { shuffledOpts: _dOpts, newCorrectIndex: _dCI } = shuffleOptsWithCorrect({opts: item.opts || [], a: item.a});
+                    window._diagOpts = _dOpts;
+                    window._diagCorrectIndex = _dCI;
+                    return _dOpts;
+                })().map((opt, index) => `
                     <button class="opt-btn" onclick="checkDiagnosticAnswer(${index}, this)">
                         ${escapeHtml(opt)}
                     </button>
@@ -3353,9 +3385,10 @@ window.checkDiagnosticAnswer = function(chosen, btn) {
     const item = diagnosticSession.items[diagnosticSession.idx];
     const correct = item.a;
 
-    const ok = typeof correct === 'number'
-        ? chosen === correct
-        : item.opts?.[chosen] === correct;
+    // Use shuffled index when available
+    const ok = (typeof window._diagCorrectIndex === 'number')
+        ? chosen === window._diagCorrectIndex
+        : (typeof correct === 'number' ? chosen === correct : item.opts?.[chosen] === correct);
 
     document
         .querySelectorAll('#diagnostic-zone .opt-btn, #diagnostic-content .opt-btn')
@@ -3370,9 +3403,9 @@ window.checkDiagnosticAnswer = function(chosen, btn) {
         const buttons = document.querySelectorAll('#diagnostic-zone .opt-btn, #diagnostic-content .opt-btn');
 
         // FIX: mismo patrón que checkChoice/checkVocabQuiz — resaltado siempre por índice.
-        const correctIndex = typeof correct === 'number'
-            ? correct
-            : item.opts ? item.opts.indexOf(correct) : -1;
+        const correctIndex = (typeof window._diagCorrectIndex === 'number')
+            ? window._diagCorrectIndex
+            : (typeof correct === 'number' ? correct : (item.opts ? item.opts.indexOf(correct) : -1));
 
         if (correctIndex >= 0 && buttons[correctIndex]) {
             buttons[correctIndex].classList.add('correct');
@@ -3742,173 +3775,25 @@ window.toggleAdminView = function() {
 function addXP(baseValue, showMessage) {
     const streakBonus = Math.min((state.streak || 1) * 0.05, 0.5);
     const totalXP = Math.round(baseValue * (1 + streakBonus));
-    const prevLevel = state.level;
 
     state.xp += totalXP;
     state.dailyXP += totalXP;
 
     let xpNext = Math.floor(100 * Math.pow(state.level, 1.5));
+
     while (state.xp >= xpNext) {
         state.level++;
         xpNext = Math.floor(100 * Math.pow(state.level, 1.5));
+        window.showToast(`¡NIVEL SUBIDO! 🎉 Nivel ${state.level}`, 'success');
     }
 
     updateHeaderUI();
     saveState();
 
     if (showMessage && totalXP > 0) {
-        showXpBurst(totalXP, streakBonus > 0);
+        window.showToast(`+${totalXP} XP ${streakBonus > 0 ? '🔥' : ''}`, 'success');
     }
-
-    if (state.level > prevLevel) {
-        setTimeout(() => showLevelUpCelebration(state.level), 600);
-    }
-
-    // Ocultar empty state si el usuario ya tiene XP
-    const esb = document.getElementById('empty-state-banner');
-    if (esb && state.xp > 0) esb.style.display = 'none';
 }
-
-// ── XP Burst flotante ──────────────────────────────────────
-function showXpBurst(xp, hasStreak) {
-    const el = document.createElement('div');
-    el.className = 'xp-burst';
-    el.textContent = `+${xp} XP${hasStreak ? ' 🔥' : ''}`;
-
-    // Posición aleatoria en la zona central superior
-    el.style.left = `${40 + Math.random() * 20}%`;
-    el.style.top  = `${30 + Math.random() * 20}%`;
-    document.body.appendChild(el);
-    setTimeout(() => el.remove(), 1000);
-}
-
-// ── Level Up Celebration ──────────────────────────────────
-function showLevelUpCelebration(level) {
-    const overlay = document.getElementById('levelup-overlay');
-    if (!overlay) return;
-
-    const rankInfo = getRank(routeSummary().pct);
-    const cefr = state.routeProgress.placedLevel || rankInfo.cefr;
-
-    document.getElementById('levelup-num').textContent = `Nivel ${level}`;
-    document.getElementById('levelup-cefr').textContent =
-        `Has alcanzado el nivel ${level} — Sigue así para dominar el ${cefr} 🎯`;
-
-    overlay.style.display = 'flex';
-    launchConfetti();
-}
-
-window.closeLevelUp = function() {
-    const overlay = document.getElementById('levelup-overlay');
-    if (overlay) overlay.style.display = 'none';
-    stopConfetti();
-};
-
-// ── Sistema de Confetti ────────────────────────────────────
-let confettiAnim = null;
-let confettiParticles = [];
-
-function launchConfetti() {
-    const canvas = document.getElementById('confetti-canvas');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-
-    canvas.style.display = 'block';
-    canvas.width  = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    const COLORS = ['#F5821F','#22C55E','#3B82F6','#F59E0B','#8B5CF6','#EF4444','#fff'];
-    confettiParticles = Array.from({length: 120}, () => ({
-        x: Math.random() * canvas.width,
-        y: Math.random() * -canvas.height * 0.5,
-        r: 4 + Math.random() * 7,
-        d: 1.5 + Math.random() * 3,
-        color: COLORS[Math.floor(Math.random() * COLORS.length)],
-        tilt: Math.random() * 20 - 10,
-        tiltAngle: 0,
-        tiltSpeed: 0.08 + Math.random() * 0.1,
-        shape: Math.random() > 0.5 ? 'rect' : 'circle',
-    }));
-
-    function draw() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        confettiParticles.forEach(p => {
-            ctx.save();
-            ctx.globalAlpha = 0.88;
-            ctx.fillStyle = p.color;
-            ctx.translate(p.x, p.y);
-            ctx.rotate(p.tiltAngle * Math.PI / 180);
-            if (p.shape === 'rect') {
-                ctx.fillRect(-p.r / 2, -p.r / 2, p.r, p.r * 0.5);
-            } else {
-                ctx.beginPath();
-                ctx.arc(0, 0, p.r / 2, 0, Math.PI * 2);
-                ctx.fill();
-            }
-            ctx.restore();
-
-            p.y += p.d;
-            p.tiltAngle += p.tiltSpeed;
-            p.x += Math.sin(p.tiltAngle) * 1.2;
-        });
-
-        confettiParticles = confettiParticles.filter(p => p.y < canvas.height + 20);
-        if (confettiParticles.length > 0) {
-            confettiAnim = requestAnimationFrame(draw);
-        } else {
-            stopConfetti();
-        }
-    }
-    draw();
-
-    // Auto stop después de 4.5s
-    setTimeout(stopConfetti, 4500);
-}
-
-function stopConfetti() {
-    if (confettiAnim) { cancelAnimationFrame(confettiAnim); confettiAnim = null; }
-    const canvas = document.getElementById('confetti-canvas');
-    if (canvas) {
-        canvas.style.display = 'none';
-        const ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }
-    confettiParticles = [];
-}
-
-// ── Celebración de módulo completo ────────────────────────
-window.celebrateModuleComplete = function(moduleName, score, xpGained) {
-    const isExcellent = score >= 90;
-    window.openModal(`
-        <div style="text-align:center;padding:8px 0;">
-            <div style="font-size:52px;margin-bottom:10px;animation:bounceIn 0.5s var(--ease-spring) both;">
-                ${isExcellent ? '🌟' : '✅'}
-            </div>
-            <div style="font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
-                color:var(--green);margin-bottom:8px;">
-                ${isExcellent ? '¡Excelente!' : '¡Módulo completado!'}
-            </div>
-            <div style="font-family:var(--font-display);font-size:22px;font-weight:800;
-                letter-spacing:-.04em;color:var(--text-1);margin-bottom:6px;">
-                ${moduleName}
-            </div>
-            <div style="font-size:13px;color:var(--text-3);margin-bottom:18px;line-height:1.6;">
-                Puntuación: <strong style="color:${score>=80?'var(--green)':'var(--brand-light)'}">${score}%</strong>
-                &nbsp;·&nbsp;
-                <strong style="color:var(--brand-light)">+${xpGained} XP</strong>
-                ${isExcellent ? '<br><span style="color:var(--amber)">⭐ ¡Resultado perfecto!</span>' : ''}
-            </div>
-            <button onclick="closeModal()" style="
-                background:linear-gradient(135deg,var(--brand),var(--brand-deep));
-                color:#fff;border:none;border-radius:var(--r-sm);
-                padding:11px 26px;font-size:14px;font-weight:700;cursor:pointer;
-                font-family:var(--font);box-shadow:var(--shadow-brand);width:100%;">
-                Continuar 🚀
-            </button>
-        </div>
-    `);
-    if (isExcellent) launchConfetti();
-};
 
 function updateHeaderUI() {
     const xpCurrentLevelBase = state.level === 1
@@ -4043,27 +3928,17 @@ window.playAudio = function(text, lang = 'en-US', event = null, rate = 0.85) {
     }
 };
 
-// toastTimer eliminado — toast ahora crea elemento dinámico por llamada
+let toastTimer = null;
 
 window.showToast = function(message, type = 'success') {
-    // Eliminar toast anterior si existe
-    const prev = document.getElementById('toast');
-    if (prev) { prev.remove(); }
+    const toast = document.getElementById('toast');
+    if (!toast) return;
 
-    const icons = { success:'check-circle', error:'x-circle', warn:'alert-triangle', info:'info' };
-    const toast = document.createElement('div');
-    toast.id = 'toast';
-    toast.className = `toast ${type}`;
-    toast.innerHTML = `<i data-lucide="${icons[type] || 'info'}"></i><span class="toast-text">${message}</span>`;
-    document.body.appendChild(toast);
+    toast.textContent = message;
+    toast.className = `toast toast-${type} show`;
 
-    if (window.lucide) lucide.createIcons({ nodes: [toast] });
-
-    const timer = setTimeout(() => {
-        toast.classList.add('removing');
-        setTimeout(() => toast.remove(), 250);
-    }, 2800);
-    toast.addEventListener('click', () => { clearTimeout(timer); toast.remove(); });
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 2400);
 };
 
 window.openModal = function(html) {

@@ -18,7 +18,10 @@
     <link rel="stylesheet" href="style.css">
 
     <!-- ICONOS LUCIDE -->
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Lucide Icons (ejercicios y app.js dinámico) -->
+    <script src="https://unpkg.com/lucide@0.427.0/dist/umd/lucide.min.js"></script>
+    <!-- Phosphor Icons (UI estática: sidebar, login, dashboard) -->
+    <script src="https://unpkg.com/@phosphor-icons/web@2.1.1/src/index.js"></script>
 </head>
 
 <body>
@@ -49,7 +52,7 @@
         <div class="login-pitch" aria-hidden="true">
             <div class="login-pitch-inner">
                 <div class="login-logo-row">
-                    <div class="logo-icon"><i data-lucide="book-open"></i></div>
+                    <div class="logo-icon"><i class="ph-duotone ph-books"></i></div>
                     <span class="login-logo-name">Leo<span>English</span></span>
                 </div>
                 <h2 class="login-pitch-headline">De A1 a C1.<br>Sin excusas.</h2>
@@ -61,7 +64,7 @@
                 <div class="login-features">
                     <div class="lf-item">
                         <div class="lf-icon" style="background:rgba(245,200,66,0.18);color:var(--yellow-deep)">
-                            <i data-lucide="route"></i>
+                            <i class="ph-duotone ph-path"></i>
                         </div>
                         <div>
                             <strong>Ruta adaptativa A1 → C1</strong>
@@ -70,7 +73,7 @@
                     </div>
                     <div class="lf-item">
                         <div class="lf-icon" style="background:rgba(34,197,94,0.13);color:var(--green)">
-                            <i data-lucide="flame"></i>
+                            <i class="ph-fill ph-fire"></i>
                         </div>
                         <div>
                             <strong>Racha diaria + XP</strong>
@@ -79,7 +82,7 @@
                     </div>
                     <div class="lf-item">
                         <div class="lf-icon" style="background:rgba(207,43,43,0.12);color:var(--red)">
-                            <i data-lucide="award"></i>
+                            <i class="ph-duotone ph-medal"></i>
                         </div>
                         <div>
                             <strong>Portfolio MCER oficial</strong>
@@ -88,7 +91,7 @@
                     </div>
                     <div class="lf-item">
                         <div class="lf-icon" style="background:rgba(255,255,255,0.12);color:#fff">
-                            <i data-lucide="briefcase"></i>
+                            <i class="ph-duotone ph-briefcase"></i>
                         </div>
                         <div>
                             <strong>Business English</strong>
@@ -118,7 +121,7 @@
         <div class="login-card">
 
             <div class="login-header">
-                <div class="logo-icon login-card-logo"><i data-lucide="book-open"></i></div>
+                <div class="logo-icon login-card-logo"><i class="ph-duotone ph-books"></i></div>
                 <h1>Leo<span>English</span></h1>
             </div>
 
@@ -242,7 +245,7 @@
             <div class="sidebar-top">
                 <div class="logo-section">
                     <div class="logo-icon">
-                        <i data-lucide="book-open"></i>
+                        <i class="ph-duotone ph-books"></i>
                     </div>
 
                     <h1>Leo<span>English</span></h1>
@@ -254,12 +257,12 @@
                     title="Colapsar menú"
                     aria-label="Colapsar menú"
                 >
-                    <i data-lucide="panel-left-close" id="toggle-icon"></i>
+                    <i class="ph-bold ph-sidebar-simple" id="toggle-icon"></i>
                 </button>
             </div>
 
             <div class="streak-card">
-                <i data-lucide="flame" class="streak-icon"></i>
+                <i class="ph-fill ph-fire streak-icon"></i>
 
                 <div class="streak-info">
                     <span class="streak-label">Racha</span>
@@ -276,27 +279,27 @@
                 </div>
 
                 <button class="nav-btn active" onclick="showScreen('dashboard'); setActiveNav(this)">
-                    <i data-lucide="map"></i>
+                    <i class="ph-duotone ph-map-trifold"></i>
                     <span class="nav-label">Mi Ruta</span>
                 </button>
 
                 <button class="nav-btn" id="diagnostic-nav-btn" onclick="showScreen('diagnostic'); setActiveNav(this)">
-                    <i data-lucide="scan-line"></i>
+                    <i class="ph-duotone ph-scan"></i>
                     <span class="nav-label">Diagnóstico</span>
                 </button>
 
                 <button class="nav-btn" onclick="showScreen('cefr-portfolio'); setActiveNav(this)">
-                    <i data-lucide="award"></i>
+                    <i class="ph-duotone ph-medal"></i>
                     <span class="nav-label">Mi Portfolio MCER</span>
                 </button>
 
                 <button class="nav-btn" onclick="showScreen('business-english'); setActiveNav(this)">
-                    <i data-lucide="briefcase"></i>
+                    <i class="ph-duotone ph-briefcase"></i>
                     <span class="nav-label">Business English</span>
                 </button>
 
                 <button class="nav-btn" onclick="showScreen('settings'); setActiveNav(this)">
-                    <i data-lucide="settings"></i>
+                    <i class="ph-duotone ph-gear"></i>
                     <span class="nav-label">Configuración</span>
                 </button>
 
@@ -353,7 +356,7 @@
                             title="Hacer diagnóstico"
                             aria-label="Hacer diagnóstico"
                         >
-                            <i data-lucide="scan-line"></i>
+                            <i class="ph-duotone ph-scan"></i>
                         </button>
 
                         <button 
@@ -362,7 +365,7 @@
                             title="Configuración"
                             aria-label="Configuración"
                         >
-                            <i data-lucide="settings"></i>
+                            <i class="ph-duotone ph-gear"></i>
                         </button>
                     </div>
                 </header>
@@ -384,12 +387,12 @@
 
                         <div class="btn-row" style="justify-content:flex-start;margin-top:18px;">
                             <button class="btn-check" onclick="showScreen('diagnostic')">
-                                <i data-lucide="scan-line"></i>
+                                <i class="ph-duotone ph-scan"></i>
                                 Hacer diagnóstico
                             </button>
 
                             <button class="btn-secondary" onclick="document.getElementById('modules-status-grid')?.scrollIntoView({behavior:'smooth'});">
-                                <i data-lucide="map"></i>
+                                <i class="ph-duotone ph-map-trifold"></i>
                                 Ver mi ruta
                             </button>
                         </div>
@@ -414,7 +417,7 @@
                             con gramática, vocabulario, reading y writing.
                         </p>
                         <button class="btn-primary-full" onclick="showScreen('diagnostic')" style="margin-top:14px;width:fit-content;">
-                            <i data-lucide="scan-line"></i>
+                            <i class="ph-duotone ph-scan"></i>
                             Hacer diagnóstico gratis
                         </button>
                     </div>
@@ -436,9 +439,9 @@
 
                     <div class="stat-card">
                         <div class="stat-icon" style="background:rgba(207,43,43,0.12);color:var(--red)">
-                            <i data-lucide="zap"></i>
+                            <i class="ph-fill ph-lightning"></i>
                         </div>
-                        <div>
+                        <div class="stat-texts">
                             <div class="stat-num" id="stat-xp">0</div>
                             <div class="stat-lbl">XP Total</div>
                         </div>
@@ -446,19 +449,19 @@
 
                     <div class="stat-card">
                         <div class="stat-icon" style="background:rgba(34,197,94,0.13);color:var(--green)">
-                            <i data-lucide="check-circle"></i>
+                            <i class="ph-fill ph-check-circle"></i>
                         </div>
-                        <div>
+                        <div class="stat-texts">
                             <div class="stat-num" id="stat-done">0</div>
-                            <div class="stat-lbl">Actividades completadas</div>
+                            <div class="stat-lbl">Actividades</div>
                         </div>
                     </div>
 
                     <div class="stat-card">
                         <div class="stat-icon" style="background:var(--yellow-pale);color:var(--yellow-deep)">
-                            <i data-lucide="flame"></i>
+                            <i class="ph-fill ph-fire"></i>
                         </div>
-                        <div>
+                        <div class="stat-texts">
                             <div class="stat-num" id="stat-streak">1</div>
                             <div class="stat-lbl">Días racha</div>
                         </div>
@@ -466,9 +469,9 @@
 
                     <div class="stat-card">
                         <div class="stat-icon" style="background:rgba(207,43,43,0.12);color:var(--red)">
-                            <i data-lucide="target"></i>
+                            <i class="ph-fill ph-crosshair-simple"></i>
                         </div>
-                        <div>
+                        <div class="stat-texts">
                             <div class="stat-num" id="stat-accuracy">—</div>
                             <div class="stat-lbl">Precisión</div>
                         </div>
@@ -594,7 +597,7 @@
                             title="Volver a mi ruta"
                             aria-label="Volver a mi ruta"
                         >
-                            <i data-lucide="map"></i>
+                            <i class="ph-duotone ph-map-trifold"></i>
                         </button>
                     </div>
                 </header>
@@ -633,12 +636,12 @@
 
                         <div class="btn-row">
                             <button class="btn-check" onclick="startDiagnostic()">
-                                <i data-lucide="scan-line"></i>
+                                <i class="ph-duotone ph-scan"></i>
                                 Iniciar diagnóstico
                             </button>
 
                             <button class="btn-secondary" onclick="showScreen('dashboard')">
-                                <i data-lucide="map"></i>
+                                <i class="ph-duotone ph-map-trifold"></i>
                                 Volver a mi ruta
                             </button>
                         </div>
@@ -680,7 +683,7 @@
                             title="Volver a mi ruta"
                             aria-label="Volver a mi ruta"
                         >
-                            <i data-lucide="map"></i>
+                            <i class="ph-duotone ph-map-trifold"></i>
                         </button>
                     </div>
                 </header>
@@ -711,7 +714,7 @@
                             title="Volver a mi ruta"
                             aria-label="Volver a mi ruta"
                         >
-                            <i data-lucide="map"></i>
+                            <i class="ph-duotone ph-map-trifold"></i>
                         </button>
                     </div>
                 </header>
@@ -742,7 +745,7 @@
                             title="Volver a mi ruta"
                             aria-label="Volver a mi ruta"
                         >
-                            <i data-lucide="map"></i>
+                            <i class="ph-duotone ph-map-trifold"></i>
                         </button>
                     </div>
                 </header>
@@ -772,7 +775,7 @@
                             title="Volver a mi ruta"
                             aria-label="Volver a mi ruta"
                         >
-                            <i data-lucide="map"></i>
+                            <i class="ph-duotone ph-map-trifold"></i>
                         </button>
                     </div>
                 </header>
@@ -899,7 +902,7 @@
                 <div class="screen-inner">
                     <div class="screen-header">
                         <button class="back-btn" onclick="showScreen('dashboard');setActiveNavById('dashboard')">
-                            <i data-lucide="arrow-left"></i>
+                            <i class="ph-bold ph-arrow-left"></i>
                         </button>
                         <div>
                             <h2 class="screen-title">Mi Portfolio MCER</h2>
@@ -919,7 +922,7 @@
                 <div class="screen-inner">
                     <div class="screen-header">
                         <button class="back-btn" onclick="showScreen('dashboard');setActiveNavById('dashboard')">
-                            <i data-lucide="arrow-left"></i>
+                            <i class="ph-bold ph-arrow-left"></i>
                         </button>
                         <div>
                             <h2 class="screen-title">Business English</h2>

@@ -3349,13 +3349,15 @@ function renderDiagnosticQuestion() {
             <div class="ex-meta">
                 <i data-lucide="scan-line"></i>
                 Diagnóstico · ${escapeHtml(item.level || 'A1')} · ${escapeHtml(item.sectionTitle || item.skill || 'General')} · ${diagnosticSession.idx + 1}/${diagnosticSession.items.length}
+                ${item.skill === 'listening' ? '<span style="background:var(--navy);color:#fff;font-size:10px;font-weight:800;padding:2px 8px;border-radius:99px;margin-left:6px;">🎧 ESCUCHA</span>' : ''}
+                ${item.skill === 'writing'   ? '<span style="background:rgba(46,158,91,0.15);color:var(--green);font-size:10px;font-weight:800;padding:2px 8px;border-radius:99px;margin-left:6px;">✍️ ESCRITURA</span>' : ''}
             </div>
 
             <div class="total-bar" style="margin-bottom:18px">
                 <div class="total-fill" style="width:${progress}%"></div>
             </div>
 
-            <div class="ex-q">${escapeHtml(item.q)}</div>
+            <div class="ex-q" style="${item.skill==='listening'?'white-space:pre-line;font-size:14px;line-height:1.7':''}">${escapeHtml(item.q)}</div>
 
             <div class="opts-grid">
                 ${(() => {

@@ -1445,6 +1445,15 @@ function renderGrammarExercise() {
                 ? 'Ordenar'
                 : 'Ejercicio';
 
+    // 🧠 Neuroeducación: cada tipo activa un proceso cognitivo distinto
+    const neuroTip = q.type === 'choice'
+        ? 'Reconocimiento y discriminación'
+        : q.type === 'write'
+            ? 'Producción activa de la forma'
+            : q.type === 'order'
+                ? 'Conciencia sintáctica'
+                : 'Práctica comunicativa';
+
     const typeIcon = q.type === 'choice'
         ? 'list'
         : q.type === 'write'
@@ -1458,6 +1467,7 @@ function renderGrammarExercise() {
             <div class="ex-meta">
                 <i data-lucide="${typeIcon}"></i>
                 ${typeLabel} · Ejercicio ${currentExerciseIdx + 1} / ${exercises.length}
+                <span class="neuro-badge" title="${neuroTip}">🧠 ${neuroTip}</span>
             </div>
 
             <div class="ex-progress">${dots}</div>
@@ -1725,6 +1735,21 @@ function finishModule() {
         retryLabel: 'Repetir',
         backLabel: 'Volver a mi ruta'
     });
+
+    // ── Mostrar tarea comunicativa si el módulo la tiene ──
+    const ct = mod?.communicativeTask;
+    if (ct && pct >= 60) {
+        const ctContainer = document.createElement('div');
+        ctContainer.className = 'comm-task animate-pop';
+        ctContainer.innerHTML = `
+            <div class="comm-task-badge">🎯 Tarea comunicativa — ponlo en práctica</div>
+            <h4>${escapeHtml(ct.title)}</h4>
+            <p>${escapeHtml(ct.instruction)}</p>
+            ${ct.output ? `<div class="comm-task-output">📄 <strong>Entrega esperada:</strong> ${escapeHtml(ct.output)}</div>` : ''}
+        `;
+        const phase = document.getElementById('phase-content');
+        if (phase) phase.appendChild(ctContainer);
+    }
 
     saveState();
 }
@@ -2888,14 +2913,14 @@ function renderVocabFlash() {
                             <button class="btn-audio" onclick="playAudio('${escapeAttr(word.en)}', 'en-US', event)" title="Escuchar">
                                 <i data-lucide="volume-2"></i>
                             </button>
-
                             <div class="card-word">${escapeHtml(word.en)}</div>
-                            <div class="card-hint">Toca para ver</div>
+                            ${word.chunk ? `<div class="card-chunk"><i data-lucide="link"></i> ${escapeHtml(word.chunk)}</div>` : ''}
+                            <div class="card-hint">Toca para ver traducción</div>
                         </div>
-
                         <div class="flashcard-back">
                             <div class="card-word">${escapeHtml(word.es)}</div>
                             <div class="card-hint">${escapeHtml(word.example || '')}</div>
+                            ${word.family ? `<div class="card-family"><strong>Familia:</strong> ${escapeHtml(word.family)}</div>` : ''}
                         </div>
                     </div>
                 </div>

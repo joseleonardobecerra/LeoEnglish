@@ -1812,3 +1812,126 @@ h1.logo-text span, .sidebar h1 span { color: var(--red); }
 
 /* Phosphor icons used for exercise feedback (dynamic, still data-lucide via lucide.js) */
 .ex-feedback [class*="ph-"] { font-size: 16px; }
+
+/* ============================================================
+   30. NUEVOS ELEMENTOS PEDAGÓGICOS v7.0
+   ============================================================ */
+
+/* ── Neuro-badge en ejercicios ── */
+.neuro-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 9.5px; font-weight: 700;
+  padding: 2px 8px; border-radius: var(--r-full);
+  background: var(--yellow-pale);
+  border: 1px solid var(--yellow);
+  color: var(--yellow-deep);
+  margin-left: auto;
+  letter-spacing: .02em;
+  white-space: nowrap;
+  max-width: 220px;
+  overflow: hidden; text-overflow: ellipsis;
+}
+
+/* ── Flashcard upgrades: chunk + family ── */
+.card-chunk {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 11px; font-weight: 600;
+  color: var(--navy);
+  background: var(--navy-pale);
+  border: 1px solid rgba(28,63,122,0.18);
+  border-radius: var(--r-sm);
+  padding: 4px 9px; margin-top: 8px;
+  line-height: 1.45;
+}
+.card-chunk i { width: 11px; height: 11px; flex-shrink: 0; color: var(--navy); }
+
+.card-family {
+  font-size: 11px; color: var(--text-3);
+  border-top: 1px solid var(--border);
+  padding-top: 7px; margin-top: 7px;
+  line-height: 1.55;
+}
+.card-family strong { color: var(--text-2); font-weight: 700; }
+
+/* ── Communicative task card ── */
+.comm-task {
+  background: linear-gradient(135deg,
+    rgba(28,63,122,0.08) 0%,
+    rgba(207,43,43,0.05) 100%);
+  border: 2px solid rgba(28,63,122,0.22);
+  border-radius: var(--r-lg);
+  padding: 18px 22px;
+  margin-top: 16px;
+  max-width: 660px; margin-left: auto; margin-right: auto;
+}
+.comm-task-badge {
+  font-size: 10px; font-weight: 900;
+  letter-spacing: .10em; text-transform: uppercase;
+  color: var(--navy); margin-bottom: 10px;
+  display: block;
+}
+.comm-task h4 {
+  font-family: var(--font-display);
+  font-size: 16px; font-weight: 800;
+  letter-spacing: -.03em;
+  color: var(--navy); margin-bottom: 8px;
+}
+.comm-task p {
+  font-size: 13.5px; color: var(--text-2);
+  line-height: 1.7; margin-bottom: 10px;
+}
+.comm-task-output {
+  display: flex; align-items: flex-start; gap: 7px;
+  font-size: 12px; color: var(--text-3);
+  background: var(--bg-3);
+  border-radius: var(--r-sm);
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+}
+.comm-task-output strong { color: var(--text-2); }
+
+/* ── Can-Do statements in module theory ── */
+.cando-list {
+  list-style: none;
+  display: flex; flex-direction: column; gap: 5px;
+  margin: 12px 0;
+}
+.cando-list li {
+  display: flex; align-items: flex-start; gap: 8px;
+  font-size: 13px; color: var(--text-2); line-height: 1.55;
+}
+.cando-list li::before {
+  content: '✓';
+  color: var(--green); font-weight: 900;
+  font-size: 12px; flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* ── Teaching note in vocab topics ── */
+.teaching-note {
+  display: flex; align-items: flex-start; gap: 9px;
+  background: var(--yellow-pale);
+  border: 1.5px solid var(--yellow);
+  border-radius: var(--r-md);
+  padding: 10px 14px; margin-bottom: 14px;
+  font-size: 12.5px; color: var(--text-2); line-height: 1.6;
+}
+.teaching-note::before { content: '💡'; flex-shrink: 0; font-size: 14px; }
+
+/* ── Word family badge in quiz mode ── */
+.word-family-row {
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 7px 11px; margin-top: 8px;
+  font-size: 11px; color: var(--text-3); line-height: 1.55;
+}
+.word-family-row strong { color: var(--navy); font-weight: 700; }
+
+/* ── Level badge on expanded modules ── */
+.mod-level-pill {
+  font-size: 9px; font-weight: 900;
+  letter-spacing: .10em; text-transform: uppercase;
+  padding: 2px 8px; border-radius: var(--r-full);
+  display: inline-block; margin-bottom: 5px;
+}

@@ -209,6 +209,16 @@ function escapeHtml(value) {
         .replace(/'/g, '&#039;');
 }
 
+function shuffleOptsWithCorrect(q) {
+    const opts = [...(q.opts || [])];
+    const correctText = typeof q.a === 'number' ? opts[q.a] : String(q.a);
+    for (let i = opts.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [opts[i], opts[j]] = [opts[j], opts[i]];
+    }
+    return { shuffledOpts: opts, newCorrectIndex: opts.indexOf(correctText) };
+}
+
 function escapeAttr(value) {
     return escapeHtml(value).replace(/`/g, '&#096;');
 }
@@ -955,6 +965,8 @@ window.renderDashboard = function() {
     safeSet('stat-streak', state.streak);
     safeSet('stat-accuracy', accuracy);
     safeSet('total-progress-pct', `${summary.pct}%`);
+    const esb = document.getElementById('empty-state-banner');
+    if (esb) esb.style.display = (state.xp === 0 && summary.passed === 0) ? 'flex' : 'none';
 
     const totalFill = document.getElementById('total-progress-fill');
     if (totalFill) totalFill.style.width = `${summary.pct}%`;
@@ -1386,9 +1398,11 @@ function renderGrammarExercise() {
     let bodyHtml = '';
 
     if (q.type === 'choice') {
+        const { shuffledOpts: _gOpts, newCorrectIndex: _gCI } = shuffleOptsWithCorrect(q);
+        window._currentCorrectIndex = _gCI;
         bodyHtml = `
             <div class="opts-grid">
-                ${(q.opts || []).map((opt, index) => `
+                ${_gOpts.map((opt, index) => `
                     <button class="opt-btn" onclick="checkChoice(${index}, this)">
                         ${escapeHtml(opt)}
                     </button>
@@ -1571,12 +1585,10 @@ window.checkChoice = function(index, btn) {
     // FIX: Calculamos el índice correcto una sola vez y lo usamos para TODO:
     // lógica de acierto Y resaltado visual. Antes el resaltado usaba
     // textContent.trim() que falla con espacios extra o HTML entities en el DOM.
-    const correctIndex = typeof q.a === 'number'
-        ? q.a
-        : q.opts.indexOf(q.a);
-
-    const correct = q.opts[correctIndex] ?? q.a;  // texto legible para el feedback
-
+    const correctIndex = (typeof window._currentCorrectIndex === 'number')
+        ? window._currentCorrectIndex
+        : (typeof q.a === 'number' ? q.a : q.opts.indexOf(q.a));
+    const correct = document.querySelectorAll('.opts-grid .opt-btn')[correctIndex]?.textContent?.trim() ?? q.a;
     const ok = index === correctIndex;
 
     isChecking = true;
@@ -3389,7 +3401,12 @@ function renderDiagnosticQuestion() {
             <div class="ex-q">${escapeHtml(item.q)}</div>
 
             <div class="opts-grid">
-                ${(item.opts || []).map((opt, index) => `
+                ${(() => {
+                    const { shuffledOpts: _dOpts, newCorrectIndex: _dCI } = shuffleOptsWithCorrect({opts: item.opts || [], a: item.a});
+                    window._diagOpts = _dOpts;
+                    window._diagCorrectIndex = _dCI;
+                    return _dOpts;
+                })().map((opt, index) => `
                     <button class="opt-btn" onclick="checkDiagnosticAnswer(${index}, this)">
                         ${escapeHtml(opt)}
                     </button>
@@ -3411,9 +3428,9 @@ window.checkDiagnosticAnswer = function(chosen, btn) {
     const item = diagnosticSession.items[diagnosticSession.idx];
     const correct = item.a;
 
-    const ok = typeof correct === 'number'
-        ? chosen === correct
-        : item.opts?.[chosen] === correct;
+    const ok = (typeof window._diagCorrectIndex === 'number')
+        ? chosen === window._diagCorrectIndex
+        : (typeof correct === 'number' ? chosen === correct : item.opts?.[chosen] === correct);
 
     document
         .querySelectorAll('#diagnostic-zone .opt-btn, #diagnostic-content .opt-btn')
@@ -3428,9 +3445,9 @@ window.checkDiagnosticAnswer = function(chosen, btn) {
         const buttons = document.querySelectorAll('#diagnostic-zone .opt-btn, #diagnostic-content .opt-btn');
 
         // FIX: mismo patrón que checkChoice/checkVocabQuiz — resaltado siempre por índice.
-        const correctIndex = typeof correct === 'number'
-            ? correct
-            : item.opts ? item.opts.indexOf(correct) : -1;
+        const correctIndex = (typeof window._diagCorrectIndex === 'number')
+            ? window._diagCorrectIndex
+            : (typeof correct === 'number' ? correct : (item.opts ? item.opts.indexOf(correct) : -1));
 
         if (correctIndex >= 0 && buttons[correctIndex]) {
             buttons[correctIndex].classList.add('correct');
@@ -3800,24 +3817,108 @@ window.toggleAdminView = function() {
 function addXP(baseValue, showMessage) {
     const streakBonus = Math.min((state.streak || 1) * 0.05, 0.5);
     const totalXP = Math.round(baseValue * (1 + streakBonus));
+    const prevLevel = state.level;
 
     state.xp += totalXP;
     state.dailyXP += totalXP;
 
     let xpNext = Math.floor(100 * Math.pow(state.level, 1.5));
-
     while (state.xp >= xpNext) {
         state.level++;
         xpNext = Math.floor(100 * Math.pow(state.level, 1.5));
-        window.showToast(`¡NIVEL SUBIDO! 🎉 Nivel ${state.level}`, 'success');
     }
 
     updateHeaderUI();
     saveState();
 
     if (showMessage && totalXP > 0) {
-        window.showToast(`+${totalXP} XP ${streakBonus > 0 ? '🔥' : ''}`, 'success');
+        showXpBurst(totalXP, streakBonus > 0);
     }
+    if (state.level > prevLevel) {
+        setTimeout(() => showLevelUpCelebration(state.level), 600);
+    }
+    const esb = document.getElementById('empty-state-banner');
+    if (esb && state.xp > 0) esb.style.display = 'none';
+}
+
+function showXpBurst(xp, hasStreak) {
+    const el = document.createElement('div');
+    el.className = 'xp-burst';
+    el.textContent = `+${xp} XP${hasStreak ? ' 🔥' : ''}`;
+    el.style.left = `${40 + Math.random() * 20}%`;
+    el.style.top  = `${30 + Math.random() * 20}%`;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 1000);
+}
+
+function showLevelUpCelebration(level) {
+    const overlay = document.getElementById('levelup-overlay');
+    if (!overlay) return;
+    document.getElementById('levelup-num').textContent = `Nivel ${level}`;
+    document.getElementById('levelup-cefr').textContent =
+        `¡Has alcanzado el nivel ${level}! Sigue así para dominar el inglés. 🎯`;
+    overlay.style.display = 'flex';
+    launchConfetti();
+}
+
+window.closeLevelUp = function() {
+    const overlay = document.getElementById('levelup-overlay');
+    if (overlay) overlay.style.display = 'none';
+    stopConfetti();
+};
+
+let confettiAnim = null;
+let confettiParticles = [];
+
+function launchConfetti() {
+    const canvas = document.getElementById('confetti-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    canvas.style.display = 'block';
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const COLORS = ['#CF2B2B','#22C55E','#1C3F7A','#F5C842','#8B5CF6','#fff'];
+    confettiParticles = Array.from({length: 110}, () => ({
+        x: Math.random() * canvas.width,
+        y: Math.random() * -canvas.height * 0.5,
+        r: 4 + Math.random() * 7,
+        d: 1.5 + Math.random() * 3,
+        color: COLORS[Math.floor(Math.random() * COLORS.length)],
+        tiltAngle: 0,
+        tiltSpeed: 0.08 + Math.random() * 0.1,
+        shape: Math.random() > 0.5 ? 'rect' : 'circle',
+    }));
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        confettiParticles.forEach(p => {
+            ctx.save();
+            ctx.globalAlpha = 0.88;
+            ctx.fillStyle = p.color;
+            ctx.translate(p.x, p.y);
+            ctx.rotate(p.tiltAngle * Math.PI / 180);
+            if (p.shape === 'rect') ctx.fillRect(-p.r/2, -p.r/2, p.r, p.r * 0.5);
+            else { ctx.beginPath(); ctx.arc(0, 0, p.r/2, 0, Math.PI*2); ctx.fill(); }
+            ctx.restore();
+            p.y += p.d;
+            p.tiltAngle += p.tiltSpeed;
+            p.x += Math.sin(p.tiltAngle) * 1.2;
+        });
+        confettiParticles = confettiParticles.filter(p => p.y < canvas.height + 20);
+        if (confettiParticles.length > 0) confettiAnim = requestAnimationFrame(draw);
+        else stopConfetti();
+    }
+    draw();
+    setTimeout(stopConfetti, 4500);
+}
+
+function stopConfetti() {
+    if (confettiAnim) { cancelAnimationFrame(confettiAnim); confettiAnim = null; }
+    const canvas = document.getElementById('confetti-canvas');
+    if (canvas) {
+        canvas.style.display = 'none';
+        canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+    }
+    confettiParticles = [];
 }
 
 function updateHeaderUI() {
@@ -3953,17 +4054,23 @@ window.playAudio = function(text, lang = 'en-US', event = null, rate = 0.85) {
     }
 };
 
-let toastTimer = null;
+// toast is now dynamic per-call — no shared timer needed
 
 window.showToast = function(message, type = 'success') {
-    const toast = document.getElementById('toast');
-    if (!toast) return;
-
-    toast.textContent = message;
-    toast.className = `toast toast-${type} show`;
-
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => toast.classList.remove('show'), 2400);
+    const prev = document.getElementById('toast');
+    if (prev) prev.remove();
+    const icons = { success:'check-circle', error:'x-circle', warn:'alert-triangle', info:'info' };
+    const toast = document.createElement('div');
+    toast.id = 'toast';
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `<i data-lucide="${icons[type] || 'info'}"></i><span class="toast-text">${message}</span>`;
+    document.body.appendChild(toast);
+    if (window.lucide) lucide.createIcons({ nodes: [toast] });
+    const timer = setTimeout(() => {
+        toast.classList.add('removing');
+        setTimeout(() => toast.remove(), 250);
+    }, 2800);
+    toast.addEventListener('click', () => { clearTimeout(timer); toast.remove(); });
 };
 
 window.openModal = function(html) {

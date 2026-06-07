@@ -209,26 +209,6 @@ function escapeHtml(value) {
         .replace(/'/g, '&#039;');
 }
 
-/**
- * shuffleOptsWithCorrect — Fisher-Yates shuffle sobre las opciones.
- * Devuelve { shuffledOpts, newCorrectIndex }.
- * Se llama en cada render para que la posición de la correcta
- * sea aleatoria e impredecible.
- */
-function shuffleOptsWithCorrect(q) {
-    const opts = [...(q.opts || [])];
-    const correctText = typeof q.a === 'number' ? opts[q.a] : String(q.a);
-
-    // Fisher-Yates
-    for (let i = opts.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [opts[i], opts[j]] = [opts[j], opts[i]];
-    }
-
-    const newCorrectIndex = opts.indexOf(correctText);
-    return { shuffledOpts: opts, newCorrectIndex };
-}
-
 function escapeAttr(value) {
     return escapeHtml(value).replace(/`/g, '&#096;');
 }
@@ -255,6 +235,42 @@ function average(values) {
     return Math.round(nums.reduce((a, b) => a + b, 0) / nums.length);
 }
 
+/**
+ * calcSkillPct — porcentaje real de una habilidad sobre TODAS las actividades
+ * de ese tipo en la ruta, no sólo las completadas.
+ * Evita que 5/10 módulos al 100% se muestre como 100% en vez de 50%.
+ */
+function calcSkillPct(type) {
+    let route;
+    try { route = buildLearningRoute(); } catch(e) { return 0; }
+    if (!route || !route.length) return 0;
+
+    const activities = route.flatMap(level => level.activities)
+                            .filter(a => a.type === type);
+
+    if (!activities.length) return 0;
+
+    const scores = {
+        grammar: state.scores        || {},
+        vocab:   state.vocabScores   || {},
+        reading: state.readingScores || {},
+        writing: state.writingDone   || {}
+    };
+
+    const scoreMap = scores[type] || {};
+
+    // Suma de scores de todos (no hechos = 0)
+    const total = activities.reduce((sum, act) => {
+        const id = act.sourceId || act.id;
+        const s  = scoreMap[id];
+        const val = typeof s === 'number' ? s
+                  : (s === true ? 100 : 0);
+        return sum + val;
+    }, 0);
+
+    return Math.round(total / activities.length);
+}
+
 function getNowTime() {
     const now = new Date();
     return `${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
@@ -263,10 +279,6 @@ function getNowTime() {
 function ensureLucide() {
     if (window.lucide && typeof window.lucide.createIcons === 'function') {
         window.lucide.createIcons();
-    }
-    // Phosphor Icons auto-initializes; re-run if needed for dynamic content
-    if (window.__PhosphorIcons && typeof window.__PhosphorIcons.renderIcons === 'function') {
-        window.__PhosphorIcons.renderIcons();
     }
 }
 
@@ -947,10 +959,11 @@ window.renderDashboard = function() {
     const totalFill = document.getElementById('total-progress-fill');
     if (totalFill) totalFill.style.width = `${summary.pct}%`;
 
-    const grammar = average(Object.values(state.scores));
-    const vocab = average(Object.values(state.vocabScores));
-    const reading = average(Object.values(state.readingScores));
-    const writing = average(Object.values(state.writingDone));
+    // FIX: Calcular % real sobre TOTAL de actividades en la ruta, no solo las completadas
+    const grammar = calcSkillPct('grammar');
+    const vocab   = calcSkillPct('vocab');
+    const reading = calcSkillPct('reading');
+    const writing = calcSkillPct('writing');
 
     renderSkillBars(grammar, vocab, reading, writing);
     renderFeedback(grammar, reading, writing, vocab);
@@ -1055,36 +1068,48 @@ function renderUnifiedRoute() {
                         : 'var(--primary-mid)';
 
             return `
-                <div
-                    class="mod-card ${passed ? 'mod-done' : ''} ${current ? 'mod-current' : ''} ${locked ? 'mod-locked' : ''} ${reinforcement ? 'mod-reinforcement' : ''}"
+                <div 
+                    class="mod-card ${passed ? 'mod-done' : ''} ${current ? 'mod-current' : ''} ${locked ? 'mod-locked' : ''}"
                     onclick="openRouteActivity('${activity.id}')"
-                    title="${escapeHtml(activity.title)}"
                 >
-                    <div class="mod-header">
-                        <div class="mod-icon-wrap" style="background:${locked ? 'var(--bg-4)' : activity.color};color:${locked ? 'var(--text-4)' : 'white'}">
-                            <i data-lucide="${icon}"></i>
+                    <div 
+                        class="mod-icon-wrap" 
+                        style="background:${locked ? '#EDF2F7' : activity.color};color:${locked ? '#A0AEC0' : 'white'}"
+                    >
+                        <i data-lucide="${icon}"></i>
+                    </div>
+
+                    <div style="flex:1;min-width:0">
+                        <div class="mod-title">
+                            ${number}. ${escapeHtml(activity.title)}
                         </div>
-                        <div class="mod-title">${number}. ${escapeHtml(activity.title)}</div>
+
+                        <div class="mod-status" style="color:${statusColor};font-weight:800;">
+                            ${TYPE_META[activity.type].label} · ${status}
+                        </div>
+
+                        ${typeof score === 'number'
+                            ? `<div class="mod-score-bar">
+                                <div class="mod-score-fill" style="width:${score}%;background:${activity.color}"></div>
+                               </div>`
+                            : ''}
                     </div>
-                    <div class="mod-status" style="color:${statusColor}">
-                        ${TYPE_META[activity.type].label} · ${status}
-                    </div>
-                    ${typeof score === 'number'
-                        ? `<div class="mod-score-bar"><div class="mod-score-fill" style="width:${score}%;background:${activity.color}"></div></div>`
-                        : ''}
                 </div>
             `;
         }).join('');
 
         return `
             <div class="level-divider">
-                <h4 style="color:${level.color};border-bottom:2px solid ${level.color}40;">
+                <h4 style="color:${level.color};font-size:18px;font-weight:900;margin:24px 0 8px 0;border-bottom:2px solid ${level.color}30;padding-bottom:8px;">
                     ${escapeHtml(level.title)}
-                    <span style="font-size:11px;font-weight:700;color:var(--text-4);margin-left:6px;">${pct}%</span>
                 </h4>
-                <p>${escapeHtml(level.description)}</p>
+
+                <div style="font-size:13px;color:#6B5F58;margin-bottom:14px;line-height:1.5">
+                    ${escapeHtml(level.description)} · Progreso: <strong>${pct}%</strong>
+                </div>
             </div>
-            <div class="modules-grid">
+
+            <div class="modules-grid" style="margin-bottom:32px">
                 ${cards}
             </div>
         `;
@@ -1361,12 +1386,9 @@ function renderGrammarExercise() {
     let bodyHtml = '';
 
     if (q.type === 'choice') {
-        const { shuffledOpts: _gOpts, newCorrectIndex: _gCI } = shuffleOptsWithCorrect(q);
-        // Store shuffled correct index so checkChoice reads it
-        window._currentCorrectIndex = _gCI;
         bodyHtml = `
             <div class="opts-grid">
-                ${_gOpts.map((opt, index) => `
+                ${(q.opts || []).map((opt, index) => `
                     <button class="opt-btn" onclick="checkChoice(${index}, this)">
                         ${escapeHtml(opt)}
                     </button>
@@ -1539,12 +1561,11 @@ window.checkChoice = function(index, btn) {
     // FIX: Calculamos el índice correcto una sola vez y lo usamos para TODO:
     // lógica de acierto Y resaltado visual. Antes el resaltado usaba
     // textContent.trim() que falla con espacios extra o HTML entities en el DOM.
-    // Use shuffled index if available (set at render time)
-    const correctIndex = (typeof window._currentCorrectIndex === 'number')
-        ? window._currentCorrectIndex
-        : (typeof q.a === 'number' ? q.a : q.opts.indexOf(q.a));
+    const correctIndex = typeof q.a === 'number'
+        ? q.a
+        : q.opts.indexOf(q.a);
 
-    const correct = document.querySelectorAll('.opt-btn')[correctIndex]?.textContent?.trim() ?? q.a;
+    const correct = q.opts[correctIndex] ?? q.a;  // texto legible para el feedback
 
     const ok = index === correctIndex;
 
@@ -1831,13 +1852,8 @@ function renderReadingQuestion(text) {
 
     if (!q.type || q.type === 'choice') {
         bodyHtml = `
-            <div class="opts-grid" data-correct="${(() => {
-                const { shuffledOpts: _rOpts, newCorrectIndex: _rCI } = shuffleOptsWithCorrect(q);
-                window._readingOpts = _rOpts;
-                window._readingCorrectIndex = _rCI;
-                return _rCI;
-            })()}">
-                ${(window._readingOpts || q.opts || []).map((opt, index) => `
+            <div class="opts-grid">
+                ${(q.opts || []).map((opt, index) => `
                     <button class="opt-btn" onclick="checkReadingQ(${index}, this)">
                         ${escapeHtml(opt)}
                     </button>
@@ -1893,10 +1909,7 @@ window.checkReadingQ = function(chosen, btn) {
     const q = window.currentReadingQuestion;
     if (!q) return;
 
-    // Use shuffled index if available
-    const correct = (typeof window._readingCorrectIndex === 'number')
-        ? window._readingCorrectIndex
-        : q.a;
+    const correct = q.a;
     const ok = chosen === correct;
 
     isChecking = true;
@@ -1925,7 +1938,7 @@ window.checkReadingQ = function(chosen, btn) {
         btn.classList.add('wrong');
 
         const buttons = document.querySelectorAll('.opts-grid .opt-btn');
-        if (buttons[correct] !== undefined && buttons[correct]) buttons[correct].classList.add('correct');
+        if (buttons[correct]) buttons[correct].classList.add('correct');
 
         if (fb) {
             fb.innerHTML = `
@@ -3072,12 +3085,7 @@ function renderVocabQuestion() {
         <div class="ex-q">${escapeHtml(q.q)}</div>
 
         <div class="opts-grid">
-            ${(() => {
-                const { shuffledOpts: _vOpts, newCorrectIndex: _vCI } = shuffleOptsWithCorrect({opts: q.opts, a: q.answer});
-                window._vocabOpts = _vOpts;
-                window._vocabCorrectIndex = _vCI;
-                return _vOpts;
-            })().map((opt, index) => `
+            ${q.opts.map((opt, index) => `
                 <button class="opt-btn" onclick="checkVocabQuiz(${index}, this)">
                     ${escapeHtml(opt)}
                 </button>
@@ -3092,12 +3100,10 @@ window.checkVocabQuiz = function(index, btn) {
     if (isChecking) return;
 
     const q = window.vqTasks[window.vqIdx];
-    const selected = (window._vocabOpts || q.opts)[index];
+    const selected = q.opts[index];
 
-    // Use shuffled correct index set at render time
-    const correctIndex = (typeof window._vocabCorrectIndex === 'number')
-        ? window._vocabCorrectIndex
-        : q.opts.indexOf(q.answer);
+    // FIX: Calculamos el índice correcto para resaltar por posición, no por texto.
+    const correctIndex = q.opts.indexOf(q.answer);
     const ok = index === correctIndex;
 
     isChecking = true;
@@ -3349,23 +3355,16 @@ function renderDiagnosticQuestion() {
             <div class="ex-meta">
                 <i data-lucide="scan-line"></i>
                 Diagnóstico · ${escapeHtml(item.level || 'A1')} · ${escapeHtml(item.sectionTitle || item.skill || 'General')} · ${diagnosticSession.idx + 1}/${diagnosticSession.items.length}
-                ${item.skill === 'listening' ? '<span style="background:var(--navy);color:#fff;font-size:10px;font-weight:800;padding:2px 8px;border-radius:99px;margin-left:6px;">🎧 ESCUCHA</span>' : ''}
-                ${item.skill === 'writing'   ? '<span style="background:rgba(46,158,91,0.15);color:var(--green);font-size:10px;font-weight:800;padding:2px 8px;border-radius:99px;margin-left:6px;">✍️ ESCRITURA</span>' : ''}
             </div>
 
             <div class="total-bar" style="margin-bottom:18px">
                 <div class="total-fill" style="width:${progress}%"></div>
             </div>
 
-            <div class="ex-q" style="${item.skill==='listening'?'white-space:pre-line;font-size:14px;line-height:1.7':''}">${escapeHtml(item.q)}</div>
+            <div class="ex-q">${escapeHtml(item.q)}</div>
 
             <div class="opts-grid">
-                ${(() => {
-                    const { shuffledOpts: _dOpts, newCorrectIndex: _dCI } = shuffleOptsWithCorrect({opts: item.opts || [], a: item.a});
-                    window._diagOpts = _dOpts;
-                    window._diagCorrectIndex = _dCI;
-                    return _dOpts;
-                })().map((opt, index) => `
+                ${(item.opts || []).map((opt, index) => `
                     <button class="opt-btn" onclick="checkDiagnosticAnswer(${index}, this)">
                         ${escapeHtml(opt)}
                     </button>
@@ -3387,10 +3386,9 @@ window.checkDiagnosticAnswer = function(chosen, btn) {
     const item = diagnosticSession.items[diagnosticSession.idx];
     const correct = item.a;
 
-    // Use shuffled index when available
-    const ok = (typeof window._diagCorrectIndex === 'number')
-        ? chosen === window._diagCorrectIndex
-        : (typeof correct === 'number' ? chosen === correct : item.opts?.[chosen] === correct);
+    const ok = typeof correct === 'number'
+        ? chosen === correct
+        : item.opts?.[chosen] === correct;
 
     document
         .querySelectorAll('#diagnostic-zone .opt-btn, #diagnostic-content .opt-btn')
@@ -3405,9 +3403,9 @@ window.checkDiagnosticAnswer = function(chosen, btn) {
         const buttons = document.querySelectorAll('#diagnostic-zone .opt-btn, #diagnostic-content .opt-btn');
 
         // FIX: mismo patrón que checkChoice/checkVocabQuiz — resaltado siempre por índice.
-        const correctIndex = (typeof window._diagCorrectIndex === 'number')
-            ? window._diagCorrectIndex
-            : (typeof correct === 'number' ? correct : (item.opts ? item.opts.indexOf(correct) : -1));
+        const correctIndex = typeof correct === 'number'
+            ? correct
+            : item.opts ? item.opts.indexOf(correct) : -1;
 
         if (correctIndex >= 0 && buttons[correctIndex]) {
             buttons[correctIndex].classList.add('correct');
@@ -3990,10 +3988,10 @@ function getCefrProgress() {
   const currentIdx = levels.indexOf(currentLevel);
 
   // Calcular progreso real por destreza desde el state
-  const grammarAvg   = average(Object.values(state.scores         || {}));
-  const vocabAvg     = average(Object.values(state.vocabScores    || {}));
-  const readingAvg   = average(Object.values(state.readingScores  || {}));
-  const writingAvg   = average(Object.values(state.writingDone    || {}));
+  const grammarAvg  = calcSkillPct('grammar');
+  const vocabAvg    = calcSkillPct('vocab');
+  const readingAvg  = calcSkillPct('reading');
+  const writingAvg  = calcSkillPct('writing');
   const businessAvg  = average(Object.values(state.businessScores || {}));
 
   // Contar módulos completados por tipo
@@ -4327,7 +4325,7 @@ window.openBusinessModule = function(id) {
   // Si tiene vocabulario (words), abrirlo como vocab topic
   if (mod.words && mod.words.length) {
     if (!state.businessScores) state.businessScores = {};
-    openVocabTopic ? openVocabTopic(id) : showToast('Función de vocabulario no disponible', 'warn');
+    window.openVocabTopic ? window.openVocabTopic(id) : showToast('Módulo de vocabulario no encontrado', 'warn');
     return;
   }
 
@@ -4336,6 +4334,6 @@ window.openBusinessModule = function(id) {
     if (!window.modulesData) window.modulesData = {};
     window.modulesData[id] = mod;
     if (!state.businessScores) state.businessScores = {};
-    window.openGrammarModule ? window.openGrammarModule(id) : showToast('Función de módulo no disponible', 'warn');
+    window.openModule ? window.openModule(id) : showToast('Módulo no encontrado', 'warn');
   }
 };

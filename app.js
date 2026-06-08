@@ -144,7 +144,18 @@ function getVocabTopics() {
 }
 
 function getReadingTexts() {
-    return window.readingTexts || (typeof readingTexts !== 'undefined' ? readingTexts : []);
+    const base = window.readingTexts || (typeof readingTexts !== 'undefined' ? readingTexts : []);
+    // Merge expanded inference texts (data-exercises-expanded.js)
+    const expanded = window.readingExpandedTexts || {};
+    const expandedFlat = Object.values(expanded).flat().map(t => ({
+        ...t,
+        qs: t.questions || t.qs || [],   // normalize field name
+        body: t.text || t.body || '',    // normalize field name
+        topic: t.title || 'Reading',
+    }));
+    const baseIds = new Set(base.map(t => t.id));
+    const newTexts = expandedFlat.filter(t => !baseIds.has(t.id));
+    return [...base, ...newTexts];
 }
 
 function getWritingExercises() {
@@ -988,7 +999,113 @@ window.renderDashboard = function() {
     renderUnifiedRoute();
     renderActivity();
     renderLeaderboard();
+
+    // Motor adaptativo
+    setTimeout(renderAdaptiveWidget, 80);
 };
+
+function renderAdaptiveWidget() {
+    const widget = document.getElementById('adaptive-widget');
+    const contentEl = document.getElementById('adaptive-content');
+    if (!widget || !contentEl || !window.AdaptiveEngine) return;
+
+    const { weaknesses, strengths, dominantWeak, dominantWeakLabel } =
+        window.AdaptiveEngine.analyzeWeaknesses();
+
+    // Ocultar si no hay datos suficientes
+    const totalScored = weaknesses.length + strengths.length;
+    if (totalScored < 2) { widget.style.display = 'none'; return; }
+
+    widget.style.display = 'block';
+
+    const next = window.AdaptiveEngine.getNextRecommendedActivity();
+    const levelReadiness = window.AdaptiveEngine._getLevelReadiness();
+
+    const typeColors = {
+        grammar: 'var(--navy)', vocab: 'var(--green)',
+        reading: 'var(--blue, #3B82F6)', writing: 'var(--red)'
+    };
+    const typeLabels = {
+        grammar: 'Gramática', vocab: 'Vocabulario',
+        reading: 'Reading', writing: 'Writing'
+    };
+
+    let html = '';
+
+    // ── Debilidades detectadas ──
+    if (weaknesses.length) {
+        const top = weaknesses[0];
+        html += `
+        <div style="background:var(--red-pale);border:1.5px solid rgba(207,43,43,0.22);
+            border-radius:var(--r-sm);padding:10px 13px;margin-bottom:8px;cursor:pointer;"
+            onclick="window.openRouteActivity && window.openRouteActivity('${top.type}:${top.id}')"
+            title="Ir a refuerzo">
+            <div style="font-size:10px;font-weight:800;color:var(--red);margin-bottom:3px;
+                letter-spacing:.04em;text-transform:uppercase;">⚠ Necesita refuerzo</div>
+            <div style="font-size:12.5px;font-weight:700;color:var(--text-1);">
+                ${typeLabels[top.type] || top.type}: ${top.id.replace(/_/g,' ')}
+            </div>
+            <div style="height:4px;background:var(--bg-4);border-radius:99px;overflow:hidden;margin-top:6px;">
+                <div style="height:100%;width:${top.score}%;background:var(--red);border-radius:99px;"></div>
+            </div>
+            <div style="font-size:10px;color:var(--red);margin-top:3px;font-weight:700;">${top.score}% · Toca para reforzar</div>
+        </div>`;
+    }
+
+    // ── Siguiente recomendada ──
+    if (next) {
+        const typeColor = typeColors[next.type] || 'var(--navy)';
+        html += `
+        <div style="background:var(--navy-pale);border:1.5px solid rgba(28,63,122,0.20);
+            border-radius:var(--r-sm);padding:10px 13px;cursor:pointer;"
+            onclick="window.openRouteActivity && window.openRouteActivity('${next.id}')"
+            title="Iniciar actividad recomendada">
+            <div style="font-size:10px;font-weight:800;color:var(--navy);margin-bottom:3px;
+                letter-spacing:.04em;text-transform:uppercase;">▶ Siguiente recomendada</div>
+            <div style="font-size:12.5px;font-weight:700;color:var(--text-1);">${escapeHtml(next.title || next.id)}</div>
+            <div style="font-size:10px;color:var(--text-4);margin-top:2px;">
+                ${typeLabels[next.type] || next.type} · ${escapeHtml(next.level || '')}
+            </div>
+        </div>`;
+    }
+
+    // ── Progreso hacia siguiente nivel CEFR ──
+    if (levelReadiness.readiness < 100) {
+        html += `
+        <div style="margin-top:8px;padding:8px 0;border-top:1px solid var(--border);">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                <span style="font-size:10px;font-weight:700;color:var(--text-4);">
+                    Listo para ${levelReadiness.level} → siguiente nivel
+                </span>
+                <span style="font-size:11px;font-weight:900;color:var(--navy);">${levelReadiness.readiness}%</span>
+            </div>
+            <div style="height:4px;background:var(--bg-4);border-radius:99px;overflow:hidden;">
+                <div style="height:100%;width:${levelReadiness.readiness}%;
+                    background:linear-gradient(90deg,var(--navy),var(--red));border-radius:99px;"></div>
+            </div>
+            <div style="font-size:10px;color:var(--text-4);margin-top:3px;">
+                ${levelReadiness.completedChecks}/${levelReadiness.total} evidencias completadas
+            </div>
+        </div>`;
+    } else {
+        html += `
+        <div style="margin-top:8px;padding:8px 12px;background:var(--green-pale);
+            border:1.5px solid var(--green);border-radius:var(--r-sm);text-align:center;">
+            <div style="font-size:12px;font-weight:800;color:var(--green);">
+                ✅ ¡Listo para certificar ${levelReadiness.level}!
+            </div>
+            <button onclick="window.PortfolioGenerator?.generateCertificate('${levelReadiness.level}')"
+                style="margin-top:7px;padding:7px 16px;background:var(--green);
+                    border:none;border-radius:var(--r-sm);color:#fff;font-size:11px;
+                    font-weight:800;cursor:pointer;font-family:inherit;">
+                📜 Descargar Certificado
+            </button>
+        </div>`;
+    }
+
+    contentEl.innerHTML = html;
+    if (window.lucide) lucide.createIcons({ nodes: [contentEl] });
+}
 
 function renderSkillBars(grammar, vocab, reading, writing) {
     const el = document.getElementById('skills-bars');
@@ -2886,6 +3003,7 @@ window.openVocabTopic = function(id) {
             <button class="vocab-tab active" id="vtab-flash" onclick="setVocabMode('flash', this)">Tarjetas</button>
             <button class="vocab-tab" id="vtab-match" onclick="setVocabMode('match', this)">Conectar</button>
             <button class="vocab-tab" id="vtab-quiz" onclick="setVocabMode('quiz', this)">Quiz</button>
+            <button class="vocab-tab" id="vtab-prod" onclick="setVocabMode('prod', this)">✍️ Producción</button>
         </div>
 
         <div id="vocab-mode-content"></div>
@@ -2903,6 +3021,7 @@ window.setVocabMode = function(mode, btn) {
 
     if (mode === 'flash') renderVocabFlash();
     else if (mode === 'match') renderVocabMatch();
+    else if (mode === 'prod') renderVocabProduction();
     else renderVocabQuiz();
 };
 
@@ -3131,6 +3250,210 @@ function renderVocabQuestion() {
 
         <div id="vq-fb"></div>
     `;
+}
+
+
+// ── VOCAB PRODUCCIÓN ACTIVA ──────────────────────────────────
+function renderVocabProduction() {
+    const el = document.getElementById('vocab-mode-content');
+    if (!el || !vocabCurrentTopic) return;
+
+    const exercises = (window.vocabProductionExercises || {})[vocabCurrentTopic.id];
+
+    if (!exercises || !exercises.length) {
+        el.innerHTML = `
+            <div class="empty-state" style="padding:32px;text-align:center;">
+                <div style="font-size:32px;margin-bottom:10px;">✍️</div>
+                <p style="color:var(--text-3);font-size:13px;">Los ejercicios de producción para este tópico llegarán pronto.<br>
+                Practica con el Quiz mientras tanto.</p>
+                <button onclick="setVocabMode('quiz', document.getElementById('vtab-quiz'))"
+                    style="margin-top:14px;padding:10px 20px;background:var(--navy);border:none;
+                    border-radius:var(--r-sm);color:#fff;font-size:13px;font-weight:700;
+                    cursor:pointer;font-family:inherit;">
+                    Ir al Quiz →
+                </button>
+            </div>`;
+        return;
+    }
+
+    // State for production mode
+    if (!window._prodState || window._prodState.topicId !== vocabCurrentTopic.id) {
+        window._prodState = {
+            topicId: vocabCurrentTopic.id,
+            idx: 0,
+            correct: 0,
+            total: exercises.length
+        };
+    }
+
+    const ps = window._prodState;
+    if (ps.idx >= exercises.length) {
+        // Results
+        const pct = Math.round(ps.correct / ps.total * 100);
+        el.innerHTML = `
+            <div class="result-card" style="max-width:420px;margin:0 auto;">
+                <div style="font-size:40px;margin-bottom:8px;">${pct>=80?'🏆':pct>=60?'👍':'💪'}</div>
+                <div class="results-score">${pct}%</div>
+                <p style="color:var(--text-3);font-size:13px;margin-bottom:16px;">
+                    ${ps.correct} de ${ps.total} ejercicios correctos
+                </p>
+                <button onclick="window._prodState=null;renderVocabProduction();"
+                    style="width:100%;padding:12px;background:var(--navy);border:2px solid var(--navy-deep);
+                    border-radius:var(--r-md);color:#fff;font-size:14px;font-weight:800;
+                    cursor:pointer;font-family:inherit;">
+                    Repetir ejercicios
+                </button>
+            </div>`;
+        return;
+    }
+
+    const q = exercises[ps.idx];
+    const progress = `${ps.idx + 1} / ${exercises.length}`;
+
+    let bodyHtml = '';
+
+    if (q.type === 'fill') {
+        const parts = q.q.split('___');
+        bodyHtml = `<div class="fill-sentence" style="font-size:15px;line-height:2.2;color:var(--text-1);margin-bottom:16px;">`;
+        parts.forEach((part, i) => {
+            bodyHtml += escapeHtml(part);
+            if (i < parts.length - 1) {
+                bodyHtml += `<input type="text" class="fill-blank-inline" id="fill-prod-${i}"
+                    placeholder="___" autocomplete="off" spellcheck="false"
+                    style="border:none;border-bottom:2px solid var(--navy);background:transparent;
+                    width:100px;padding:2px 6px;font-size:15px;font-family:inherit;
+                    color:var(--navy);outline:none;text-align:center;margin:0 4px;">`;
+            }
+        });
+        bodyHtml += `</div>`;
+    } else if (q.type === 'choice') {
+        const { shuffledOpts, newCorrectIndex } = shuffleOptsWithCorrect(q);
+        window._prodCorrectIndex = newCorrectIndex;
+        bodyHtml = `<div class="opts-grid">
+            ${shuffledOpts.map((opt, i) => `
+                <button class="opt-btn" onclick="checkProdChoice(${i}, this)">
+                    ${escapeHtml(opt)}
+                </button>`).join('')}
+        </div>`;
+    } else if (q.type === 'write' || q.type === 'error') {
+        bodyHtml = `
+            <div style="background:var(--bg-3);border:1.5px solid var(--border-md);
+                border-radius:var(--r-md);padding:12px 16px;margin-bottom:12px;
+                font-size:13px;color:var(--text-2);line-height:1.6;">
+                ${q.type === 'error' ? '🔍 Encuentra y corrige el error:' : ''}
+            </div>
+            <textarea id="prod-write-input"
+                placeholder="Escribe tu respuesta..."
+                style="width:100%;min-height:80px;background:var(--bg-2);
+                border:2px solid var(--border-md);border-radius:var(--r-md);
+                padding:12px 15px;font-size:14px;font-family:inherit;
+                color:var(--text-1);outline:none;resize:vertical;line-height:1.7;"
+                onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();checkProdWrite();}">
+            </textarea>`;
+    }
+
+    el.innerHTML = `
+        <div class="exercise-card animate-pop">
+            <div class="ex-meta">
+                <i data-lucide="pen-line"></i>
+                ✍️ Producción activa · ${progress}
+                <span class="neuro-badge">Output forzado</span>
+            </div>
+            <div class="ex-progress">
+                ${exercises.map((_, i) =>
+                    `<div class="ex-dot ${i < ps.idx ? 'done' : i === ps.idx ? 'current' : ''}"></div>`
+                ).join('')}
+            </div>
+            <div class="ex-q" style="white-space:pre-line;">${escapeHtml(q.q)}</div>
+            ${bodyHtml}
+            <div id="prod-feedback"></div>
+            ${q.type === 'fill' ? `
+                <button onclick="checkProdFill()"
+                    class="check-btn" style="margin-top:12px;">
+                    Comprobar
+                </button>` : ''}
+            ${(q.type === 'write' || q.type === 'error') ? `
+                <button onclick="checkProdWrite()"
+                    class="check-btn" style="margin-top:12px;">
+                    Comprobar
+                </button>` : ''}
+        </div>`;
+
+    ensureLucide();
+}
+
+window.checkProdChoice = function(index, btn) {
+    const ps = window._prodState;
+    const q = (window.vocabProductionExercises || {})[vocabCurrentTopic.id]?.[ps.idx];
+    if (!q) return;
+    const correct = typeof window._prodCorrectIndex === 'number'
+        ? window._prodCorrectIndex : q.a;
+    const ok = index === correct;
+    if (ok) ps.correct++;
+    // Highlight
+    const btns = document.querySelectorAll('#vocab-mode-content .opt-btn');
+    btns.forEach(b => b.disabled = true);
+    btn.classList.add(ok ? 'correct' : 'wrong');
+    if (!ok && btns[correct]) btns[correct].classList.add('correct');
+    showProdFeedback(ok, q.exp);
+    setTimeout(() => { ps.idx++; renderVocabProduction(); }, 1600);
+};
+
+window.checkProdFill = function() {
+    const ps = window._prodState;
+    const q = (window.vocabProductionExercises || {})[vocabCurrentTopic.id]?.[ps.idx];
+    if (!q) return;
+    const blanks = q.blanks || [];
+    let allCorrect = true;
+    blanks.forEach((ans, i) => {
+        const inp = document.getElementById(`fill-prod-${i}`);
+        if (!inp) return;
+        const val = normalizeAnswer(inp.value);
+        const ok = normalizeAnswer(ans) === val;
+        inp.style.borderColor = ok ? 'var(--green)' : 'var(--red)';
+        inp.style.color = ok ? 'var(--green)' : 'var(--red)';
+        if (!ok) allCorrect = false;
+    });
+    if (allCorrect) ps.correct++;
+    showProdFeedback(allCorrect, q.exp);
+    setTimeout(() => { ps.idx++; renderVocabProduction(); }, 2200);
+};
+
+window.checkProdWrite = function() {
+    const ps = window._prodState;
+    const q = (window.vocabProductionExercises || {})[vocabCurrentTopic.id]?.[ps.idx];
+    if (!q) return;
+    const inp = document.getElementById('prod-write-input');
+    if (!inp) return;
+    const val = normalizeAnswer(inp.value);
+    const expected = normalizeAnswer(q.a);
+    // Flexible matching: check key words
+    const keyWords = expected.split(/\s+/).filter(w => w.length > 3);
+    const matchCount = keyWords.filter(w => val.includes(w)).length;
+    const ok = matchCount >= Math.ceil(keyWords.length * 0.6);
+    inp.style.borderColor = ok ? 'var(--green)' : 'var(--red)';
+    if (ok) ps.correct++;
+    // Show correct answer
+    const fb = document.getElementById('prod-feedback');
+    if (fb) {
+        fb.innerHTML = `
+            <div class="ex-feedback ${ok ? 'success' : 'error'}" style="margin-top:10px;">
+                <strong>${ok ? '✓ Correcto' : '✗ Respuesta modelo:'}</strong>
+                ${!ok ? `<div style="margin-top:4px;font-style:italic;">${escapeHtml(q.a)}</div>` : ''}
+                <div style="margin-top:4px;font-size:12px;opacity:0.85;">${escapeHtml(q.exp || '')}</div>
+            </div>`;
+    }
+    setTimeout(() => { ps.idx++; renderVocabProduction(); }, 2800);
+};
+
+function showProdFeedback(ok, exp) {
+    const fb = document.getElementById('prod-feedback');
+    if (!fb) return;
+    fb.innerHTML = `
+        <div class="ex-feedback ${ok ? 'success' : 'error'}" style="margin-top:10px;">
+            <span>${ok ? '✓ Correcto' : '✗ Incorrecto'}</span>
+            ${exp ? `<div style="margin-top:3px;font-size:12px;opacity:0.85;">${escapeHtml(exp)}</div>` : ''}
+        </div>`;
 }
 
 window.checkVocabQuiz = function(index, btn) {

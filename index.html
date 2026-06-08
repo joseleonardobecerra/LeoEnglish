@@ -486,7 +486,7 @@
                     <!-- SKILLS -->
                     <div class="skills-card">
                         <h3>
-                            <i data-lucide="bar-chart-2"></i>
+                            <i class="ph-duotone ph-chart-bar"></i>
                             Habilidades MCER
                         </h3>
 
@@ -501,6 +501,15 @@
                             <div class="total-bar">
                                 <div class="total-fill" id="total-progress-fill"></div>
                             </div>
+                        </div>
+
+                        <!-- WIDGET ADAPTATIVO -->
+                        <div id="adaptive-widget" style="margin-top:14px;display:none;">
+                            <div style="height:1px;background:var(--border);margin-bottom:12px;"></div>
+                            <div style="font-size:9px;font-weight:900;letter-spacing:.10em;text-transform:uppercase;color:var(--text-4);margin-bottom:8px;">
+                                🧠 Recomendación adaptativa
+                            </div>
+                            <div id="adaptive-content"></div>
                         </div>
                     </div>
 
@@ -1003,6 +1012,9 @@
     <script src="data-grammar-expanded.js"></script>
     <script src="data-vocab-expanded.js"></script>
     <script src="data-diagnostic-enhanced.js"></script>
+    <!-- Motor adaptativo + Generador de portafolio —  sin costo API -->
+    <script src="data-exercises-expanded.js"></script>
+    <script src="data-adaptive-portfolio.js"></script>
     <script type="module" src="app.js"></script>
 
 </body>

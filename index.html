@@ -11,6 +11,10 @@
     >
 
     <meta name="theme-color" content="#1C3F7A">
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="LeoEnglish">
 
     <title>LeoEnglish | Ruta de Aprendizaje</title>
 
@@ -298,6 +302,11 @@
                     <span class="nav-label">Business English</span>
                 </button>
 
+                <button class="nav-btn" id="nav-speaking" onclick="showScreen('speaking');setActiveNav(this)">
+                    <i class="ph-duotone ph-microphone"></i>
+                    <span class="nav-label">Speaking</span>
+                </button>
+
                 <button class="nav-btn" onclick="showScreen('settings'); setActiveNav(this)">
                     <i class="ph-duotone ph-gear"></i>
                     <span class="nav-label">Configuración</span>
@@ -433,6 +442,10 @@
                         <div class="esb-node esb-target">C1 ✦</div>
                     </div>
                 </div>
+
+                <!-- MISSION + WEEKLY GOALS -->
+                <div id="mission-card" style="display:none;margin-bottom:12px;"></div>
+                <div id="weekly-goals-card" style="display:none;margin-bottom:12px;"></div>
 
                 <!-- STATS ROW -->
                 <div class="stats-row">
@@ -951,6 +964,47 @@
     <!-- ========================================== -->
     <!-- TOAST Y MODAL                              -->
     <!-- ========================================== -->
+    <!-- SPEAKING SCREEN -->
+    <div id="screen-speaking" class="screen">
+        <div class="screen-inner" style="max-width:680px;margin:0 auto;padding:20px;">
+            <div class="screen-header">
+                <button class="back-btn" onclick="showScreen('dashboard')"><i class="ph-bold ph-arrow-left"></i></button>
+                <div>
+                    <div class="screen-title">🗣 Speaking Practice</div>
+                    <div class="screen-subtitle">Practica tu pronunciación y fluidez oral</div>
+                </div>
+            </div>
+            <div id="speaking-level-picker" class="speaking-level-grid">
+                <div class="speaking-level-btn" onclick="window.SpeakingEngine.start('speak_a1_intro','A1')" style="border-color:#22C55E;">
+                    <span class="slb-level" style="background:#22C55E">A1</span>
+                    <div class="slb-title">Presentarse</div>
+                    <div class="slb-desc">Introduce yourself in English</div>
+                </div>
+                <div class="speaking-level-btn" onclick="window.SpeakingEngine.start('speak_a2_past','A2')" style="border-color:#3B82F6;">
+                    <span class="slb-level" style="background:#3B82F6">A2</span>
+                    <div class="slb-title">Fin de semana</div>
+                    <div class="slb-desc">Talk about last weekend</div>
+                </div>
+                <div class="speaking-level-btn" onclick="window.SpeakingEngine.start('speak_b1_opinion','B1')" style="border-color:#F59E0B;">
+                    <span class="slb-level" style="background:#F59E0B">B1</span>
+                    <div class="slb-title">Tu opinión</div>
+                    <div class="slb-desc">Give opinion on social media</div>
+                </div>
+                <div class="speaking-level-btn" onclick="window.SpeakingEngine.start('speak_b2_discuss','B2')" style="border-color:#CF2B2B;">
+                    <span class="slb-level" style="background:#CF2B2B">B2</span>
+                    <div class="slb-title">Debate</div>
+                    <div class="slb-desc">Pros and cons of remote work</div>
+                </div>
+                <div class="speaking-level-btn" onclick="window.SpeakingEngine.start('speak_c1_argue','C1')" style="border-color:#8B5CF6;">
+                    <span class="slb-level" style="background:#8B5CF6">C1</span>
+                    <div class="slb-title">Argumentación</div>
+                    <div class="slb-desc">Argue a complex position</div>
+                </div>
+            </div>
+            <div id="speaking-container" style="margin-top:16px;"></div>
+        </div>
+    </div>
+
     <!-- CONFETTI CANVAS -->
     <canvas id="confetti-canvas" style="position:fixed;inset:0;pointer-events:none;z-index:9800;display:none;"></canvas>
 
@@ -1013,8 +1067,10 @@
     <script src="data-vocab-expanded.js"></script>
     <script src="data-diagnostic-enhanced.js"></script>
     <!-- Motor adaptativo + Generador de portafolio —  sin costo API -->
+    <script src="data-listening-spaced.js"></script>
     <script src="data-exercises-expanded.js"></script>
     <script src="data-adaptive-portfolio.js"></script>
+    <script src="data-features.js"></script>
     <script type="module" src="app.js"></script>
 
 </body>

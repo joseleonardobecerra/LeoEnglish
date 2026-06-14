@@ -56,6 +56,12 @@ const TYPE_META = {
         icon: 'pen-line',
         color: '#D85A30',
         scoreKey: 'writingDone'
+    },
+    listening: {
+        label: 'Listening',
+        icon: 'headphones',
+        color: '#0891B2',
+        scoreKey: 'listeningScores'
     }
 };
 
@@ -98,6 +104,8 @@ function createDefaultState() {
         scores: {},
         readingScores: {},
         writingDone: {},
+        listeningScores: {},
+        srsData: {},
         vocabScores: {},
 
         userName: 'Estudiante',
@@ -235,20 +243,27 @@ function escapeAttr(value) {
 }
 
 function normalizeAnswer(value) {
-    // FIX: Pipeline unificado para input Y q.a / task.answer.
-    // Antes: apostrofe curvo → recto y luego borrado podian diferir segun encoding del contenido.
-    // Orden: 1)trim 2)lowercase 3)unificar apostrofes/comillas a ASCII recto
-    //        4)eliminar puntuacion 5)borrar apostrofes (it's → its) 6)colapsar espacios.
-    return String(value ?? '')
-        .trim()
+    if (value === null || value === undefined) return '';
+    return String(value)
         .toLowerCase()
-        .replace(/[\u2018\u2019\u02BC\u0060\u00B4']/g, "'")
-        .replace(/[\u201C\u201D\u00AB\u00BB\u201E"\u0022]/g, '"')
-        .replace(/[.,!?\u00BF\u00A1;:"]/g, '')
-        .replace(/'/g, '')
+        .trim()
+        // Normalize apostrophes and quotes
+        .replace(/[\u2018\u2019\u02BC\u2032'`]/g, "'")
+        .replace(/[\u201C\u201D\u2033"]/g, '"')
+        // Common contractions: don't → dont for loose matching
+        .replace(/n't/g, 'nt')
+        .replace(/i'm/g, 'im')
+        .replace(/i've/g, 'ive')
+        .replace(/i'll/g, 'ill')
+        .replace(/i'd/g, 'id')
+        .replace(/it's/g, 'its')
+        // Strip trailing punctuation
+        .replace(/[.,!?;:]+$/, '')
+        // Collapse whitespace
         .replace(/\s+/g, ' ')
         .trim();
 }
+
 
 function average(values) {
     const nums = values.filter(v => typeof v === 'number' && !Number.isNaN(v));
@@ -278,7 +293,9 @@ function calcSkillPct(type) {
         writing: state.writingDone   || {}
     };
 
-    const scoreMap = scores[type] || {};
+    const scoreMap = type === 'listening'
+        ? (state.listeningScores || {})
+        : (scores[type] || {});
 
     // Suma de scores de todos (no hechos = 0)
     const total = activities.reduce((sum, act) => {
@@ -329,6 +346,11 @@ function getSource(type, sourceId) {
 
     if (type === 'writing') {
         return data.writing.find(x => x.id === sourceId) || null;
+    }
+
+    if (type === 'listening') {
+        const acts = window.listeningActivities || [];
+        return acts.find(x => x.id === sourceId) || null;
     }
 
     return null;
@@ -419,6 +441,14 @@ function normalizeState(raw = {}) {
     merged.writingDone = {
         ...(base.writingDone || {}),
         ...(raw.writingDone || {})
+    };
+    merged.listeningScores = {
+        ...(base.listeningScores || {}),
+        ...(raw.listeningScores || {})
+    };
+    merged.srsData = {
+        ...(base.srsData || {}),
+        ...(raw.srsData || {})
     };
 
     merged.vocabScores = {
@@ -890,8 +920,398 @@ window.openRouteActivity = function(activityId) {
     if (activity.type === 'vocab') {
         window.showScreen('vocab-hub');
         setTimeout(() => window.openVocabTopic(activity.sourceId), 0);
+        return;
+    }
+
+    if (activity.type === 'listening') {
+        openListeningActivity(activity.sourceId);
+        return;
     }
 };
+
+
+
+// ============================================================
+// LISTENING ACTIVITY ENGINE
+// ============================================================
+
+let listeningSession = null;
+
+function openListeningActivity(id) {
+    const act = (window.listeningActivities || []).find(a => a.id === id);
+    if (!act) { window.showToast('Actividad no encontrada', 'error'); return; }
+
+    listeningSession = {
+        activity: act,
+        idx: 0,
+        correct: 0,
+        total: act.questions.length,
+        hasPlayed: false
+    };
+
+    window.showScreen('module');
+    renderListeningUI();
+}
+
+function renderListeningUI() {
+    const ls = listeningSession;
+    if (!ls) return;
+    const act = ls.activity;
+
+    // Check if all questions done
+    if (ls.idx >= ls.total) {
+        finishListening();
+        return;
+    }
+
+    const q = act.questions[ls.idx];
+    const phase = document.getElementById('phase-content');
+    if (!phase) return;
+
+    // Shuffle options
+    let bodyHtml = '';
+    if (q.type === 'choice') {
+        const { shuffledOpts, newCorrectIndex } = shuffleOptsWithCorrect(q);
+        window._listenCorrectIdx = newCorrectIndex;
+        bodyHtml = `<div class="opts-grid">
+            ${shuffledOpts.map((opt, i) => `
+                <button class="opt-btn" onclick="checkListeningQ(${i}, this)">
+                    ${escapeHtml(opt)}
+                </button>`).join('')}
+        </div>`;
+    } else if (q.type === 'write') {
+        bodyHtml = `
+            <input type="text" id="listen-write-input" class="write-input"
+                placeholder="Escribe tu respuesta..."
+                onkeydown="if(event.key==='Enter') checkListeningWrite();"
+                autocomplete="off" spellcheck="false">
+            <button onclick="checkListeningWrite()" class="check-btn" style="margin-top:10px;">
+                Comprobar
+            </button>`;
+    }
+
+    const dots = act.questions.map((_, i) =>
+        `<div class="ex-dot ${i < ls.idx ? 'done' : i === ls.idx ? 'current' : ''}"></div>`
+    ).join('');
+
+    phase.innerHTML = `
+        <div class="exercise-card animate-pop">
+
+            <!-- Listening player -->
+            <div class="listening-player" id="listen-player">
+                <div class="listen-header">
+                    <span class="listen-badge">🎧 Listening · ${act.level}</span>
+                    <span class="listen-title">${escapeHtml(act.title)}</span>
+                </div>
+                <p class="listen-topic">${escapeHtml(act.topic)}</p>
+                <div class="listen-controls">
+                    <button class="btn-play" id="btn-play-listen" onclick="playListeningAudio()">
+                        ▶ Reproducir
+                    </button>
+                    <button class="btn-play btn-play-slow" onclick="playListeningAudio(true)">
+                        🐢 Más lento
+                    </button>
+                    <span class="listen-plays" id="listen-plays-count">
+                        ${ls.hasPlayed ? '(Ya reproducido)' : ''}
+                    </span>
+                </div>
+                <div class="listen-transcript" id="listen-transcript" style="display:none;">
+                    <div class="transcript-label">📄 Transcripción</div>
+                    <div class="transcript-body">${escapeHtml(act.audioScript)}</div>
+                </div>
+                <button class="btn-transcript-toggle" onclick="toggleTranscript()">
+                    Ver transcripción
+                </button>
+            </div>
+
+            <div class="ex-meta" style="margin-top:14px;">
+                <i data-lucide="headphones"></i>
+                Listening · ${act.level} · Pregunta ${ls.idx + 1} / ${ls.total}
+                <span class="neuro-badge">Comprensión auditiva</span>
+            </div>
+            <div class="ex-progress">${dots}</div>
+            <div class="ex-q" style="white-space:pre-line;">${escapeHtml(q.q)}</div>
+            ${bodyHtml}
+            <div id="listen-feedback"></div>
+        </div>`;
+
+    ensureLucide();
+
+    // Auto-play on first question
+    if (ls.idx === 0 && !ls.hasPlayed) {
+        setTimeout(playListeningAudio, 500);
+    }
+}
+
+window.playListeningAudio = function(slow = false) {
+    const ls = listeningSession;
+    if (!ls) return;
+    const act = ls.activity;
+
+    if (!window.speechSynthesis) {
+        window.showToast('Tu navegador no soporta audio', 'warn');
+        return;
+    }
+
+    window.speechSynthesis.cancel();
+    const utt = new SpeechSynthesisUtterance(act.audioScript);
+    utt.lang  = act.accent || 'en-GB';
+    utt.rate  = slow ? (act.rate || 0.8) * 0.75 : (act.rate || 0.8);
+    utt.pitch = act.pitch || 1.0;
+
+    const btn = document.getElementById('btn-play-listen');
+    if (btn) btn.textContent = '⏸ Reproduciendo...';
+
+    utt.onend = () => {
+        ls.hasPlayed = true;
+        const playsEl = document.getElementById('listen-plays-count');
+        if (playsEl) playsEl.textContent = '✓ Reproducido';
+        if (btn) btn.textContent = '▶ Repetir';
+    };
+
+    // iOS fix
+    if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+        requestAnimationFrame(() => window.speechSynthesis.speak(utt));
+    } else {
+        window.speechSynthesis.speak(utt);
+    }
+};
+
+window.toggleTranscript = function() {
+    const t = document.getElementById('listen-transcript');
+    const b = document.querySelector('.btn-transcript-toggle');
+    if (!t) return;
+    const show = t.style.display === 'none';
+    t.style.display = show ? 'block' : 'none';
+    if (b) b.textContent = show ? 'Ocultar transcripción' : 'Ver transcripción';
+};
+
+window.checkListeningQ = function(index, btn) {
+    const ls = listeningSession;
+    if (!ls) return;
+    const q = ls.activity.questions[ls.idx];
+    const correct = typeof window._listenCorrectIdx === 'number'
+        ? window._listenCorrectIdx : q.a;
+    const ok = index === correct;
+    if (ok) ls.correct++;
+    document.querySelectorAll('#phase-content .opt-btn').forEach(b => b.disabled = true);
+    btn.classList.add(ok ? 'correct' : 'wrong');
+    const btns = document.querySelectorAll('#phase-content .opt-btn');
+    if (!ok && btns[correct]) btns[correct].classList.add('correct');
+    showListenFeedback(ok, q.exp);
+    setTimeout(() => { ls.idx++; renderListeningUI(); }, 1400);
+};
+
+window.checkListeningWrite = function() {
+    const ls = listeningSession;
+    if (!ls) return;
+    const q = ls.activity.questions[ls.idx];
+    const inp = document.getElementById('listen-write-input');
+    if (!inp) return;
+    const val = normalizeAnswer(inp.value);
+    const expected = normalizeAnswer(q.a);
+    const keyWords = expected.split(/\s+/).filter(w => w.length > 2);
+    const hits = keyWords.filter(w => val.includes(w)).length;
+    const ok = hits >= Math.ceil(keyWords.length * 0.6);
+    if (ok) ls.correct++;
+    inp.style.borderColor = ok ? 'var(--green)' : 'var(--red)';
+    showListenFeedback(ok, q.exp, ok ? null : q.a);
+    setTimeout(() => { ls.idx++; renderListeningUI(); }, 2500);
+};
+
+function showListenFeedback(ok, exp, modelAnswer) {
+    const fb = document.getElementById('listen-feedback');
+    if (!fb) return;
+    fb.innerHTML = `
+        <div class="ex-feedback ${ok ? 'success' : 'error'}" style="margin-top:10px;">
+            <strong>${ok ? '✓ Correcto' : '✗ Incorrecto'}</strong>
+            ${modelAnswer ? `<div style="margin-top:4px;font-style:italic;font-size:12px;">Respuesta: ${escapeHtml(modelAnswer)}</div>` : ''}
+            ${exp ? `<div style="margin-top:3px;font-size:11.5px;opacity:0.85;">${escapeHtml(exp)}</div>` : ''}
+        </div>`;
+}
+
+function finishListening() {
+    const ls = listeningSession;
+    if (!ls) return;
+    window.speechSynthesis && window.speechSynthesis.cancel();
+
+    const pct    = Math.round(ls.correct / ls.total * 100);
+    const xpBonus = Math.round(pct * 0.25);
+    addXP(xpBonus, false);
+
+    // Save score
+    if (!state.listeningScores) state.listeningScores = {};
+    state.listeningScores[ls.activity.id] = pct;
+    markActivityCompleted('listening', ls.activity.id, pct);
+    saveState();
+
+    renderResultCard({
+        containerId: 'phase-content',
+        pct,
+        score: ls.correct,
+        total: ls.total,
+        xpBonus,
+        title: pct >= 80 ? '¡Excelente comprensión!' : pct >= 60 ? 'Buen trabajo. Escucha de nuevo.' : 'Practica más. ¡Tú puedes!',
+        retryAction: `openListeningActivity('${ls.activity.id}')`,
+        backAction: "showScreen('dashboard');setActiveNavById('dashboard')",
+        retryLabel: '🔁 Escuchar de nuevo',
+        backLabel: 'Volver a mi ruta'
+    });
+
+    if (pct >= 80) setTimeout(launchConfetti, 300);
+}
+
+// ── SRS: abrir sesión de revisión desde vocab topic ─────────
+window.openSRSReview = function(topicId) {
+    const session = window.SRSEngine?.buildReviewSession(topicId, 8);
+    if (!session || !session.exercises.length) {
+        window.showToast('¡No hay palabras para revisar hoy! 🎉', 'success');
+        return;
+    }
+
+    window._srsSession = { ...session, idx: 0, correct: 0 };
+    renderSRSCard();
+};
+
+function renderSRSCard() {
+    const ss = window._srsSession;
+    if (!ss) return;
+
+    if (ss.idx >= ss.exercises.length) {
+        finishSRS();
+        return;
+    }
+
+    const ex    = ss.exercises[ss.idx];
+    const phase = document.getElementById('vocab-mode-content');
+    if (!phase) return;
+
+    const stats = window.SRSEngine.getTopicStats(ss.topicId);
+    const dots  = ss.exercises.map((_, i) =>
+        `<div class="ex-dot ${i < ss.idx ? 'done' : i === ss.idx ? 'current' : ''}"></div>`
+    ).join('');
+
+    let bodyHtml = '';
+    if (ex.type === 'choice') {
+        const { shuffledOpts, newCorrectIndex } = shuffleOptsWithCorrect(ex);
+        window._srsCorrectIdx = newCorrectIndex;
+        bodyHtml = `<div class="opts-grid">
+            ${shuffledOpts.map((opt, i) => `
+                <button class="opt-btn" onclick="checkSRSChoice(${i}, this)">
+                    ${escapeHtml(opt)}
+                </button>`).join('')}
+        </div>`;
+    } else {
+        bodyHtml = `
+            <input type="text" id="srs-write-input" class="write-input"
+                placeholder="Escribe la traducción..."
+                onkeydown="if(event.key==='Enter') checkSRSWrite();"
+                autocomplete="off" spellcheck="false">
+            <button onclick="checkSRSWrite()" class="check-btn" style="margin-top:10px;">
+                Comprobar
+            </button>`;
+    }
+
+    const dueInfo = stats ? `${stats.dueNow} pendientes · ${stats.mature} maduras` : '';
+
+    phase.innerHTML = `
+        <div class="srs-header">
+            <span class="srs-badge">🔁 Revisión espaciada</span>
+            <span class="srs-info">${dueInfo}</span>
+        </div>
+        <div class="exercise-card animate-pop" style="margin-top:10px;">
+            <div class="ex-meta">
+                <i data-lucide="refresh-cw"></i>
+                SRS · ${ss.idx + 1}/${ss.exercises.length}
+                <span class="neuro-badge">Retención a largo plazo</span>
+            </div>
+            <div class="ex-progress">${dots}</div>
+            <div class="ex-q" style="white-space:pre-line;">${escapeHtml(ex.q)}</div>
+            ${bodyHtml}
+            <div id="srs-feedback"></div>
+        </div>`;
+
+    ensureLucide();
+}
+
+window.checkSRSChoice = function(index, btn) {
+    const ss = window._srsSession;
+    if (!ss) return;
+    const ex = ss.exercises[ss.idx];
+    const correct = typeof window._srsCorrectIdx === 'number' ? window._srsCorrectIdx : ex.a;
+    const ok = index === correct;
+    if (ok) ss.correct++;
+
+    // Update SRS
+    window.SRSEngine.update(ex.wordId, ok ? 2 : 0);
+
+    document.querySelectorAll('#vocab-mode-content .opt-btn').forEach(b => b.disabled = true);
+    btn.classList.add(ok ? 'correct' : 'wrong');
+    const btns = document.querySelectorAll('#vocab-mode-content .opt-btn');
+    if (!ok && btns[correct]) btns[correct].classList.add('correct');
+
+    showSRSFeedback(ok, ex);
+    setTimeout(() => { ss.idx++; renderSRSCard(); }, 1400);
+};
+
+window.checkSRSWrite = function() {
+    const ss = window._srsSession;
+    if (!ss) return;
+    const ex  = ss.exercises[ss.idx];
+    const inp = document.getElementById('srs-write-input');
+    if (!inp) return;
+    const val  = normalizeAnswer(inp.value);
+    const exp  = normalizeAnswer(ex.a);
+    const ok   = val === exp || val.includes(exp.split(' ')[0]);
+    if (ok) ss.correct++;
+    window.SRSEngine.update(ex.wordId, ok ? 2 : 0);
+    inp.style.borderColor = ok ? 'var(--green)' : 'var(--red)';
+    showSRSFeedback(ok, ex, ok ? null : ex.a);
+    setTimeout(() => { ss.idx++; renderSRSCard(); }, 2200);
+};
+
+function showSRSFeedback(ok, ex, modelAnswer) {
+    const fb = document.getElementById('srs-feedback');
+    if (!fb) return;
+    const nextCard = window.SRSEngine._getData()[ex.wordId];
+    const daysUntil = nextCard ? Math.round((nextCard.nextReview - Date.now()) / 86400000) : 1;
+    fb.innerHTML = `
+        <div class="ex-feedback ${ok ? 'success' : 'error'}" style="margin-top:10px;">
+            <div><strong>${ok ? '✓ Correcto' : '✗ Incorrecto'}</strong></div>
+            ${modelAnswer ? `<div style="font-size:12px;margin-top:3px;font-style:italic;">${escapeHtml(modelAnswer)}</div>` : ''}
+            ${ex.example ? `<div style="font-size:11.5px;margin-top:4px;opacity:0.80;">${escapeHtml(ex.example)}</div>` : ''}
+            <div style="font-size:10px;margin-top:5px;opacity:0.65;">
+                🔁 Próxima revisión: en ${daysUntil} día${daysUntil !== 1 ? 's' : ''}
+            </div>
+        </div>`;
+}
+
+function finishSRS() {
+    const ss = window._srsSession;
+    if (!ss) return;
+    const pct = Math.round(ss.correct / ss.exercises.length * 100);
+    addXP(Math.round(pct * 0.15), false);
+    const phase = document.getElementById('vocab-mode-content');
+    if (!phase) return;
+    phase.innerHTML = `
+        <div class="result-card" style="max-width:380px;margin:0 auto;text-align:center;">
+            <div style="font-size:40px;margin-bottom:8px;">${pct>=80?'🏆':pct>=60?'👍':'💪'}</div>
+            <div class="results-score">${pct}%</div>
+            <p style="color:var(--text-3);font-size:13px;margin-bottom:16px;">
+                ${ss.correct} de ${ss.exercises.length} correctas
+            </p>
+            <div style="background:var(--navy-pale);border:1.5px solid rgba(28,63,122,0.20);
+                border-radius:var(--r-md);padding:10px 14px;font-size:12px;color:var(--navy);margin-bottom:14px;">
+                🔁 Las palabras falladas vuelven mañana.<br>Las correctas en 3-7 días.
+            </div>
+            <button onclick="window._srsSession=null;setVocabMode('flash', document.getElementById('vtab-flash'))"
+                style="width:100%;padding:11px;background:var(--navy);border:2px solid var(--navy-deep);
+                border-radius:var(--r-md);color:#fff;font-size:13px;font-weight:800;
+                cursor:pointer;font-family:inherit;">
+                Volver a las tarjetas
+            </button>
+        </div>`;
+}
 
 
 // ============================================================
@@ -1428,29 +1848,64 @@ window.openModule = function(moduleId) {
     const content = document.getElementById('module-content');
     if (!content) return;
 
+    // Level → color mapping
+    const levelColors = {
+        A1:'#22C55E', A2:'#3B82F6', B1:'#F59E0B',
+        B2:'#CF2B2B', C1:'#8B5CF6'
+    };
+    const modColor = mod.color || levelColors[mod.level] || '#1C3F7A';
+    const modLevel = mod.level || 'A1';
+    const exCount  = mod.exercises?.length || 0;
+    const canDos   = mod.canDo || [];
+
     content.innerHTML = `
-        <div class="lesson-header">
-            <button class="back-btn" onclick="showScreen('dashboard');setActiveNavById('dashboard')">
+        <!-- MODULE HERO BANNER -->
+        <div class="module-hero" style="--mod-color:${modColor}">
+            <button class="mod-back-btn" onclick="showScreen('dashboard');setActiveNavById('dashboard')">
                 <i data-lucide="arrow-left"></i>
-                Volver a mi ruta
             </button>
-
-            <span class="lesson-title">${escapeHtml(mod.title)}</span>
+            <div class="module-hero-inner">
+                <div class="module-hero-left">
+                    <div class="mod-level-badge" style="background:${modColor}20;border-color:${modColor}40;color:${modColor}">
+                        ${modLevel}
+                    </div>
+                    <h2 class="module-hero-title">${escapeHtml(mod.title)}</h2>
+                    ${mod.learningGoal ? `<p class="module-hero-goal">${escapeHtml(mod.learningGoal)}</p>` : ''}
+                    ${canDos.length ? `
+                    <div class="module-cando-row">
+                        ${canDos.map(c => `
+                            <div class="module-cando-item">
+                                <span class="cando-check" style="color:${modColor}">✓</span>
+                                <span>${escapeHtml(c)}</span>
+                            </div>`).join('')}
+                    </div>` : ''}
+                </div>
+                <div class="module-hero-stats">
+                    <div class="mod-stat-pill">
+                        <span class="mod-stat-num">${exCount}</span>
+                        <span class="mod-stat-lbl">ejercicios</span>
+                    </div>
+                    <div class="mod-stat-pill" style="background:${modColor}15;border-color:${modColor}30">
+                        <span class="mod-stat-num" style="color:${modColor}">${modLevel}</span>
+                        <span class="mod-stat-lbl">nivel MCER</span>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="tab-nav">
-            <button class="tab-btn active" id="btn-theory" onclick="setPhase('theory')">
-                <i data-lucide="book-open" style="width:14px;height:14px;display:inline;vertical-align:middle;margin-right:4px"></i>
-                Teoría
+        <!-- TAB NAV -->
+        <div class="module-tab-nav">
+            <button class="module-tab active" id="btn-theory" onclick="setPhase('theory')"
+                style="--tab-color:${modColor}">
+                📖 Teoría
             </button>
-
-            <button class="tab-btn" id="btn-practice" onclick="setPhase('practice')">
-                <i data-lucide="zap" style="width:14px;height:14px;display:inline;vertical-align:middle;margin-right:4px"></i>
-                Ejercicios (${mod.exercises?.length || 0})
+            <button class="module-tab" id="btn-practice" onclick="setPhase('practice')"
+                style="--tab-color:${modColor}">
+                ⚡ Práctica <span class="tab-count">${exCount}</span>
             </button>
         </div>
 
-        <div id="phase-content"></div>
+        <div id="phase-content" class="module-phase-content"></div>
     `;
 
     ensureLucide();
@@ -1469,14 +1924,26 @@ window.setPhase = function(phase) {
     if (!mod || !content) return;
 
     if (phase === 'theory') {
+        const modColor2 = mod.color || '#1C3F7A';
         content.innerHTML = `
-            <div class="card-theory animate-pop">
-                ${mod.theory || '<p>Este módulo no tiene teoría cargada.</p>'}
+            <div class="theory-layout animate-pop">
 
-                <div style="text-align:right;margin-top:20px">
-                    <button class="btn-check" onclick="setPhase('practice')">
-                        <i data-lucide="zap"></i>
-                        Empezar ejercicios →
+                <!-- THEORY CONTENT -->
+                <div class="theory-main">
+                    ${mod.theory || '<p style="color:var(--text-3);padding:20px 0;">Este módulo no tiene teoría cargada.</p>'}
+                </div>
+
+                <!-- CTA CARD -->
+                <div class="theory-cta-card" style="border-color:${modColor2}30;background:${modColor2}08">
+                    <div class="theory-cta-icon" style="color:${modColor2}">⚡</div>
+                    <div>
+                        <div class="theory-cta-title">¿Listo para practicar?</div>
+                        <div class="theory-cta-sub">${mod.exercises?.length || 0} ejercicios te esperan</div>
+                    </div>
+                    <button class="btn-primary-full theory-cta-btn"
+                        style="background:${modColor2};border-color:${modColor2};"
+                        onclick="setPhase('practice')">
+                        Empezar →
                     </button>
                 </div>
             </div>
@@ -1568,44 +2035,45 @@ function renderGrammarExercise() {
     const phase = document.getElementById('phase-content');
     if (!phase) return;
 
-    const typeLabel = q.type === 'choice'
-        ? 'Selección múltiple'
-        : q.type === 'write'
-            ? 'Escritura'
-            : q.type === 'order'
-                ? 'Ordenar'
-                : 'Ejercicio';
-
-    // 🧠 Neuroeducación: cada tipo activa un proceso cognitivo distinto
-    const neuroTip = q.type === 'choice'
-        ? 'Reconocimiento y discriminación'
-        : q.type === 'write'
-            ? 'Producción activa de la forma'
-            : q.type === 'order'
-                ? 'Conciencia sintáctica'
-                : 'Práctica comunicativa';
-
-    const typeIcon = q.type === 'choice'
-        ? 'list'
-        : q.type === 'write'
-            ? 'pen-line'
-            : q.type === 'order'
-                ? 'move'
-                : 'circle';
+    // Rich type metadata
+    const typeMap = {
+        choice: { label:'Selección múltiple', icon:'list',    color:'#1C3F7A', neuro:'Reconocimiento y discriminación', emoji:'🎯' },
+        write:  { label:'Escritura',          icon:'pen-line', color:'#CF2B2B', neuro:'Producción activa de la forma',   emoji:'✍️' },
+        order:  { label:'Ordenar',            icon:'move',     color:'#F59E0B', neuro:'Conciencia sintáctica',           emoji:'🔀' },
+    };
+    const tm       = typeMap[q.type] || { label:'Ejercicio', icon:'circle', color:'#1C3F7A', neuro:'Práctica', emoji:'📝' };
+    const typeLabel = tm.label;
+    const neuroTip  = tm.neuro;
+    const typeIcon  = tm.icon;
+    const typeColor = mod?.color || tm.color;
+    const typeEmoji = tm.emoji;
 
     phase.innerHTML = `
-        <div class="exercise-card animate-pop">
-            <div class="ex-meta">
-                <i data-lucide="${typeIcon}"></i>
-                ${typeLabel} · Ejercicio ${currentExerciseIdx + 1} / ${exercises.length}
-                <span class="neuro-badge" title="${neuroTip}">🧠 ${neuroTip}</span>
+        <div class="exercise-card animate-pop ex-card-${q.type}" style="--ex-color:${typeColor}">
+
+            <!-- Progress strip -->
+            <div class="ex-progress-strip">
+                ${exercises.map((_, index) => `
+                    <div class="ex-strip-dot ${index < currentExerciseIdx ? 'done' : index === currentExerciseIdx ? 'current' : ''}"
+                         style="${index === currentExerciseIdx ? `background:${typeColor};box-shadow:0 0 6px ${typeColor}60` : ''}">
+                    </div>`).join('')}
             </div>
 
-            <div class="ex-progress">${dots}</div>
+            <!-- Type badge -->
+            <div class="ex-type-banner" style="background:${typeColor}12;border-bottom:1px solid ${typeColor}20;">
+                <span class="ex-type-emoji">${typeEmoji}</span>
+                <span class="ex-type-label" style="color:${typeColor}">${typeLabel}</span>
+                <span class="ex-counter">${currentExerciseIdx + 1} / ${exercises.length}</span>
+                <span class="neuro-badge" style="margin-left:auto" title="${neuroTip}">🧠 ${neuroTip}</span>
+            </div>
 
-            <div class="ex-q">${q.q}</div>
+            <!-- Question -->
+            <div class="ex-q-new">${q.q}</div>
 
-            ${bodyHtml}
+            <!-- Body -->
+            <div class="ex-body">
+                ${bodyHtml}
+            </div>
 
             <div id="ex-feedback"></div>
         </div>
@@ -2036,16 +2504,37 @@ function renderReadingQuestion(text) {
         `;
     }
 
+    // Detect inference questions for badge
+    const isInference = q.q && (
+        q.q.toLowerCase().includes('suggest') ||
+        q.q.toLowerCase().includes('impl') ||
+        q.q.toLowerCase().includes('purpose') ||
+        q.q.toLowerCase().includes('tone') ||
+        q.q.toLowerCase().includes('most likely') ||
+        q.q.toLowerCase().includes('what does')
+    );
+
     zone.innerHTML = `
-        <div style="margin-bottom:10px;font-size:12px;color:#A0AEC0;font-weight:700">
-            Pregunta ${currentReadingQIdx + 1} de ${questions.length}
+        <div class="ex-progress-strip" style="border-radius:var(--r-md) var(--r-md) 0 0;overflow:hidden;">
+            ${questions.map((_, i) => `
+                <div class="ex-strip-dot ${i < currentReadingQIdx ? 'done' : i === currentReadingQIdx ? 'current' : ''}"
+                     style="${i === currentReadingQIdx ? 'background:#3B82F6;flex:2' : ''}">
+                </div>`).join('')}
+        </div>
+        <div class="ex-type-banner" style="background:rgba(59,130,246,0.08);border-bottom:1px solid rgba(59,130,246,0.14);">
+            <span class="ex-type-emoji">📖</span>
+            <span class="ex-type-label" style="color:#3B82F6">Reading</span>
+            <span class="ex-counter">${currentReadingQIdx + 1} / ${questions.length}</span>
+            ${isInference ? '<span class="inference-badge" style="margin-left:auto">🔍 Inferencia</span>' : '<span class="neuro-badge" style="margin-left:auto">Comprensión</span>'}
         </div>
 
-        <div class="ex-q" style="font-size:16px;text-align:left;margin-bottom:16px">
+        <div class="ex-q-new" style="text-align:left;padding:14px 18px 8px;">
             ${q.q}
         </div>
 
-        ${bodyHtml}
+        <div class="ex-body">
+            ${bodyHtml}
+        </div>
 
         <div id="rq-fb"></div>
     `;
@@ -2239,17 +2728,20 @@ window.renderWritingHub = function() {
                 const done = score != null;
 
                 return `
-                    <div class="writing-ex-card" onclick="openWriting('${ex.id}')">
-                        <span class="writing-type-badge" style="background:${ex.typeColor || TYPE_META.writing.color}20;color:${ex.typeColor || TYPE_META.writing.color}">
-                            ${escapeHtml(ex.typeLabel || ex.type || 'Writing')}
-                        </span>
-
+                    <div class="writing-ex-card ${done ? 'writing-done' : ''}" onclick="openWriting('${ex.id}')">
+                        <div class="writing-card-top">
+                            <span class="writing-type-badge" style="background:${ex.typeColor || TYPE_META.writing.color}20;color:${ex.typeColor || TYPE_META.writing.color};border:1px solid ${ex.typeColor || TYPE_META.writing.color}30">
+                                ✍️ ${escapeHtml(ex.typeLabel || ex.type || 'Writing')}
+                            </span>
+                            ${done ? `<span class="writing-done-badge">✓ ${score}%</span>` : ''}
+                        </div>
                         <div class="writing-ex-title">${escapeHtml(ex.title)}</div>
                         <div class="writing-ex-desc">${escapeHtml(ex.desc || '')}</div>
-
-                        ${done
-                            ? `<div style="margin-top:10px;font-size:12px;font-weight:700;color:#1D9E75">✓ Completado: ${score}%</div>`
-                            : `<div style="margin-top:10px;font-size:12px;color:#A0AEC0">Sin completar</div>`}
+                        <div class="writing-card-footer">
+                            ${done
+                                ? `<div class="writing-score-bar"><div style="width:${score}%;height:100%;background:var(--green);border-radius:99px;"></div></div>`
+                                : `<span style="font-size:11px;color:var(--text-4)">Toca para empezar →</span>`}
+                        </div>
                     </div>
                 `;
             }).join('')}
@@ -2999,11 +3491,13 @@ window.openVocabTopic = function(id) {
             ${vocabCurrentTopic.icon || '📘'} ${escapeHtml(vocabCurrentTopic.title)}
         </div>
 
+        ${srsInfoHtml}
         <div class="vocab-tabs">
             <button class="vocab-tab active" id="vtab-flash" onclick="setVocabMode('flash', this)">Tarjetas</button>
             <button class="vocab-tab" id="vtab-match" onclick="setVocabMode('match', this)">Conectar</button>
             <button class="vocab-tab" id="vtab-quiz" onclick="setVocabMode('quiz', this)">Quiz</button>
             <button class="vocab-tab" id="vtab-prod" onclick="setVocabMode('prod', this)">✍️ Producción</button>
+            <button class="vocab-tab" id="vtab-srs" onclick="openSRSReview(vocabCurrentTopic?.id)">🔁 Revisar</button>
         </div>
 
         <div id="vocab-mode-content"></div>
@@ -4231,7 +4725,7 @@ function launchConfetti() {
         else stopConfetti();
     }
     draw();
-    setTimeout(stopConfetti, 4500);
+    setTimeout(stopConfetti, 2500);
 }
 
 function stopConfetti() {

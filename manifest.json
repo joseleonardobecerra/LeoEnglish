@@ -1,0 +1,45 @@
+{
+  "name": "LeoEnglish — Inglés A1 a C1",
+  "short_name": "LeoEnglish",
+  "description": "Plataforma de aprendizaje de inglés basada en el Marco Europeo A1→C1",
+  "start_url": "/LeoEnglish/",
+  "scope": "/LeoEnglish/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#F8F7F3",
+  "theme_color": "#1C3F7A",
+  "categories": ["education", "productivity"],
+  "lang": "es",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='28' fill='%231C3F7A'/><rect x='0' y='0' width='192' height='12' fill='%23CF2B2B'/><rect x='0' y='12' width='192' height='6' fill='%23F5C842'/><text x='96' y='125' font-family='Arial Black' font-size='72' font-weight='900' fill='white' text-anchor='middle'>L</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='60' fill='%231C3F7A'/><rect x='0' y='0' width='512' height='30' fill='%23CF2B2B'/><rect x='0' y='30' width='512' height='16' fill='%23F5C842'/><text x='256' y='330' font-family='Arial Black' font-size='200' font-weight='900' fill='white' text-anchor='middle'>L</text></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Mi Ruta",
+      "short_name": "Ruta",
+      "description": "Continuar mi ruta de aprendizaje",
+      "url": "/LeoEnglish/#dashboard",
+      "icons": [{ "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><rect width='96' height='96' rx='12' fill='%231C3F7A'/><text x='48' y='64' font-size='48' text-anchor='middle'>📚</text></svg>", "sizes": "96x96" }]
+    },
+    {
+      "name": "Diagnóstico",
+      "short_name": "Test",
+      "description": "Hacer el diagnóstico de nivel",
+      "url": "/LeoEnglish/#diagnostic",
+      "icons": [{ "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><rect width='96' height='96' rx='12' fill='%23CF2B2B'/><text x='48' y='64' font-size='48' text-anchor='middle'>🎯</text></svg>", "sizes": "96x96" }]
+    }
+  ],
+  "screenshots": [],
+  "prefer_related_applications": false
+}

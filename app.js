@@ -1345,9 +1345,33 @@ window.showScreen = function(screenId) {
     else if (screenId === 'settings') window.renderSettings();
     else if (screenId === 'cefr-portfolio') { if (typeof renderCefrPortfolio === 'function') renderCefrPortfolio(); }
     else if (screenId === 'business-english') { if (typeof renderBusinessEnglish === 'function') renderBusinessEnglish(); }
+    else if (screenId === 'speaking') { renderSpeakingHub(); }
 
     ensureLucide();
 };
+
+function renderSpeakingHub() {
+    const container = document.getElementById('speaking-container');
+    const picker    = document.getElementById('speaking-level-picker');
+    if (container) container.innerHTML = '';
+    if (picker)    picker.style.display = 'grid';
+
+    // Check WebSpeech support and show warning if not available
+    if (!window.SpeakingEngine?.supported) {
+        const warn = document.createElement('div');
+        warn.style.cssText = 'background:var(--yellow-pale);border:2px solid var(--yellow);border-radius:var(--r-md);padding:14px 18px;margin-bottom:16px;font-size:13px;color:var(--yellow-deep);font-weight:600;';
+        warn.innerHTML = '⚠️ Tu navegador no soporta reconocimiento de voz nativo. Prueba con Chrome o Edge en desktop para activar Speaking.';
+        const screen = document.getElementById('screen-speaking');
+        const inner  = screen?.querySelector('.screen-inner');
+        if (inner) {
+            const existing = inner.querySelector('.speaking-warning');
+            if (!existing) {
+                warn.className = 'speaking-warning';
+                inner.insertBefore(warn, inner.querySelector('#speaking-level-picker'));
+            }
+        }
+    }
+}
 
 window.setActiveNav = function(btn) {
     document.querySelectorAll('.nav-btn').forEach(item => item.classList.remove('active'));
@@ -1398,6 +1422,12 @@ window.renderDashboard = function() {
     safeSet('total-progress-pct', `${summary.pct}%`);
     const esb = document.getElementById('empty-state-banner');
     if (esb) esb.style.display = (state.xp === 0 && summary.passed === 0) ? 'flex' : 'none';
+
+    // Update route summary label
+    const routeLabel = document.getElementById('route-summary-label');
+    if (routeLabel) {
+        routeLabel.textContent = `${summary.passed} de ${summary.total} actividades · ${summary.pct}% completado`;
+    }
 
     const totalFill = document.getElementById('total-progress-fill');
     if (totalFill) totalFill.style.width = `${summary.pct}%`;
@@ -1556,245 +1586,109 @@ function renderUnifiedRoute() {
     if (!grid) return;
 
     const route = buildLearningRoute();
-    const flat = route.flatMap(level => level.activities);
+    const flat  = route.flatMap(level => level.activities);
 
     if (!flat.length) {
-        grid.innerHTML = `
-            <div class="empty-state">
-                <strong>No hay contenidos cargados</strong>
-                Revisa que data-grammar.js, data-reading-writing.js y data-vocab.js estén cargando antes de app.js.
-            </div>
-        `;
+        grid.innerHTML = `<div class="empty-state"><p>No hay contenidos cargados.</p></div>`;
         return;
     }
 
+    // Level colors (clean, no red/yellow stripe)
+    const levelMeta = {
+        A1: { color:'#22C55E', bg:'rgba(34,197,94,0.08)',  border:'rgba(34,197,94,0.22)'  },
+        A2: { color:'#3B82F6', bg:'rgba(59,130,246,0.08)', border:'rgba(59,130,246,0.22)' },
+        B1: { color:'#F59E0B', bg:'rgba(245,158,11,0.08)', border:'rgba(245,158,11,0.22)' },
+        B2: { color:'#CF2B2B', bg:'rgba(207,43,43,0.08)',  border:'rgba(207,43,43,0.22)'  },
+        C1: { color:'#8B5CF6', bg:'rgba(139,92,246,0.08)', border:'rgba(139,92,246,0.22)' },
+    };
+
     let globalIndex = 0;
 
-    grid.innerHTML = route.map(level => {
+    // Build level accordion cards
+    grid.innerHTML = route.map((level, levelIdx) => {
+        const meta      = levelMeta[level.id?.toUpperCase()] || levelMeta.A1;
         const completed = level.activities.filter(isActivityPassed).length;
-        const pct = level.activities.length
-            ? Math.round((completed / level.activities.length) * 100)
-            : 0;
+        const total     = level.activities.length;
+        const pct       = total ? Math.round((completed / total) * 100) : 0;
+        const isOpen    = levelIdx === 0 || pct > 0 && pct < 100; // open if in progress
 
         const cards = level.activities.map(activity => {
-            const index = globalIndex;
-            const score = getActivityScore(activity);
-            const passed = isActivityPassed(activity);
+            const index       = globalIndex;
+            const score       = getActivityScore(activity);
+            const passed      = isActivityPassed(activity);
             const homologated = isActivityHomologated(activity);
             const reinforcement = isActivityReinforcement(activity);
-            const locked = isActivityLocked(activity, index, flat);
-            const current = !passed && !locked;
-            const number = globalIndex + 1;
-
+            const locked      = isActivityLocked(activity, index, flat);
+            const current     = !passed && !locked;
+            const number      = globalIndex + 1;
             globalIndex++;
 
-            const status = homologated
-                ? '✓ Homologado'
-                : reinforcement
-                    ? 'Refuerzo obligatorio'
-                    : passed
-                        ? `✓ Aprobado: ${score}%`
-                        : locked
-                            ? 'Bloqueado'
-                            : 'Siguiente actividad';
+            const statusText = homologated    ? '✓ Homologado'
+                : reinforcement               ? '⚠ Refuerzo'
+                : passed                      ? `✓ ${score}%`
+                : locked                      ? '🔒'
+                :                               '▶ Siguiente';
 
-            const icon = locked
-                ? 'lock'
-                : homologated
-                    ? 'badge-check'
-                    : passed
-                        ? 'check-circle'
-                        : reinforcement
-                            ? 'alert-triangle'
-                            : activity.icon;
+            const cardColor = passed || homologated ? '#22C55E'
+                : reinforcement                     ? '#CF2B2B'
+                : locked                            ? 'var(--bg-5)'
+                :                                     activity.color || meta.color;
 
-            const statusColor = homologated || passed
-                ? '#1D9E75'
-                : reinforcement
-                    ? '#D7262E'
-                    : locked
-                        ? '#A0AEC0'
-                        : 'var(--primary-mid)';
-
-            return `
-                <div 
-                    class="mod-card ${passed ? 'mod-done' : ''} ${current ? 'mod-current' : ''} ${locked ? 'mod-locked' : ''}"
-                    onclick="openRouteActivity('${activity.id}')"
-                >
-                    <div 
-                        class="mod-icon-wrap" 
-                        style="background:${locked ? '#EDF2F7' : activity.color};color:${locked ? '#A0AEC0' : 'white'}"
-                    >
-                        <i data-lucide="${icon}"></i>
-                    </div>
-
-                    <div style="flex:1;min-width:0">
-                        <div class="mod-title">
-                            ${number}. ${escapeHtml(activity.title)}
-                        </div>
-
-                        <div class="mod-status" style="color:${statusColor};font-weight:800;">
-                            ${TYPE_META[activity.type].label} · ${status}
-                        </div>
-
-                        ${typeof score === 'number'
-                            ? `<div class="mod-score-bar">
-                                <div class="mod-score-fill" style="width:${score}%;background:${activity.color}"></div>
-                               </div>`
-                            : ''}
-                    </div>
+            return `<div
+                class="route-pill ${passed?'rp-done':''} ${current?'rp-current':''} ${locked?'rp-locked':''} ${reinforcement?'rp-reinforce':''}"
+                onclick="openRouteActivity('${activity.id}')"
+                title="${escapeHtml(activity.title)}"
+                style="--pill-color:${cardColor}">
+                <div class="rp-top">
+                    <span class="rp-num">${number}</span>
+                    <span class="rp-title">${escapeHtml(activity.title)}</span>
                 </div>
-            `;
+                <div class="rp-bottom">
+                    <span class="rp-type">${TYPE_META[activity.type]?.label || activity.type}</span>
+                    <span class="rp-status">${statusText}</span>
+                </div>
+                ${typeof score === 'number' ? `<div class="rp-bar"><div class="rp-bar-fill" style="width:${score}%;background:${cardColor}"></div></div>` : ''}
+            </div>`;
         }).join('');
 
         return `
-            <div class="level-divider">
-                <h4 style="color:${level.color};font-size:18px;font-weight:900;margin:24px 0 8px 0;border-bottom:2px solid ${level.color}30;padding-bottom:8px;">
-                    ${escapeHtml(level.title)}
-                </h4>
-
-                <div style="font-size:13px;color:#6B5F58;margin-bottom:14px;line-height:1.5">
-                    ${escapeHtml(level.description)} · Progreso: <strong>${pct}%</strong>
+        <div class="level-accordion ${isOpen ? 'level-open' : ''}" id="level-acc-${level.id}">
+            <button class="level-acc-header" onclick="toggleLevelAccordion('${level.id}')"
+                style="border-color:${meta.border};background:${meta.bg}">
+                <div class="level-acc-left">
+                    <span class="level-badge-pill" style="background:${meta.color}">${escapeHtml(level.id?.toUpperCase() || '')}</span>
+                    <span class="level-acc-title">${escapeHtml(level.title)}</span>
                 </div>
-            </div>
-
-            <div class="modules-grid" style="margin-bottom:32px">
+                <div class="level-acc-right">
+                    <div class="level-acc-bar-wrap">
+                        <div class="level-acc-bar-fill" style="width:${pct}%;background:${meta.color}"></div>
+                    </div>
+                    <span class="level-acc-pct" style="color:${meta.color}">${pct}%</span>
+                    <span class="level-acc-count">${completed}/${total}</span>
+                    <span class="level-acc-arrow">${isOpen ? '▲' : '▼'}</span>
+                </div>
+            </button>
+            <div class="level-acc-body" id="level-body-${level.id}" style="display:${isOpen ? 'grid' : 'none'}">
                 ${cards}
             </div>
-        `;
+        </div>`;
     }).join('');
 
     ensureLucide();
 }
 
-async function renderLeaderboard() {
-    const el = document.getElementById('leaderboard-list');
-    if (!el) return;
+window.toggleLevelAccordion = function(levelId) {
+    const header = document.querySelector(`#level-acc-${levelId}`);
+    const body   = document.getElementById(`level-body-${levelId}`);
+    const arrow  = header?.querySelector('.level-acc-arrow');
+    if (!body) return;
 
-    try {
-        const usersRef = collection(db, 'users');
-        const snapshot = await getDocs(usersRef);
+    const isOpen = body.style.display !== 'none';
+    body.style.display = isOpen ? 'none' : 'grid';
+    if (arrow) arrow.textContent = isOpen ? '▼' : '▲';
+    if (header) header.classList.toggle('level-open', !isOpen);
+};
 
-        const users = [];
-
-        snapshot.forEach(item => {
-            const data = item.data();
-
-            users.push({
-                id: item.id,
-                name: data.userName || 'Jugador',
-                xp: data.xp || 0,
-                level: data.level || 1
-            });
-        });
-
-        users.sort((a, b) => b.xp - a.xp);
-
-        if (!users.length) {
-            el.innerHTML = '<div class="activity-empty">Aún no hay datos familiares.</div>';
-            return;
-        }
-
-        el.innerHTML = users.map((user, index) => {
-            const isFirst = index === 0;
-            const isMe = auth.currentUser && auth.currentUser.uid === user.id;
-            const rank = isFirst ? '👑' : `${index + 1}`;
-            const initial = user.name.charAt(0).toUpperCase();
-
-            return `
-                <div class="leaderboard-item ${isMe ? 'lb-me' : ''}">
-                    <div class="lb-rank ${isFirst ? 'rank-1' : ''}">${rank}</div>
-                    <div class="lb-avatar">${initial}</div>
-                    <div class="lb-info">
-                        <span class="lb-name">${escapeHtml(user.name)} ${isMe ? '(Tú)' : ''}</span>
-                        <span class="lb-level">Nivel ${user.level}</span>
-                    </div>
-                    <div class="lb-xp">${user.xp} XP</div>
-                </div>
-            `;
-        }).join('');
-    } catch (error) {
-        console.error('Error cargando leaderboard:', error);
-        el.innerHTML = '<div class="activity-empty" style="color:#D7262E;">Error al cargar el ranking.</div>';
-    }
-}
-
-function renderFeedback(grammar, reading, writing, vocab) {
-    const el = document.getElementById('teacher-feedback');
-    if (!el) return;
-
-    const items = [];
-    const summary = routeSummary();
-
-    if (!summary.passed) {
-        items.push({
-            type: 'fb-info',
-            icon: 'info',
-            text: 'Completa tu diagnóstico o tu primera actividad para recibir feedback personalizado.'
-        });
-    } else {
-        if (grammar >= 80) {
-            items.push({
-                type: 'fb-success',
-                icon: 'check-circle',
-                text: `Excelente dominio gramatical: ${grammar}%.`
-            });
-        } else if (grammar > 0) {
-            items.push({
-                type: 'fb-warn',
-                icon: 'alert-triangle',
-                text: `Tu gramática está en ${grammar}%. Refuerza los temas marcados en la ruta.`
-            });
-        }
-
-        if (vocab >= 80) {
-            items.push({
-                type: 'fb-success',
-                icon: 'layers',
-                text: `Muy buen trabajo de vocabulario: ${vocab}%.`
-            });
-        } else if (vocab > 0) {
-            items.push({
-                type: 'fb-warn',
-                icon: 'layers',
-                text: `Tu vocabulario está en ${vocab}%. Usa tarjetas y quiz para reforzar.`
-            });
-        }
-
-        if (reading > 0 && reading < 75) {
-            items.push({
-                type: 'fb-warn',
-                icon: 'book-open',
-                text: `Reading está en ${reading}%. Relee con atención y busca evidencia textual.`
-            });
-        }
-
-        if (writing > 0 && writing < 75) {
-            items.push({
-                type: 'fb-warn',
-                icon: 'pen-line',
-                text: `Writing está en ${writing}%. Revisa orden, ortografía y estructura.`
-            });
-        }
-
-        if (state.routeProgress.diagnosticCompleted) {
-            items.push({
-                type: 'fb-info',
-                icon: 'scan-line',
-                text: `Diagnóstico: ${state.routeProgress.placedBand || state.routeProgress.placedLevel}.`
-            });
-        }
-    }
-
-    el.innerHTML = items.map(item => `
-        <div class="fb-item ${item.type}">
-            <i data-lucide="${item.icon}"></i>
-            <span>${escapeHtml(item.text)}</span>
-        </div>
-    `).join('');
-
-    ensureLucide();
-}
 
 function renderActivity() {
     const el = document.getElementById('activity-log');
@@ -2310,6 +2204,13 @@ function finishModule() {
     const pct = total ? Math.round((currentScore / total) * 100) : 0;
 
     markActivityCompleted('grammar', currentModuleId, pct);
+
+    // FIX: Si es un módulo Business English, guardar también en businessScores
+    if (window.businessModules?.[currentModuleId]) {
+        if (!state.businessScores) state.businessScores = {};
+        state.businessScores[currentModuleId] = pct;
+        saveState();
+    }
 
     const xpBonus = pct >= 80 ? 60 : pct >= 60 ? 40 : 20;
 

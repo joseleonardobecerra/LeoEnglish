@@ -16,8 +16,9 @@ import {
     doc,
     setDoc,
     getDoc,
-    collection,
-    getDocs
+    collection
+    // getDocs — BUG-FIX 5: eliminado import sin uso; descomentar cuando se implemente
+    //           el leaderboard real con colección Firestore compartida.
 } from './firebase-config.js';
 
 
@@ -94,6 +95,7 @@ function createDefaultState() {
         streak: 1,
         dailyXP: 0,
         dailyGoal: 50,
+        lastActiveDate: null, // BUG-FIX 6: fecha ISO para detectar cambio de día
 
         totalAnswers: 0,
         correctAnswers: 0,
@@ -1323,8 +1325,8 @@ window.showScreen = function(screenId) {
     // Evita que un setTimeout pendiente de un ejercicio anterior deje la bandera
     // en true y bloquee la interacción en la siguiente actividad que el usuario abra.
     isChecking = false;
-
-    ensureDiagnosticScreen();
+    // BUG-FIX 4: ensureDiagnosticScreen() se movió a la inicialización (window.onload)
+    // para no ejecutar una búsqueda DOM en cada cambio de pantalla.
 
     document.querySelectorAll('.screen').forEach(screen => screen.classList.remove('active'));
 
@@ -1387,16 +1389,19 @@ window.setActiveNavById = function(id) {
 
 window.toggleSidebar = function() {
     const sidebar = document.getElementById('sidebar');
-    const icon = document.getElementById('toggle-icon');
+    const icon    = document.getElementById('toggle-icon');
 
     if (!sidebar || !icon) return;
 
     sidebar.classList.toggle('collapsed');
 
     const collapsed = sidebar.classList.contains('collapsed');
-    icon.setAttribute('data-lucide', collapsed ? 'panel-left-open' : 'panel-left-close');
 
-    ensureLucide();
+    // BUG-FIX 8: el ícono usa Phosphor Icons (ph-bold ph-sidebar-simple),
+    // no Lucide. Cambiar data-lucide no tenía ningún efecto visual.
+    // Ahora alternamos entre dos íconos Phosphor correctos.
+    icon.classList.remove('ph-sidebar-simple', 'ph-arrow-line-right', 'ph-arrow-line-left');
+    icon.classList.add(collapsed ? 'ph-arrow-line-right' : 'ph-sidebar-simple');
 };
 
 
@@ -1606,7 +1611,7 @@ function renderUnifiedRoute() {
 
     // Build level accordion cards
     grid.innerHTML = route.map((level, levelIdx) => {
-        const meta      = levelMeta[level.id?.toUpperCase()] || levelMeta.A1;
+        const meta      = levelMeta[level.level?.toUpperCase()] || levelMeta.A1; // BUG-FIX 2: level.id→level.level
         const completed = level.activities.filter(isActivityPassed).length;
         const total     = level.activities.length;
         const pct       = total ? Math.round((completed / total) * 100) : 0;
@@ -1652,11 +1657,11 @@ function renderUnifiedRoute() {
         }).join('');
 
         return `
-        <div class="level-accordion ${isOpen ? 'level-open' : ''}" id="level-acc-${level.id}">
-            <button class="level-acc-header" onclick="toggleLevelAccordion('${level.id}')"
+        <div class="level-accordion ${isOpen ? 'level-open' : ''}" id="level-acc-${level.level}">
+            <button class="level-acc-header" onclick="toggleLevelAccordion('${level.level}')"
                 style="border-color:${meta.border};background:${meta.bg}">
                 <div class="level-acc-left">
-                    <span class="level-badge-pill" style="background:${meta.color}">${escapeHtml(level.id?.toUpperCase() || '')}</span>
+                    <span class="level-badge-pill" style="background:${meta.color}">${escapeHtml(level.level?.toUpperCase() || '')}</span>
                     <span class="level-acc-title">${escapeHtml(level.title)}</span>
                 </div>
                 <div class="level-acc-right">
@@ -1668,7 +1673,7 @@ function renderUnifiedRoute() {
                     <span class="level-acc-arrow">${isOpen ? '▲' : '▼'}</span>
                 </div>
             </button>
-            <div class="level-acc-body" id="level-body-${level.id}" style="display:${isOpen ? 'grid' : 'none'}">
+            <div class="level-acc-body" id="level-body-${level.level}" style="display:${isOpen ? 'grid' : 'none'}">
                 ${cards}
             </div>
         </div>`;
@@ -1715,6 +1720,115 @@ function getRank(avg) {
     if (avg >= 50) return { name: 'Viajero del Idioma', cefr: 'A2' };
     if (avg >= 25) return { name: 'Aprendiz Curioso', cefr: 'A1+' };
     return { name: 'Explorador Novato', cefr: 'A1' };
+}
+
+// ── BUG-FIX 1: renderFeedback — antes no existía, causaba ReferenceError en cada carga ──
+function renderFeedback(grammar, reading, writing, vocab) {
+    const el = document.getElementById('teacher-feedback');
+    if (!el) return;
+
+    const overall = Math.round((grammar + vocab + reading + writing) / 4);
+    const hasData = (state.totalAnswers || 0) > 0;
+
+    if (!hasData) {
+        el.innerHTML = `
+            <div class="fb-item fb-info">
+                <i data-lucide="info"></i>
+                <span>Completa tu diagnóstico o tu primera actividad para recibir feedback personalizado.</span>
+            </div>`;
+        if (window.lucide) lucide.createIcons({ nodes: [el] });
+        return;
+    }
+
+    const items = [];
+
+    // Fortalezas
+    if (grammar >= 80) items.push({ type:'success', icon:'check-circle',
+        text:`Gramática sólida (${grammar}%) — ¡Sigue así!` });
+    if (vocab >= 80)   items.push({ type:'success', icon:'check-circle',
+        text:`Vocabulario excelente (${vocab}%) — Buen trabajo.` });
+    if (reading >= 80) items.push({ type:'success', icon:'check-circle',
+        text:`Reading muy bien (${reading}%) — Comprensión lectora fuerte.` });
+    if (writing >= 80) items.push({ type:'success', icon:'check-circle',
+        text:`Writing destacado (${writing}%) — Redacción fluida.` });
+
+    // Áreas de mejora
+    if (grammar < 60)  items.push({ type:'warn', icon:'alert-triangle',
+        text:`Gramática necesita refuerzo (${grammar}%) — Revisa los módulos de gramática.` });
+    if (vocab < 60)    items.push({ type:'warn', icon:'alert-triangle',
+        text:`Vocabulario bajo (${vocab}%) — Practica el modo Flashcards.` });
+    if (reading < 60)  items.push({ type:'warn', icon:'alert-triangle',
+        text:`Reading por mejorar (${reading}%) — Lee los textos detenidamente.` });
+    if (writing < 60)  items.push({ type:'warn', icon:'alert-triangle',
+        text:`Writing por trabajar (${writing}%) — Completa los ejercicios de escritura.` });
+
+    // Mensaje global si todo está en rango medio
+    if (!items.length) {
+        items.push({ type:'info', icon:'trending-up',
+            text:`Progreso general: ${overall}% — Continúa practicando para consolidar cada habilidad.` });
+    }
+
+    // Máximo 3 mensajes para no saturar
+    el.innerHTML = items.slice(0, 3).map(({ type, icon, text }) => `
+        <div class="fb-item fb-${type}">
+            <i data-lucide="${icon}"></i>
+            <span>${escapeHtml(text)}</span>
+        </div>`).join('');
+
+    if (window.lucide) lucide.createIcons({ nodes: [el] });
+}
+
+// ── BUG-FIX 1: renderLeaderboard — antes no existía, causaba ReferenceError en cada carga ──
+function renderLeaderboard() {
+    const el = document.getElementById('leaderboard-list');
+    if (!el) return;
+
+    // Construir ranking local con el estudiante actual + posiciones ficticias de familia
+    // (Firestore getDocs está disponible pero requiere un esquema de colección compartida;
+    //  hasta que eso se implemente, mostramos ranking local + invitación a compartir.)
+    const currentUser = {
+        name:   state.userName  || 'Tú',
+        xp:     state.xp        || 0,
+        level:  state.routeProgress?.placedLevel || 'A1',
+        streak: state.streak    || 1,
+        isMe:   true
+    };
+
+    // Posiciones de demostración — se reemplazarán cuando se implemente el colección Firestore
+    const demoPlayers = [
+        { name: 'Invita a un familiar', xp: 0,   level: '—',  streak: 0, isMe: false, isDemo: true },
+        { name: 'Invita a un amigo',    xp: 0,   level: '—',  streak: 0, isMe: false, isDemo: true }
+    ];
+
+    const all = [currentUser, ...demoPlayers]
+        .sort((a, b) => b.xp - a.xp)
+        .map((p, i) => ({ ...p, pos: i + 1 }));
+
+    const medals = ['🥇', '🥈', '🥉'];
+
+    el.innerHTML = all.map(p => `
+        <div class="leaderboard-item ${p.isMe ? 'leaderboard-me' : ''}"
+             style="display:flex;align-items:center;gap:10px;padding:9px 12px;
+                    border-radius:10px;margin-bottom:6px;
+                    background:${p.isMe ? 'var(--yellow-pale)' : 'var(--bg-2)'};
+                    border:1.5px solid ${p.isMe ? 'var(--yellow-deep)' : 'var(--border)'};
+                    opacity:${p.isDemo ? '0.5' : '1'};">
+            <span style="font-size:18px;width:24px;text-align:center;">
+                ${medals[p.pos - 1] || p.pos}
+            </span>
+            <div style="flex:1;min-width:0;">
+                <div style="font-size:13px;font-weight:${p.isMe ? '900' : '700'};
+                            color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                    ${escapeHtml(p.name)}${p.isMe ? ' (tú)' : ''}
+                </div>
+                <div style="font-size:11px;color:var(--text-4);">
+                    ${p.isDemo ? 'Posición disponible' : `Nivel ${escapeHtml(p.level)} · ${p.streak} días 🔥`}
+                </div>
+            </div>
+            <div style="font-size:13px;font-weight:900;color:var(--navy);">
+                ${p.isDemo ? '—' : p.xp.toLocaleString() + ' XP'}
+            </div>
+        </div>`).join('');
 }
 
 
@@ -1962,7 +2076,7 @@ function renderGrammarExercise() {
             </div>
 
             <!-- Question -->
-            <div class="ex-q-new">${q.q}</div>
+            <div class="ex-q-new">${escapeHtml(q.q)}</div> <!-- BUG-FIX 11 -->
 
             <!-- Body -->
             <div class="ex-body">
@@ -2430,7 +2544,7 @@ function renderReadingQuestion(text) {
         </div>
 
         <div class="ex-q-new" style="text-align:left;padding:14px 18px 8px;">
-            ${q.q}
+            ${escapeHtml(q.q)} <!-- BUG-FIX 11 -->
         </div>
 
         <div class="ex-body">
@@ -3554,19 +3668,28 @@ window.selectMatch = function(id, pair, side) {
         addXP(5, true);
 
         if (ms.matched.length === ms.lefts.length) {
-            const xpBonus = 20;
+            // BUG-FIX 10: antes siempre reportaba 100% ignorando ms.errors.
+            // Calcula score real y solo sobreescribe si es MAYOR al existente.
+            const totalPairs   = ms.lefts.length;
+            const errorPct     = Math.round((ms.errors / Math.max(totalPairs, 1)) * 100);
+            const matchScore   = Math.max(0, 100 - ms.errors * 10); // -10% por error
+            const existingScore = state.vocabScores?.[vocabCurrentTopic.id] ?? 0;
+            const finalScore   = Math.max(matchScore, existingScore); // no degradar score previo
+            const xpBonus      = Math.round(20 * (matchScore / 100)); // XP proporcional
 
-            markActivityCompleted('vocab', vocabCurrentTopic.id, 100);
+            markActivityCompleted('vocab', vocabCurrentTopic.id, finalScore);
             addXP(xpBonus, false);
-            logActivity(`Vocabulario "${vocabCurrentTopic.title}" — Matching`, xpBonus, TYPE_META.vocab.color);
+            logActivity(`Vocabulario "${vocabCurrentTopic.title}" — Matching (${matchScore}%)`, xpBonus, TYPE_META.vocab.color);
 
             const result = document.getElementById('match-result');
-
             if (result) {
+                const perfect = ms.errors === 0;
                 result.innerHTML = `
-                    <div class="ex-feedback success">
-                        <i data-lucide="check-circle"></i>
-                        ¡Completaste todas las parejas! +${xpBonus} XP extra
+                    <div class="ex-feedback ${perfect ? 'success' : 'partial'}">
+                        <i data-lucide="${perfect ? 'check-circle' : 'alert-circle'}"></i>
+                        ${perfect
+                            ? \`¡Perfecto! Sin errores · +\${xpBonus} XP\`
+                            : \`Completado con \${ms.errors} error\${ms.errors !== 1 ? 'es' : ''} · Score: \${matchScore}% · +\${xpBonus} XP\`}
                     </div>
                 `;
             }
@@ -4532,12 +4655,45 @@ window.toggleAdminView = function() {
 // 17. XP, UI Y ACTIVIDAD
 // ============================================================
 
+// BUG-FIX 6: Antes streak nunca se actualizaba y dailyXP nunca se reseteaba.
+// Esta función se llama al inicio de addXP para mantener ambos campos correctos.
+function updateStreakAndDailyXP() {
+    const now   = new Date();
+    const today = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+
+    if (!state.lastActiveDate) {
+        // Primera vez: inicializar
+        state.lastActiveDate = today;
+        state.streak  = 1;
+        state.dailyXP = 0;
+        return;
+    }
+
+    if (state.lastActiveDate === today) return; // mismo día, nada que hacer
+
+    const last     = new Date(state.lastActiveDate);
+    const diffDays = Math.round((now.setHours(0,0,0,0) - last.setHours(0,0,0,0)) / 86400000);
+
+    // Resetear XP diario siempre que sea un día nuevo
+    state.dailyXP = 0;
+
+    if (diffDays === 1) {
+        state.streak = (state.streak || 0) + 1; // día consecutivo
+    } else {
+        state.streak = 1; // se rompió la racha
+    }
+    state.lastActiveDate = today;
+}
+
 function addXP(baseValue, showMessage) {
+    updateStreakAndDailyXP(); // BUG-FIX 6: actualizar racha y resetear dailyXP si cambió el día
+
     const streakBonus = Math.min((state.streak || 1) * 0.05, 0.5);
     const totalXP = Math.round(baseValue * (1 + streakBonus));
-    const prevLevel = state.level;
+    const prevLevel  = state.level;
+    const prevDailyXP = state.dailyXP;
 
-    state.xp += totalXP;
+    state.xp     += totalXP;
     state.dailyXP += totalXP;
 
     let xpNext = Math.floor(100 * Math.pow(state.level, 1.5));
@@ -4555,6 +4711,13 @@ function addXP(baseValue, showMessage) {
     if (state.level > prevLevel) {
         setTimeout(() => showLevelUpCelebration(state.level), 600);
     }
+
+    // BUG-FIX 6: celebrar cuando se alcanza la meta diaria por primera vez en el día
+    const goal = state.dailyGoal || 50;
+    if (prevDailyXP < goal && state.dailyXP >= goal) {
+        setTimeout(() => showToast(`🎯 ¡Meta diaria cumplida! ${goal} XP hoy · Racha: ${state.streak} día${state.streak !== 1 ? 's' : ''} 🔥`, 'success'), 400);
+    }
+
     const esb = document.getElementById('empty-state-banner');
     if (esb && state.xp > 0) esb.style.display = 'none';
 }

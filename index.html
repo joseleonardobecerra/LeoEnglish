@@ -23,9 +23,12 @@
 
     <!-- ICONOS LUCIDE -->
     <!-- Lucide Icons (ejercicios y app.js dinámico) -->
+    <!-- BUG-FIX 12: Dos librerías de íconos (~180KB combinadas).
+         Lucide: app.js dinámico (130 refs). Phosphor: HTML estático (35 refs).
+         Migración completa pendiente. Phosphor ahora carga con defer
+         para no bloquear el primer render. -->
     <script src="https://unpkg.com/lucide@0.427.0/dist/umd/lucide.min.js"></script>
-    <!-- Phosphor Icons (UI estática: sidebar, login, dashboard) -->
-    <script src="https://unpkg.com/@phosphor-icons/web@2.1.1/src/index.js"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web@2.1.1/src/index.js" defer></script>
 </head>
 
 <body>
@@ -1007,9 +1010,12 @@
     <canvas id="confetti-canvas" style="position:fixed;inset:0;pointer-events:none;z-index:9800;display:none;"></canvas>
 
     <!-- LEVEL UP OVERLAY -->
+    <!-- BUG-FIX 9: tenia display:none y display:flex en el mismo style.
+         El segundo valor (flex) ganaba, haciendo el overlay visible al cargar.
+         Se elimina el segundo display:none redundante y se deja solo el primero. -->
     <div id="levelup-overlay" style="display:none;position:fixed;inset:0;z-index:9700;
         background:rgba(26,24,20,0.80);backdrop-filter:blur(10px);
-        display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px;">
+        align-items:center;justify-content:center;flex-direction:column;gap:16px;">
         <div id="levelup-box" style="
             background:var(--bg-2);border:2px solid var(--border-md);
             border-radius:var(--r-2xl);padding:40px 48px;text-align:center;

@@ -608,22 +608,50 @@
   // INTEGRACIÓN — conectar todo al dashboard
   // ============================================================
 
+  // BUG-FIX 3: La race condition ocurría porque data-features.js (script clásico)
+  // se ejecuta ANTES de que app.js (type="module", siempre diferido) defina
+  // window.renderDashboard. La solución es aplicar el parche de forma lazy:
+  // instalamos un Proxy en window.renderDashboard que se auto-parchea en el
+  // primer llamado real, cuando app.js ya ha corrido con seguridad.
   function initFeatures() {
-    // PWA init
+    // PWA init — esto sí puede correr en DOMContentLoaded sin problema
     window.PWAManager.init();
 
-    // Patch renderDashboard to include new widgets
-    const origRender = window.renderDashboard;
-    if (typeof origRender === 'function' && !origRender._featuresPatched) {
+    // Lazy-patch: si renderDashboard ya existe (poco probable pero posible),
+    // parchear ahora; si no, instalar un setter que lo parchea cuando se defina.
+    function applyFeaturesPatching() {
+      const orig = window.renderDashboard;
+      if (typeof orig !== 'function' || orig._featuresPatched) return;
       window.renderDashboard = function () {
-        origRender.call(this);
-        // Render new widgets after a tick
+        orig.call(this);
         setTimeout(() => {
           window.renderMissionCard?.();
-          window.WeeklyGoals.renderWidget?.();
+          window.WeeklyGoals?.renderWidget?.();
         }, 50);
       };
       window.renderDashboard._featuresPatched = true;
+    }
+
+    if (typeof window.renderDashboard === 'function') {
+      // app.js ya corrió (inesperado pero manejamos el caso)
+      applyFeaturesPatching();
+    } else {
+      // app.js aún no corrió: observar cuándo se define renderDashboard
+      let _rdValue;
+      Object.defineProperty(window, 'renderDashboard', {
+        configurable: true,
+        enumerable:   true,
+        get() { return _rdValue; },
+        set(fn) {
+          _rdValue = fn;
+          // Restaurar propiedad normal para que app.js pueda reasignarla libremente
+          Object.defineProperty(window, 'renderDashboard', {
+            configurable: true, enumerable: true, writable: true, value: fn
+          });
+          // Aplicar el parche un tick después para que app.js termine su asignación
+          setTimeout(applyFeaturesPatching, 0);
+        }
+      });
     }
 
     console.log('[LeoEnglish] Features v11 ready: missions, speaking, weekly goals, PWA.');

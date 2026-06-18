@@ -943,16 +943,19 @@
       window.modulesData = allExpansions;
     }
 
-    // Registrar en learning path si existe
-    if (typeof window.grammarLearningPath !== 'undefined') {
-      const levelMap = { A1: 'a1', A2: 'a2', B1: 'b1', B2: 'b2', C1: 'c1' };
+    // BUG-FIX 7: grammarLearningPath es un ARRAY [{level:'A1', modules:[...]}, ...]
+    // no un objeto indexado por clave. Antes se usaba grammarLearningPath['a1'],
+    // que devuelve undefined en un array → TypeError silencioso, módulos nunca añadidos.
+    if (Array.isArray(window.grammarLearningPath)) {
       Object.entries(allExpansions).forEach(([id, mod]) => {
-        const level = levelMap[mod.level];
-        if (level && window.grammarLearningPath[level]) {
-          const alreadyAdded = window.grammarLearningPath[level].some(m => m.id === id);
-          if (!alreadyAdded) {
-            window.grammarLearningPath[level].push({ id, title: mod.title, level: mod.level, type: 'grammar' });
-          }
+        const levelBlock = window.grammarLearningPath.find(
+          b => b.level?.toUpperCase() === mod.level?.toUpperCase()
+        );
+        if (!levelBlock) return;
+        const modules = levelBlock.modules || levelBlock.activities || [];
+        const alreadyAdded = modules.some(m => m.id === id);
+        if (!alreadyAdded) {
+          modules.push({ id, title: mod.title, level: mod.level, type: 'grammar' });
         }
       });
     }

@@ -43,7 +43,7 @@ const modulesData = {
   articles: {
     id:'articles', level:'A1', title:'Artículos: A, An, The', icon:'type', color:'#7C3AED',
     learningGoal:'Usar a, an y the para identificar personas, objetos y lugares en contextos cotidianos.',
-    canDo:['I can use a/an with singular countable nouns.','I can use the when something is specific.','I can identify when no article is needed.'],
+    canDo:['Puedo usar a/an con sustantivos singulares contables.','Puedo usar the cuando algo es específico.','Sé identificar cuándo no se necesita artículo.'],
     stages: globalDidacticStages, methodology: globalMethodology, assessment: globalAssessment, progression: defaultProgression,
     theory:`
       <h3>Los artículos en inglés</h3>
@@ -95,7 +95,18 @@ const modulesData = {
       {type:'write',q:'Complete: I met ___ interesting person at the party last night.',a:'an',exp:'"Interesting" empieza por vocal → "an interesting person".'},
       {type:'order',q:'Ordena la frase:',words:['best','She','the','student','is','in','class.'],a:'She is the best student in class.',exp:'Superlativo → siempre lleva "the best".'},
       {type:'choice',q:'My sister is ___ nurse. She works at ___ hospital.',opts:['a / a','an / a','a / an'],a:'a / a',exp:'"Nurse" → consonante → "a nurse". "Hospital" → consonante → "a hospital".'},
-      {type:'write',q:'Complete: ___ Amazon is ___ longest river in South America.',a:'The The',exp:'Ríos → "The Amazon". Superlativo → "the longest river".'}
+      // BUG-FIX NEW-8: antes era type:'write' con a:'The The' — imposible de escribir
+      // en un solo input. Convertido a type:'choice' con las dos opciones correctas.
+      {type:'choice',
+       q:'Which sentence is correct?',
+       opts:[
+         'The Amazon is the longest river in South America.',
+         'An Amazon is a longest river in South America.',
+         'Amazon is longest river in South America.',
+         'The Amazon is a longest river in South America.'
+       ],
+       a:0,
+       exp:'Nombres de ríos llevan "The" → "The Amazon". Superlativo → "the longest river".'}
     ],
     communicativeTask:{
       title:'My personal objects',
@@ -107,7 +118,7 @@ const modulesData = {
   adjectives_demo:{
     id:'adjectives_demo', level:'A1', title:'Adjetivos Comunes y Demostrativos', icon:'sparkles', color:'#9333EA',
     learningGoal:'Describir personas, objetos y lugares usando adjetivos básicos y demostrativos.',
-    canDo:['I can describe objects with basic adjectives.','I can use this, that, these and those.','I can describe people and places in simple sentences.'],
+    canDo:['Puedo describir objetos con adjetivos básicos.','Puedo usar this, that, these y those.','Puedo describir personas y lugares en frases simples.'],
     stages: globalDidacticStages, methodology: globalMethodology, assessment: globalAssessment, progression: defaultProgression,
     theory:`
       <h3>Adjetivos y demostrativos</h3>
@@ -146,7 +157,7 @@ const modulesData = {
   prepositions:{
     id:'prepositions', level:'A1', title:'Preposiciones (In, On, At)', icon:'target', color:'#3182CE',
     learningGoal:'Indicar el tiempo y la ubicación exacta de eventos y objetos.',
-    canDo:['I can use in, on, at for time.','I can use in, on, at for places.','I can describe where things are located.'],
+    canDo:['Puedo usar in, on, at para indicar tiempo.','Puedo usar in, on, at para indicar lugar.','Puedo describir dónde están las cosas.'],
     stages: globalDidacticStages, methodology: globalMethodology, assessment: globalAssessment, progression: defaultProgression,
     theory:`
       <h3>Preposiciones de tiempo y lugar</h3>
@@ -210,7 +221,7 @@ const modulesData = {
   pronouns:{
     id:'pronouns', level:'A1', title:'Pronombres Personales', icon:'users', color:'#D97706',
     learningGoal:'Reemplazar sustantivos correctamente para evitar repeticiones.',
-    canDo:['I can use subject pronouns.','I can use object pronouns.','I can show possession.'],
+    canDo:['Puedo usar pronombres de sujeto.','Puedo usar pronombres de objeto.','Puedo expresar posesión.'],
     stages: globalDidacticStages, methodology: globalMethodology, assessment: globalAssessment, progression: defaultProgression,
     theory:`
       <h3>Los pronombres en inglés</h3>
@@ -269,7 +280,7 @@ const modulesData = {
   verbs:{
     id:'verbs', level:'A1', title:'Verbos: Be, Have, Do', icon:'command', color:'#E53E3E',
     learningGoal:'Dominar los tres verbos auxiliares y principales fundamentales del inglés.',
-    canDo:['I can use the verb To Be.','I can express possession with Have.','I can use Do as an auxiliary.'],
+    canDo:['Puedo usar el verbo To Be.','Puedo expresar posesión con Have.','Puedo usar Do como auxiliar.'],
     stages: globalDidacticStages, methodology: globalMethodology, assessment: globalAssessment, progression: defaultProgression,
     theory:`
       <h3>Los tres verbos fundamentales</h3>
@@ -332,7 +343,7 @@ const modulesData = {
   present_simple:{
     id:'present_simple', level:'A1', title:'Presente Simple', icon:'sun', color:'#38B2AC',
     learningGoal:'Describir hábitos, rutinas, verdades generales y situaciones permanentes.',
-    canDo:['I can talk about my daily routine.','I can form negative sentences.','I can ask basic questions in present.'],
+    canDo:['Puedo hablar de mi rutina diaria.','Puedo formar frases negativas.','Puedo hacer preguntas básicas en presente.'],
     stages: globalDidacticStages, methodology: globalMethodology, assessment: globalAssessment, progression: defaultProgression,
     theory:`
       <h3>Presente Simple — Rutinas y Verdades</h3>
@@ -394,7 +405,7 @@ const modulesData = {
   frequency_adverbs:{
     id:'frequency_adverbs', level:'A1', title:'Adverbios de Frecuencia', icon:'repeat', color:'#0D9488',
     learningGoal:'Hablar de rutinas indicando con qué frecuencia ocurren.',
-    canDo:['I can say how often I do something.','I can use always, usually, often, sometimes and never.','I can ask about frequency with How often.'],
+    canDo:['Puedo decir con qué frecuencia hago algo.','Puedo usar always, usually, often, sometimes y never.','Puedo preguntar sobre frecuencia con How often.'],
     stages: globalDidacticStages, methodology: globalMethodology, assessment: globalAssessment, progression: defaultProgression,
     theory:`
       <h3>Adverbios de frecuencia</h3>
@@ -433,7 +444,7 @@ const modulesData = {
   present_cont:{
     id:'present_cont', level:'A1', title:'Presente Continuo', icon:'activity', color:'#805AD5',
     learningGoal:'Describir acciones que están ocurriendo en el momento de hablar.',
-    canDo:['I can describe actions happening right now.','I can use the -ing form correctly.','I can contrast current actions with routines.'],
+    canDo:['Puedo describir acciones que ocurren ahora mismo.','Puedo usar la forma -ing correctamente.','Puedo contrastar acciones actuales con rutinas.'],
     stages: globalDidacticStages, methodology: globalMethodology, assessment: globalAssessment, progression: defaultProgression,
     theory:`
       <h3>Acciones en progreso</h3>
@@ -482,7 +493,7 @@ const modulesData = {
   simple_vs_cont:{
     id:'simple_vs_cont', level:'A1', title:'Simple vs Continuo', icon:'git-merge', color:'#ED8936',
     learningGoal:'Diferenciar entre hábitos (presente simple) y acciones en progreso (presente continuo).',
-    canDo:['I can choose between simple and continuous.','I can identify signal words like always and right now.','I know which verbs are state verbs.'],
+    canDo:['Puedo elegir entre el simple y el continuo.','Sé identificar palabras clave como always y right now.','Conozco qué verbos son verbos de estado.'],
     stages: globalDidacticStages, methodology: globalMethodology, assessment: globalAssessment, progression: defaultProgression,
     theory:`
       <h3>¿Hábito o este momento?</h3>
@@ -530,7 +541,7 @@ const modulesData = {
   there_is_are:{
     id:'there_is_are', level:'A1', title:'There is / There are', icon:'home', color:'#2563EB',
     learningGoal:'Describir la existencia de personas, lugares y objetos en un espacio.',
-    canDo:['I can say what there is in a place.','I can describe my room or city.','I can ask if something exists in a place.'],
+    canDo:['Puedo decir qué hay en un lugar.','Puedo describir mi habitación o ciudad.','Puedo preguntar si algo existe en un lugar.'],
     stages: globalDidacticStages, methodology: globalMethodology, assessment: globalAssessment, progression: defaultProgression,
     theory:`
       <h3>There is / There are</h3>
@@ -569,7 +580,7 @@ const modulesData = {
   questions_a1:{
     id:'questions_a1', level:'A1', title:'Preguntas Básicas en Inglés', icon:'circle-help', color:'#F59E0B',
     learningGoal:'Formular preguntas simples para obtener información personal y cotidiana.',
-    canDo:['I can ask yes/no questions.','I can ask wh-questions.','I can answer basic questions about myself.'],
+    canDo:['Puedo hacer preguntas de sí/no.','Puedo hacer preguntas con wh-.','Puedo responder preguntas básicas sobre mí mismo.'],
     stages: globalDidacticStages, methodology: globalMethodology, assessment: globalAssessment, progression: defaultProgression,
     theory:`
       <h3>Preguntas en inglés A1</h3>
@@ -608,7 +619,7 @@ const modulesData = {
   imperatives:{
     id:'imperatives', level:'A1', title:'Imperativos', icon:'megaphone', color:'#DC2626',
     learningGoal:'Dar instrucciones, órdenes y recomendaciones simples.',
-    canDo:['I can give simple instructions.','I can use don’t for negative commands.','I can understand classroom commands.'],
+    canDo:['Puedo dar instrucciones simples.','I can use don’t for negative commands.','Puedo entender instrucciones de clase.'],
     stages: globalDidacticStages, methodology: globalMethodology, assessment: globalAssessment, progression: defaultProgression,
     theory:`
       <h3>Imperativos</h3>
@@ -642,7 +653,7 @@ const modulesData = {
   likes_gerunds:{
     id:'likes_gerunds', level:'A1', title:'Like, Love, Hate + ING', icon:'heart', color:'#E11D48',
     learningGoal:'Expresar gustos y preferencias sobre actividades y hobbies.',
-    canDo:['I can talk about activities I like.','I can say what I love and hate doing.','I can ask others about their hobbies.'],
+    canDo:['Puedo hablar de actividades que me gustan.','Puedo decir qué me encanta y qué detesto hacer.','Puedo preguntar a otros sobre sus pasatiempos.'],
     stages: globalDidacticStages, methodology: globalMethodology, assessment: globalAssessment, progression: defaultProgression,
     theory:`
       <h3>Like / Love / Hate + ING</h3>
@@ -674,7 +685,7 @@ const modulesData = {
   numbers:{
     id:'numbers', level:'A1', title:'Números, Plural y Fechas', icon:'hash', color:'#D69E2E',
     learningGoal:'Usar correctamente cantidades, números ordinales y formas en plural.',
-    canDo:['I can count large numbers.','I can use ordinal numbers for dates.','I can form regular and irregular plurals.'],
+    canDo:['Puedo contar números grandes.','Puedo usar números ordinales para fechas.','Puedo formar plurales regulares e irregulares.'],
     stages: globalDidacticStages, methodology: globalMethodology, assessment: globalAssessment, progression: defaultProgression,
     theory:`
       <h3>Números cardinales y ordinales</h3>
@@ -743,7 +754,7 @@ const modulesData = {
   past_to_be:{
     id:'past_to_be', level:'A1', title:'Pasado de To Be', icon:'clock-3', color:'#92400E',
     learningGoal:'Hablar de estados, lugares y situaciones en el pasado usando Was y Were.',
-    canDo:['I can use was and were.','I can say where I was yesterday.','I can ask simple questions about the past.'],
+    canDo:['Puedo usar was y were.','Puedo decir dónde estaba ayer.','Puedo hacer preguntas simples sobre el pasado.'],
     stages: globalDidacticStages, methodology: globalMethodology, assessment: globalAssessment, progression: defaultProgression,
     theory:`
       <h3>Was / Were</h3>
@@ -783,7 +794,7 @@ const modulesData = {
   past_simple:{
     id:'past_simple', level:'A1', title:'Pasado Simple', icon:'clock', color:'#C05621',
     learningGoal:'Narrar eventos y acciones que ya finalizaron en el pasado.',
-    canDo:['I can use regular -ed verbs.','I can use common irregular verbs.','I can form negative sentences and questions with did.'],
+    canDo:['Puedo usar verbos regulares con -ed.','Puedo usar los verbos irregulares más comunes.','Puedo formar negativas y preguntas con did.'],
     stages: globalDidacticStages, methodology: globalMethodology, assessment: globalAssessment, progression: defaultProgression,
     theory:`
       <h3>Pasado Simple — Acciones terminadas</h3>
@@ -844,7 +855,7 @@ const modulesData = {
   future_going_to: {
     id: 'future_going_to', level: 'A1', title: 'Future: Going To', icon: 'map', color: '#0EA5E9',
     learningGoal: 'Describir planes futuros y predicciones basadas en evidencia visual.',
-    canDo: ['I can talk about my future plans.', 'I can predict something I see happening.'],
+    canDo: ['Puedo hablar de mis planes futuros.', 'Puedo predecir algo que veo que va a suceder.'],
     stages: globalDidacticStages, methodology: globalMethodology, assessment: globalAssessment, progression: defaultProgression,
     theory: `
       <h3>Planes e Intenciones</h3>
@@ -875,7 +886,7 @@ const modulesData = {
   future_will:{
     id:'future_will', level:'A1', title:'Futuro: Will y Going To', icon:'chevrons-right', color:'#2C7A7B',
     learningGoal:'Expresar decisiones espontáneas, promesas y predicciones generales.',
-    canDo:['I can make spontaneous decisions.','I can make promises.','I can predict the future with "I think".'],
+    canDo:['Puedo tomar decisiones espontáneas.','Puedo hacer promesas.','Puedo predecir el futuro con "I think".'],
     stages: globalDidacticStages, methodology: globalMethodology, assessment: globalAssessment, progression: defaultProgression,
     theory:`
       <h3>Hablar del futuro en inglés</h3>
@@ -926,7 +937,7 @@ const modulesData = {
   can_could:{
     id:'can_could', level:'A1', title:'Verbos Modales: Can, Could', icon:'shield', color:'#553C9A',
     learningGoal:'Expresar habilidad y hacer peticiones educadas.',
-    canDo:['I can talk about my abilities.','I can talk about past abilities.','I can ask for something politely.'],
+    canDo:['Puedo hablar de mis habilidades.','Puedo hablar de habilidades pasadas.','Puedo pedir algo de forma cortés.'],
     stages: globalDidacticStages, methodology: globalMethodology, assessment: globalAssessment, progression: defaultProgression,
     theory:`
       <h3>Verbos modales — Can, Could</h3>
@@ -973,7 +984,7 @@ const modulesData = {
   id_like_food:{
     id:'id_like_food', level:'A1', title:'Pedir comida (I’d Like)', icon:'utensils', color:'#EA580C',
     learningGoal:'Pedir comida o productos en un entorno de servicio de manera cortés.',
-    canDo:['I can order food politely.','I can use I’d like.','I can ask for prices and quantities.'],
+    canDo:['Puedo pedir comida de forma cortés.','I can use I’d like.','Puedo preguntar por precios y cantidades.'],
     stages: globalDidacticStages, methodology: globalMethodology, assessment: globalAssessment, progression: defaultProgression,
     theory:`
       <h3>I’d like</h3>

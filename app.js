@@ -884,6 +884,14 @@ function markActivityCompleted(type, sourceId, pct) {
     state.modulesCompleted = routeSummary().passed;
 }
 
+// BUG-FIX NEW-1: app.js es un ES module — sus funciones locales son invisibles
+// para scripts clásicos (data-adaptive-portfolio.js, data-features.js).
+// Se exponen aquí las 4 funciones que esos scripts llaman via window.*
+window.calcSkillPct      = calcSkillPct;
+window.isActivityPassed  = isActivityPassed;
+window.buildLearningRoute = buildLearningRoute;
+window.saveState         = saveState;
+
 window.openRouteActivity = function(activityId) {
     const activity = findRouteActivity(activityId);
 
@@ -1807,7 +1815,7 @@ function renderLeaderboard() {
     const medals = ['🥇', '🥈', '🥉'];
 
     el.innerHTML = all.map(p => `
-        <div class="leaderboard-item ${p.isMe ? 'leaderboard-me' : ''}"
+        <div class="leaderboard-item ${p.isMe ? 'me' : ''}" <!-- BUG-FIX NEW-2: era 'leaderboard-me', CSS usa .leaderboard-item.me -->
              style="display:flex;align-items:center;gap:10px;padding:9px 12px;
                     border-radius:10px;margin-bottom:6px;
                     background:${p.isMe ? 'var(--yellow-pale)' : 'var(--bg-2)'};
@@ -2488,9 +2496,14 @@ function renderReadingQuestion(text) {
     let bodyHtml = '';
 
     if (!q.type || q.type === 'choice') {
+        // BUG-FIX NEW-6: reading no barajaba las opciones → el estudiante podía
+        // memorizar la posición de la respuesta correcta entre intentos.
+        // Ahora usa el mismo shuffleOptsWithCorrect que usa el motor de gramática.
+        const { shuffledOpts: _rOpts, newCorrectIndex: _rCI } = shuffleOptsWithCorrect(q);
+        window._readingCorrectIndex = _rCI;
         bodyHtml = `
             <div class="opts-grid">
-                ${(q.opts || []).map((opt, index) => `
+                ${_rOpts.map((opt, index) => `
                     <button class="opt-btn" onclick="checkReadingQ(${index}, this)">
                         ${escapeHtml(opt)}
                     </button>
@@ -2567,7 +2580,10 @@ window.checkReadingQ = function(chosen, btn) {
     const q = window.currentReadingQuestion;
     if (!q) return;
 
-    const correct = q.a;
+    // BUG-FIX NEW-6: usar el índice correcto del array barajado, no el original
+    const correct = (typeof window._readingCorrectIndex === 'number')
+        ? window._readingCorrectIndex
+        : q.a;
     const ok = chosen === correct;
 
     isChecking = true;
@@ -3688,8 +3704,8 @@ window.selectMatch = function(id, pair, side) {
                     <div class="ex-feedback ${perfect ? 'success' : 'partial'}">
                         <i data-lucide="${perfect ? 'check-circle' : 'alert-circle'}"></i>
                         ${perfect
-                            ? \`¡Perfecto! Sin errores · +\${xpBonus} XP\`
-                            : \`Completado con \${ms.errors} error\${ms.errors !== 1 ? 'es' : ''} · Score: \${matchScore}% · +\${xpBonus} XP\`}
+                            ? '¡Perfecto! Sin errores · +' + xpBonus + ' XP'
+                            : 'Completado con ' + ms.errors + ' error' + (ms.errors !== 1 ? 'es' : '') + ' · Score: ' + matchScore + '% · +' + xpBonus + ' XP'}
                     </div>
                 `;
             }
@@ -3944,6 +3960,12 @@ window.checkProdWrite = function() {
     const inp = document.getElementById('prod-write-input');
     if (!inp) return;
     const val = normalizeAnswer(inp.value);
+    // BUG-FIX NEW-7: antes aceptaba respuesta vacía → avanzaba marcando incorrecto sin feedback
+    if (!val.trim()) {
+        window.showToast('Escribe tu respuesta antes de comprobar', 'warn');
+        inp.focus();
+        return;
+    }
     const expected = normalizeAnswer(q.a);
     // Flexible matching: check key words
     const keyWords = expected.split(/\s+/).filter(w => w.length > 3);
@@ -4267,11 +4289,18 @@ window.checkDiagnosticAnswer = function(chosen, btn) {
     isChecking = true;
 
     const item = diagnosticSession.items[diagnosticSession.idx];
-    const correct = item.a;
 
-    const ok = (typeof window._diagCorrectIndex === 'number')
-        ? chosen === window._diagCorrectIndex
-        : (typeof correct === 'number' ? chosen === correct : item.opts?.[chosen] === correct);
+    // BUG-FIX NEW-5: el fallback anterior usaba item.a (índice del array ORIGINAL sin barajar)
+    // como índice sobre las opciones ya barajadas → respuesta incorrecta marcada como correcta.
+    // Ahora: si _diagCorrectIndex no existe (DOM recargado), lo recalculamos con shuffleOptsWithCorrect.
+    let diagCorrectIndex = window._diagCorrectIndex;
+    if (typeof diagCorrectIndex !== 'number') {
+        const reshuffled = shuffleOptsWithCorrect({ opts: item.opts || [], a: item.a });
+        diagCorrectIndex = reshuffled.newCorrectIndex;
+        window._diagCorrectIndex = diagCorrectIndex; // restaurar para el highlight de abajo
+    }
+
+    const ok = chosen === diagCorrectIndex;
 
     document
         .querySelectorAll('#diagnostic-zone .opt-btn, #diagnostic-content .opt-btn')
@@ -4282,16 +4311,9 @@ window.checkDiagnosticAnswer = function(chosen, btn) {
         diagnosticSession.correct++;
     } else {
         btn.classList.add('wrong');
-
         const buttons = document.querySelectorAll('#diagnostic-zone .opt-btn, #diagnostic-content .opt-btn');
-
-        // FIX: mismo patrón que checkChoice/checkVocabQuiz — resaltado siempre por índice.
-        const correctIndex = (typeof window._diagCorrectIndex === 'number')
-            ? window._diagCorrectIndex
-            : (typeof correct === 'number' ? correct : (item.opts ? item.opts.indexOf(correct) : -1));
-
-        if (correctIndex >= 0 && buttons[correctIndex]) {
-            buttons[correctIndex].classList.add('correct');
+        if (diagCorrectIndex >= 0 && buttons[diagCorrectIndex]) {
+            buttons[diagCorrectIndex].classList.add('correct');
         }
     }
 

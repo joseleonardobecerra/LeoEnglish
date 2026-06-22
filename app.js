@@ -540,6 +540,15 @@ async function saveState() {
     }
 }
 
+// BUG-FIX INF1-B5: saveState se llamaba en cada respuesta individual → hasta 20
+// escrituras Firestore por sesión. Añadimos un debounce de 2 s para agruparlas.
+// Los finales de módulo/diagnóstico siguen llamando saveState() directamente.
+let _saveDebounceTimer = null;
+function saveStateDebounced() {
+    clearTimeout(_saveDebounceTimer);
+    _saveDebounceTimer = setTimeout(() => saveState(), 2000);
+}
+
 async function loadState(uid) {
     try {
         const userRef = doc(db, 'users', uid);
@@ -1815,7 +1824,7 @@ function renderLeaderboard() {
     const medals = ['🥇', '🥈', '🥉'];
 
     el.innerHTML = all.map(p => `
-        <div class="leaderboard-item ${p.isMe ? 'me' : ''}" <!-- BUG-FIX NEW-2: era 'leaderboard-me', CSS usa .leaderboard-item.me -->
+        <div class="leaderboard-item ${p.isMe ? 'me' : ''}"
              style="display:flex;align-items:center;gap:10px;padding:9px 12px;
                     border-radius:10px;margin-bottom:6px;
                     background:${p.isMe ? 'var(--yellow-pale)' : 'var(--bg-2)'};
@@ -2217,7 +2226,7 @@ window.checkChoice = function(index, btn) {
         showGrammarFeedback(false, q.exp || `Incorrecto. La respuesta correcta es "<strong>${correct}</strong>".`);
     }
 
-    saveState();
+    saveStateDebounced(); // BUG-FIX INF1-B5: debounced en check por respuesta
 
     setTimeout(advanceExercise, 1600);
 };
@@ -2257,7 +2266,7 @@ window.checkWrite = function() {
         showGrammarFeedback(false, q.exp || `Incorrecto. La respuesta es "<strong>${q.a}</strong>".`);
     }
 
-    saveState();
+    saveStateDebounced(); // BUG-FIX INF1-B5: debounced en check por respuesta
 
     setTimeout(advanceExercise, 1800);
 };
@@ -2288,7 +2297,7 @@ window.checkOrder = function() {
         showGrammarFeedback(false, `Incorrecto. La frase correcta es: "<strong>${correct}</strong>".`);
     }
 
-    saveState();
+    saveStateDebounced(); // BUG-FIX INF1-B5: debounced en check por respuesta
 
     setTimeout(advanceExercise, 2000);
 };
@@ -2625,7 +2634,7 @@ window.checkReadingQ = function(chosen, btn) {
     }
 
     ensureLucide();
-    saveState();
+    saveStateDebounced(); // BUG-FIX INF1-B5: debounced en check por respuesta
 
     // FIX: Guardamos el ID del timer para poder cancelarlo en openReading si el
     // usuario navega antes de que expire. También hacemos snapshot del ID del texto
@@ -2690,7 +2699,7 @@ window.checkReadingFill = function() {
     }
 
     ensureLucide();
-    saveState();
+    saveStateDebounced(); // BUG-FIX INF1-B5: debounced en check por respuesta
 
     // FIX: mismo patrón que checkReadingQ — timer cancelable + snapshot defensivo.
     const snapshotReadingId = currentReadingId;
@@ -2989,7 +2998,7 @@ window.checkWritingOrder = function() {
     }
 
     ensureLucide();
-    saveState();
+    saveStateDebounced(); // BUG-FIX INF1-B5: debounced en check por respuesta
 
     setTimeout(() => {
         window.wOrderIdx++;
@@ -3088,7 +3097,7 @@ window.checkWritingTransform = function() {
     }
 
     ensureLucide();
-    saveState();
+    saveStateDebounced(); // BUG-FIX INF1-B5: debounced en check por respuesta
 
     setTimeout(() => {
         window.wTransIdx++;
@@ -3175,7 +3184,7 @@ window.checkFreeWriting = function(minWords) {
     }
 
     ensureLucide();
-    saveState();
+    saveStateDebounced(); // BUG-FIX INF1-B5: debounced en check por respuesta
 
     setTimeout(() => {
         window.wFreeIdx++;
@@ -3276,7 +3285,7 @@ window.checkWritingError = function() {
     }
 
     ensureLucide();
-    saveState();
+    saveStateDebounced(); // BUG-FIX INF1-B5: debounced en check por respuesta
 
     setTimeout(() => {
         window.wErrIdx++;
@@ -3402,7 +3411,7 @@ window.checkWritingDictation = function() {
     }
 
     ensureLucide();
-    saveState();
+    saveStateDebounced(); // BUG-FIX INF1-B5: debounced en check por respuesta
 
     setTimeout(() => {
         window.wDicIdx++;
@@ -3711,7 +3720,7 @@ window.selectMatch = function(id, pair, side) {
             }
 
             ensureLucide();
-            saveState();
+            saveStateDebounced(); // BUG-FIX INF1-B5: debounced en check por respuesta
         }
     } else {
         firstEl?.classList.remove('selected');
@@ -4046,7 +4055,7 @@ window.checkVocabQuiz = function(index, btn) {
     }
 
     ensureLucide();
-    saveState();
+    saveStateDebounced(); // BUG-FIX INF1-B5: debounced en check por respuesta
 
     setTimeout(() => {
         window.vqIdx++;
@@ -4388,6 +4397,17 @@ function finishDiagnostic() {
         }))
         .filter(item => item.pct < REINFORCEMENT_THRESHOLD);
 
+    // BUG-FIX INF1-B2: construir coveredIds ANTES de asignar diagnosticSession = null.
+    // Antes se intentaba leer los mapsTo después de que la sesión ya era null,
+    // por lo que coveredByDiagnostic siempre quedaba vacío y la homologación
+    // afectaba actividades sin cobertura diagnóstica real.
+    const coveredIds = new Set();
+    answers.forEach(({ item }) => {
+        (item.mapsTo || []).forEach(sourceId => {
+            possibleSourceIds(sourceId).forEach(id => coveredIds.add(id));
+        });
+    });
+
     const result = {
         date: new Date().toISOString(),
         correct: diagnosticSession.correct,
@@ -4396,7 +4416,8 @@ function finishDiagnostic() {
         levelPct,
         placedLevel: placed.level,
         placedBand: placed.band,
-        reinforcementItems
+        reinforcementItems,
+        coveredIds  // ← nuevo: Set de sourceIds con cobertura diagnóstica real
     };
 
     diagnosticSession = null;
@@ -4439,15 +4460,12 @@ function applyDiagnosticResult(result) {
     // Ahora construimos el conjunto de sourceIds cubiertos por el diagnóstico
     // (todos los mapsTo de cada item) y solo homologamos actividades que estén
     // dentro de ese conjunto Y superen el umbral de score por nivel.
-    const coveredByDiagnostic = new Set();
-    diagnosticSession === null && (() => {
-        // diagnosticSession ya es null aquí; leemos del resultado
-        (result.reinforcementItems || []).forEach(item => {
-            possibleSourceIds(item.sourceId).forEach(id => coveredByDiagnostic.add(id));
-        });
-    })();
+    // BUG-FIX INF1-B2: usar result.coveredIds construido en finishDiagnostic
+    // antes de que diagnosticSession fuera null. La IIFE anterior siempre
+    // producía un Set vacío porque diagnosticSession ya era null en ese punto.
+    const coveredByDiagnostic = result.coveredIds || new Set();
 
-    // Añadir también los sourceIds de las preguntas correctas (no solo refuerzos)
+    // Añadir también sourceIds desde window.diagnosticTest si existe (compatibilidad)
     if (window.diagnosticTest && Array.isArray(window.diagnosticTest.sections)) {
         window.diagnosticTest.sections.forEach(section => {
             (section.items || []).forEach(item => {
@@ -5360,7 +5378,25 @@ window.openBusinessModule = function(id) {
   // Si tiene vocabulario (words), abrirlo como vocab topic
   if (mod.words && mod.words.length) {
     if (!state.businessScores) state.businessScores = {};
-    window.openVocabTopic ? window.openVocabTopic(id) : showToast('Módulo de vocabulario no encontrado', 'warn');
+
+    // BUG-FIX INF1-B6: openVocabTopic busca en window.vocabTopics, pero los
+    // módulos de Business English con words nunca se añadían a ese array.
+    // Ahora lo inyectamos si no existe, para que openVocabTopic lo encuentre.
+    if (!window.vocabTopics) window.vocabTopics = [];
+    if (!window.vocabTopics.find(t => t.id === id)) {
+      window.vocabTopics.push({
+        id:     mod.id   || id,
+        title:  mod.title || id,
+        icon:   mod.icon  || '💼',
+        level:  mod.level || 'B1',
+        words:  mod.words,
+        isBusiness: true
+      });
+    }
+
+    window.openVocabTopic
+      ? window.openVocabTopic(id)
+      : showToast('Módulo de vocabulario no encontrado', 'warn');
     return;
   }
 

@@ -2,6 +2,8 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <!-- BUG-FIX CONSOLE-2: favicon inline → elimina el 404 de favicon.ico -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%231C3F7A'/><rect x='0' y='0' width='32' height='3' fill='%23CF2B2B'/><text x='16' y='24' font-family='Arial Black' font-size='20' font-weight='900' fill='white' text-anchor='middle'>L</text></svg>">
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -12,6 +14,9 @@
 
     <meta name="theme-color" content="#1C3F7A">
     <link rel="manifest" href="manifest.json">
+    <!-- BUG-FIX CONSOLE-1: apple-mobile-web-app-capable está deprecated.
+         Se reemplaza por mobile-web-app-capable (estándar W3C). -->
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="LeoEnglish">
@@ -496,9 +501,11 @@
                 </div>
 
 
-                <!-- DASHBOARD GRID -->
-                <!-- SKILLS + ACCORDION: full width layout -->
-                <div class="skills-card" style="margin-bottom:16px;">
+                <!-- DASHBOARD GRID — FIX: skills-card y right-column-grid dentro de dashboard-grid -->
+                <div class="dashboard-grid" style="margin-bottom:16px;">
+
+                    <!-- COLUMNA IZQUIERDA: Habilidades + Progreso + Widget adaptativo -->
+                    <div class="skills-card">
                         <h3>
                             <i class="ph-duotone ph-chart-bar"></i>
                             Habilidades MCER
@@ -527,9 +534,8 @@
                         </div>
                     </div>
 
-
-                    <!-- COLUMNA DERECHA -->
-                    <div class="right-column-grid" style="display:flex;flex-direction:column;gap:20px;">
+                    <!-- COLUMNA DERECHA: Feedback + Leaderboard -->
+                    <div class="right-column-grid">
 
                         <!-- FEEDBACK -->
                         <div class="feedback-card">
@@ -552,11 +558,9 @@
                                     <span class="rank-lbl">Rango Actual</span>
                                     <span class="rank-val" id="rank-display">Explorador Novato</span>
                                 </div>
-
                                 <div class="cefr-badge" id="cefr-badge">A1</div>
                             </div>
                         </div>
-
 
                         <!-- LEADERBOARD -->
                         <div class="leaderboard-card animate-pop">
@@ -958,6 +962,47 @@
                 </div>
             </section>
 
+            <!-- SPEAKING SCREEN — FIX: movido dentro de main-content -->
+            <section id="screen-speaking" class="screen">
+                <div class="screen-inner" style="max-width:680px;margin:0 auto;padding:20px;">
+                    <div class="screen-header">
+                        <button class="back-btn" onclick="showScreen('dashboard')"><i class="ph-bold ph-arrow-left"></i></button>
+                        <div>
+                            <div class="screen-title">🗣 Speaking Practice</div>
+                            <div class="screen-subtitle">Practica tu pronunciación y fluidez oral</div>
+                        </div>
+                    </div>
+                    <div id="speaking-level-picker" class="speaking-level-grid">
+                        <div class="speaking-level-btn" onclick="window.SpeakingEngine.start('speak_a1_intro','A1')" style="border-color:#22C55E;">
+                            <span class="slb-level" style="background:#22C55E">A1</span>
+                            <div class="slb-title">Presentarse</div>
+                            <div class="slb-desc">Introduce yourself in English</div>
+                        </div>
+                        <div class="speaking-level-btn" onclick="window.SpeakingEngine.start('speak_a2_past','A2')" style="border-color:#3B82F6;">
+                            <span class="slb-level" style="background:#3B82F6">A2</span>
+                            <div class="slb-title">Fin de semana</div>
+                            <div class="slb-desc">Talk about last weekend</div>
+                        </div>
+                        <div class="speaking-level-btn" onclick="window.SpeakingEngine.start('speak_b1_opinion','B1')" style="border-color:#F59E0B;">
+                            <span class="slb-level" style="background:#F59E0B">B1</span>
+                            <div class="slb-title">Tu opinión</div>
+                            <div class="slb-desc">Give opinion on social media</div>
+                        </div>
+                        <div class="speaking-level-btn" onclick="window.SpeakingEngine.start('speak_b2_discuss','B2')" style="border-color:#CF2B2B;">
+                            <span class="slb-level" style="background:#CF2B2B">B2</span>
+                            <div class="slb-title">Debate</div>
+                            <div class="slb-desc">Pros and cons of remote work</div>
+                        </div>
+                        <div class="speaking-level-btn" onclick="window.SpeakingEngine.start('speak_c1_argue','C1')" style="border-color:#8B5CF6;">
+                            <span class="slb-level" style="background:#8B5CF6">C1</span>
+                            <div class="slb-title">Argumentación</div>
+                            <div class="slb-desc">Argue a complex position</div>
+                        </div>
+                    </div>
+                    <div id="speaking-container" style="margin-top:16px;"></div>
+                </div>
+            </section>
+
         </main>
     </div>
 
@@ -965,46 +1010,7 @@
     <!-- ========================================== -->
     <!-- TOAST Y MODAL                              -->
     <!-- ========================================== -->
-    <!-- SPEAKING SCREEN -->
-    <div id="screen-speaking" class="screen">
-        <div class="screen-inner" style="max-width:680px;margin:0 auto;padding:20px;">
-            <div class="screen-header">
-                <button class="back-btn" onclick="showScreen('dashboard')"><i class="ph-bold ph-arrow-left"></i></button>
-                <div>
-                    <div class="screen-title">🗣 Speaking Practice</div>
-                    <div class="screen-subtitle">Practica tu pronunciación y fluidez oral</div>
-                </div>
-            </div>
-            <div id="speaking-level-picker" class="speaking-level-grid">
-                <div class="speaking-level-btn" onclick="window.SpeakingEngine.start('speak_a1_intro','A1')" style="border-color:#22C55E;">
-                    <span class="slb-level" style="background:#22C55E">A1</span>
-                    <div class="slb-title">Presentarse</div>
-                    <div class="slb-desc">Introduce yourself in English</div>
-                </div>
-                <div class="speaking-level-btn" onclick="window.SpeakingEngine.start('speak_a2_past','A2')" style="border-color:#3B82F6;">
-                    <span class="slb-level" style="background:#3B82F6">A2</span>
-                    <div class="slb-title">Fin de semana</div>
-                    <div class="slb-desc">Talk about last weekend</div>
-                </div>
-                <div class="speaking-level-btn" onclick="window.SpeakingEngine.start('speak_b1_opinion','B1')" style="border-color:#F59E0B;">
-                    <span class="slb-level" style="background:#F59E0B">B1</span>
-                    <div class="slb-title">Tu opinión</div>
-                    <div class="slb-desc">Give opinion on social media</div>
-                </div>
-                <div class="speaking-level-btn" onclick="window.SpeakingEngine.start('speak_b2_discuss','B2')" style="border-color:#CF2B2B;">
-                    <span class="slb-level" style="background:#CF2B2B">B2</span>
-                    <div class="slb-title">Debate</div>
-                    <div class="slb-desc">Pros and cons of remote work</div>
-                </div>
-                <div class="speaking-level-btn" onclick="window.SpeakingEngine.start('speak_c1_argue','C1')" style="border-color:#8B5CF6;">
-                    <span class="slb-level" style="background:#8B5CF6">C1</span>
-                    <div class="slb-title">Argumentación</div>
-                    <div class="slb-desc">Argue a complex position</div>
-                </div>
-            </div>
-            <div id="speaking-container" style="margin-top:16px;"></div>
-        </div>
-    </div>
+
 
     <!-- CONFETTI CANVAS -->
     <canvas id="confetti-canvas" style="position:fixed;inset:0;pointer-events:none;z-index:9800;display:none;"></canvas>

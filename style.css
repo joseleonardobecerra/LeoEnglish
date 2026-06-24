@@ -604,113 +604,197 @@ h1.logo-text span, .sidebar h1 span { color: var(--red); }
 }
 
 /* ============================================================
-   9. STATS ROW — cards con acento de color
+   9. STATS ROW — rediseño profesional con acentos de color
    ============================================================ */
 .stats-row {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 10px; margin-bottom: 16px;
+  gap: 12px; margin-bottom: 20px;
 }
 .stat-card {
   background: var(--bg-2);
   border: 1.5px solid var(--border);
-  border-radius: var(--r-md);
-  padding: 14px 16px;
-  transition: all var(--t);
+  border-radius: var(--r-lg);
+  padding: 18px 20px 16px;
+  transition: all var(--t) var(--ease);
   box-shadow: var(--shadow-sm);
-  display: flex; align-items: center; gap: 12px;
+  display: flex; flex-direction:column; gap:10px;
+  position:relative; overflow:hidden;
 }
-.stat-card:hover { transform:translateY(-2px); box-shadow:var(--shadow-lg); }
-.stat-card:nth-child(1) { border-left:4px solid var(--red); }
-.stat-card:nth-child(2) { border-left:4px solid var(--green); }
-.stat-card:nth-child(3) { border-left:4px solid var(--yellow-deep); }
-.stat-card:nth-child(4) { border-left:4px solid var(--navy); }
+/* Acento superior de color */
+.stat-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:3px;
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
+}
+.stat-card:nth-child(1)::before { background:var(--red); }
+.stat-card:nth-child(2)::before { background:var(--green); }
+.stat-card:nth-child(3)::before { background:var(--yellow-deep); }
+.stat-card:nth-child(4)::before { background:var(--navy); }
+.stat-card:hover { transform:translateY(-3px); box-shadow:var(--shadow-lg); border-color:var(--border-md); }
 
 .stat-icon {
-  width:38px; height:38px; min-width:38px;
+  width:36px; height:36px; min-width:36px;
   border-radius:var(--r-sm);
   display:flex; align-items:center; justify-content:center;
   flex-shrink: 0;
 }
-.stat-icon i { width:18px; height:18px; }
+.stat-card:nth-child(1) .stat-icon { background:var(--red-pale); }
+.stat-card:nth-child(2) .stat-icon { background:var(--green-pale); }
+.stat-card:nth-child(3) .stat-icon { background:var(--amber-pale); }
+.stat-card:nth-child(4) .stat-icon { background:var(--navy-pale); }
+.stat-icon i { width:16px; height:16px; }
+.stat-card:nth-child(1) .stat-icon i { color:var(--red); }
+.stat-card:nth-child(2) .stat-icon i { color:var(--green); }
+.stat-card:nth-child(3) .stat-icon i { color:var(--amber); }
+.stat-card:nth-child(4) .stat-icon i { color:var(--navy); }
+
 .stat-texts { flex:1; min-width:0; }
 .stat-num {
   font-family: var(--font-display);
-  font-size: 22px; font-weight: 800;
-  letter-spacing:-.03em; color:var(--text-1);
-  line-height:1; margin-bottom:2px;
+  font-size: 26px; font-weight: 900;
+  letter-spacing:-.04em; color:var(--text-1);
+  line-height:1; margin-bottom:3px;
 }
-.stat-lbl { font-size:10px; color:var(--text-4); font-weight:700; text-transform:uppercase; letter-spacing:.04em; white-space:nowrap; }
+.stat-lbl {
+  font-size:9.5px; color:var(--text-4); font-weight:800;
+  text-transform:uppercase; letter-spacing:.07em; white-space:nowrap;
+}
 
 /* ============================================================
-   10. DASHBOARD GRID
+   10. DASHBOARD GRID — layout profesional 2 columnas
    ============================================================ */
 .dashboard-grid {
   display: grid;
-  grid-template-columns: 1fr 310px;
-  gap: 16px; align-items:start;
+  grid-template-columns: 1fr 300px;
+  gap: 20px; align-items:start;
 }
-@media(max-width:900px) { .dashboard-grid { grid-template-columns:1fr; } }
-.right-column-grid { display:flex; flex-direction:column; gap:13px; }
+@media(max-width:1000px) { .dashboard-grid { grid-template-columns:1fr; } }
+.right-column-grid { display:flex; flex-direction:column; gap:16px; }
 
-.rank-section {
-  background: var(--bg-2);
-  border: 2px solid var(--border);
-  border-radius: var(--r-lg);
-  padding: 15px;
-  box-shadow: var(--shadow-sm);
-}
-.rank-badge {
-  display:inline-flex; align-items:center; gap:7px;
-  background: var(--yellow-pale);
-  border: 2px solid var(--yellow);
-  border-radius: var(--r-sm);
-  padding: 5px 13px; margin-bottom:8px;
-  box-shadow: var(--shadow-yellow);
-}
-.rank-val {
-  font-family: var(--font-display);
-  font-size: 22px; font-weight: 800;
-  color: var(--text-1); letter-spacing:-.04em;
-}
-.rank-lbl { font-size:10px; color:var(--text-3); font-weight:800; text-transform:uppercase; letter-spacing:.06em; }
-.cefr-badge {
-  display:inline-block; font-size:11px; font-weight:900; letter-spacing:.06em;
-  padding:3px 10px; border-radius:var(--r-full);
-  background:var(--navy); color:#fff;
-  font-family:var(--font-display);
-  box-shadow:var(--shadow-navy);
-}
-
-.course-progress { display:flex; flex-direction:column; gap:5px; margin-top:9px; }
-.progress-lbl-row { display:flex; justify-content:space-between; align-items:center; }
-.progress-lbl { font-size:11px; color:var(--text-3); font-weight:600; }
-.total-bar { height:7px; background:var(--bg-4); border-radius:var(--r-full); overflow:hidden; border:1px solid var(--border); }
-.total-fill {
-  height:100%; background:var(--red);
-  border-radius:var(--r-full);
-  transition: width 0.6s var(--ease);
-}
-.total-pct { font-size:11px; font-weight:900; color:var(--red); font-family:var(--font-display); }
-
-.skills-card, .leaderboard-card {
-  background:var(--bg-2); border:2px solid var(--border);
-  border-radius:var(--r-lg); padding:16px;
+/* Card base compartida */
+.skills-card, .leaderboard-card, .feedback-card {
+  background:var(--bg-2);
+  border:1.5px solid var(--border);
+  border-radius:var(--r-xl);
+  padding:20px;
   box-shadow:var(--shadow-sm);
 }
 .skills-card h3, .leaderboard-card h3, .feedback-card h3 {
   font-family:var(--font-display);
-  font-size:14px; font-weight:800;
-  color:var(--navy); margin-bottom:13px;
+  font-size:13px; font-weight:900;
+  color:var(--text-3);
+  margin-bottom:16px;
   display:flex; align-items:center; gap:7px;
-  letter-spacing:-.03em;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+  border-bottom:1.5px solid var(--border);
+  padding-bottom:12px;
 }
-.skills-card h3 i, .leaderboard-card h3 i { width:16px; height:16px; color:var(--red); }
-.skill-bars-container { display:flex; flex-direction:column; gap:8px; }
+.skills-card h3 i, .leaderboard-card h3 i, .feedback-card h3 i {
+  width:15px; height:15px;
+}
 
-.leaderboard-list { display:flex; flex-direction:column; gap:6px; margin-top:7px; }
+/* Barras de habilidades */
+.skill-bars-container { display:flex; flex-direction:column; gap:11px; }
+
+/* Progreso total */
+.course-progress {
+  margin-top:18px; padding-top:16px;
+  border-top:1.5px solid var(--border);
+  display:flex; flex-direction:column; gap:6px;
+}
+.progress-lbl-row { display:flex; justify-content:space-between; align-items:center; }
+.progress-lbl { font-size:11px; color:var(--text-3); font-weight:700; letter-spacing:.01em; }
+.total-bar {
+  height:8px; background:var(--bg-4);
+  border-radius:var(--r-full); overflow:hidden;
+  border:1px solid var(--border);
+}
+.total-fill {
+  height:100%; background:linear-gradient(90deg, var(--navy), var(--red));
+  border-radius:var(--r-full);
+  transition: width 0.8s var(--ease);
+}
+.total-pct {
+  font-size:12px; font-weight:900; color:var(--navy);
+  font-family:var(--font-display); letter-spacing:-.02em;
+}
+
+/* Rank + CEFR dentro del feedback card */
+.rank-section {
+  margin-top:16px; padding-top:14px;
+  border-top:1.5px solid var(--border);
+  display:flex; align-items:center; justify-content:space-between;
+  gap:10px;
+}
+.rank-badge {
+  display:flex; flex-direction:column; gap:2px;
+}
+.rank-lbl {
+  font-size:9px; color:var(--text-4); font-weight:800;
+  text-transform:uppercase; letter-spacing:.07em;
+}
+.rank-val {
+  font-family: var(--font-display);
+  font-size: 16px; font-weight: 900;
+  color: var(--text-1); letter-spacing:-.03em;
+}
+.cefr-badge {
+  display:inline-flex; align-items:center; justify-content:center;
+  font-size:13px; font-weight:900; letter-spacing:.04em;
+  width:42px; height:42px;
+  border-radius:var(--r-md);
+  background:var(--navy); color:#fff;
+  font-family:var(--font-display);
+  box-shadow:var(--shadow-navy);
+  flex-shrink:0;
+}
+
+/* Feedback items */
+.feedback-content { display:flex; flex-direction:column; gap:7px; }
+.fb-item { display:flex; align-items:flex-start; gap:8px; font-size:12px; color:var(--text-2); padding:8px 10px; border-radius:var(--r-sm); font-weight:500; line-height:1.5; }
+.fb-item i { width:14px; height:14px; flex-shrink:0; margin-top:1px; }
+.fb-info    { background:var(--bg-3); border:1.5px solid var(--border); color:var(--text-3); }
+.fb-success { background:var(--green-pale); border:1.5px solid rgba(46,158,91,.3); color:#1a6636; }
+.fb-warn    { background:var(--amber-pale); border:1.5px solid rgba(232,160,32,.4); color:#8a5a00; }
+.fb-error   { background:var(--red-pale);   border:1.5px solid rgba(207,43,43,.3);  color:var(--red-deep); }
+.feedback-content .fb-info { color:var(--text-3); }
+
+/* Leaderboard items */
+.leaderboard-list { display:flex; flex-direction:column; gap:5px; }
+.leaderboard-item {
+  display:flex; align-items:center; gap:10px;
+  padding:9px 12px; border-radius:var(--r-md);
+  background:var(--bg-3); border:1.5px solid transparent;
+  transition:all var(--t);
+}
+.leaderboard-item:hover { background:var(--bg-4); }
+.leaderboard-item.me {
+  background:var(--yellow-pale);
+  border-color:rgba(212,168,32,0.40);
+}
+.leaderboard-pos {
+  font-family:var(--font-display); font-size:13px; font-weight:900;
+  color:var(--text-4); width:20px; text-align:center; flex-shrink:0;
+}
+.leaderboard-item.me .leaderboard-pos { color:var(--yellow-deep); }
+.leaderboard-name {
+  flex:1; font-size:13px; font-weight:700; color:var(--text-1);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.leaderboard-sub { font-size:10px; color:var(--text-4); font-weight:600; }
+.leaderboard-xp {
+  font-family:var(--font-display); font-size:13px; font-weight:900;
+  color:var(--text-2); flex-shrink:0;
+}
+.leaderboard-item.me .leaderboard-xp { color:var(--navy); }
+
 .activity-log { max-height:200px; overflow-y:auto; }
-.activity-empty { display:flex; align-items:center; justify-content:center; padding:24px; font-size:12px; color:var(--text-4); }
+.activity-empty {
+  display:flex; align-items:center; justify-content:center;
+  padding:28px; font-size:12px; color:var(--text-4);
+  flex-direction:column; gap:6px;
+}
 
 /* ============================================================
    11. EJERCICIOS — flat card style

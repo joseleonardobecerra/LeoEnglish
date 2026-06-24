@@ -1431,6 +1431,10 @@ window.renderDashboard = function() {
     updateAdminZone();
     setGreeting();
 
+    // Ocultar brand-hero cuando el usuario ya tiene XP (es usuario activo)
+    const hero = document.getElementById('brand-hero-card');
+    if (hero) hero.style.display = (state.xp > 0) ? 'none' : '';
+
     const summary = routeSummary();
 
     const accuracy = state.totalAnswers > 0
@@ -1584,23 +1588,33 @@ function renderSkillBars(grammar, vocab, reading, writing) {
     if (!el) return;
 
     const skills = [
-        { name: 'Gramática', val: grammar, color: '#12375A' },
-        { name: 'Vocabulario', val: vocab, color: '#1D9E75' },
-        { name: 'Reading', val: reading, color: '#3182CE' },
-        { name: 'Writing', val: writing, color: '#D85A30' }
+        { name: 'Gramática',   val: grammar, color: 'var(--navy)',       icon: '📖' },
+        { name: 'Vocabulario', val: vocab,   color: 'var(--green)',      icon: '💬' },
+        { name: 'Reading',     val: reading, color: 'var(--sky-deep)',   icon: '📰' },
+        { name: 'Writing',     val: writing, color: 'var(--amber)',      icon: '✏️' }
     ];
 
-    el.innerHTML = skills.map(skill => `
-        <div class="skill-row-item">
-            <div class="skill-info">
-                <span>${skill.name}</span>
-                <span>${skill.val}%</span>
+    el.innerHTML = skills.map(skill => {
+        const level = skill.val >= 80 ? 'high' : skill.val >= 50 ? 'mid' : 'low';
+        return `
+        <div style="display:flex;flex-direction:column;gap:5px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+                <span style="font-size:12px;font-weight:700;color:var(--text-2);
+                             display:flex;align-items:center;gap:5px;">
+                    <span>${skill.icon}</span>${skill.name}
+                </span>
+                <span style="font-size:12px;font-weight:900;color:${skill.color};
+                             font-family:var(--font-display);letter-spacing:-.02em;">
+                    ${skill.val}%
+                </span>
             </div>
-            <div class="s-bar">
-                <div class="s-fill" style="width:${skill.val}%;background:${skill.color}"></div>
+            <div style="height:7px;background:var(--bg-4);border-radius:var(--r-full);
+                        overflow:hidden;border:1px solid var(--border);">
+                <div style="height:100%;width:${skill.val}%;background:${skill.color};
+                            border-radius:var(--r-full);
+                            transition:width .7s var(--ease);"></div>
             </div>
-        </div>
-    `).join('');
+        </div>`}).join('');
 }
 
 function renderUnifiedRoute() {
@@ -1825,26 +1839,17 @@ function renderLeaderboard() {
 
     el.innerHTML = all.map(p => `
         <div class="leaderboard-item ${p.isMe ? 'me' : ''}"
-             style="display:flex;align-items:center;gap:10px;padding:9px 12px;
-                    border-radius:10px;margin-bottom:6px;
-                    background:${p.isMe ? 'var(--yellow-pale)' : 'var(--bg-2)'};
-                    border:1.5px solid ${p.isMe ? 'var(--yellow-deep)' : 'var(--border)'};
-                    opacity:${p.isDemo ? '0.5' : '1'};">
-            <span style="font-size:18px;width:24px;text-align:center;">
-                ${medals[p.pos - 1] || p.pos}
-            </span>
+             style="opacity:${p.isDemo ? '0.45' : '1'}">
+            <div class="leaderboard-pos">${medals[p.pos - 1] || p.pos}</div>
             <div style="flex:1;min-width:0;">
-                <div style="font-size:13px;font-weight:${p.isMe ? '900' : '700'};
-                            color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-                    ${escapeHtml(p.name)}${p.isMe ? ' (tú)' : ''}
+                <div class="leaderboard-name">
+                    ${escapeHtml(p.name)}${p.isMe ? ' <span style="color:var(--yellow-deep);font-size:10px;font-weight:800;">(tú)</span>' : ''}
                 </div>
-                <div style="font-size:11px;color:var(--text-4);">
-                    ${p.isDemo ? 'Posición disponible' : `Nivel ${escapeHtml(p.level)} · ${p.streak} días 🔥`}
+                <div class="leaderboard-sub">
+                    ${p.isDemo ? 'Posición disponible' : 'Nivel ' + escapeHtml(p.level) + ' · ' + p.streak + ' día' + (p.streak !== 1 ? 's' : '') + ' 🔥'}
                 </div>
             </div>
-            <div style="font-size:13px;font-weight:900;color:var(--navy);">
-                ${p.isDemo ? '—' : p.xp.toLocaleString() + ' XP'}
-            </div>
+            <div class="leaderboard-xp">${p.isDemo ? '—' : p.xp.toLocaleString() + ' XP'}</div>
         </div>`).join('');
 }
 

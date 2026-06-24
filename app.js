@@ -1767,46 +1767,43 @@ function renderFeedback(grammar, reading, writing, vocab) {
                 <i data-lucide="info"></i>
                 <span>Completa tu diagnóstico o tu primera actividad para recibir feedback personalizado.</span>
             </div>`;
-        if (window.lucide) lucide.createIcons({ nodes: [el] });
         return;
     }
 
     const items = [];
 
     // Fortalezas
-    if (grammar >= 80) items.push({ type:'success', icon:'check-circle',
+    if (grammar >= 80) items.push({ type:'success', icon:'ph-check-circle',
         text:`Gramática sólida (${grammar}%) — ¡Sigue así!` });
-    if (vocab >= 80)   items.push({ type:'success', icon:'check-circle',
+    if (vocab >= 80)   items.push({ type:'success', icon:'ph-fill ph-check-circle',
         text:`Vocabulario excelente (${vocab}%) — Buen trabajo.` });
-    if (reading >= 80) items.push({ type:'success', icon:'check-circle',
+    if (reading >= 80) items.push({ type:'success', icon:'ph-fill ph-check-circle',
         text:`Reading muy bien (${reading}%) — Comprensión lectora fuerte.` });
-    if (writing >= 80) items.push({ type:'success', icon:'check-circle',
+    if (writing >= 80) items.push({ type:'success', icon:'ph-fill ph-check-circle',
         text:`Writing destacado (${writing}%) — Redacción fluida.` });
 
     // Áreas de mejora
-    if (grammar < 60)  items.push({ type:'warn', icon:'alert-triangle',
+    if (grammar < 60)  items.push({ type:'warn', icon:'ph-fill ph-warning',
         text:`Gramática necesita refuerzo (${grammar}%) — Revisa los módulos de gramática.` });
-    if (vocab < 60)    items.push({ type:'warn', icon:'alert-triangle',
+    if (vocab < 60)    items.push({ type:'warn', icon:'ph-fill ph-warning',
         text:`Vocabulario bajo (${vocab}%) — Practica el modo Flashcards.` });
-    if (reading < 60)  items.push({ type:'warn', icon:'alert-triangle',
+    if (reading < 60)  items.push({ type:'warn', icon:'ph-fill ph-warning',
         text:`Reading por mejorar (${reading}%) — Lee los textos detenidamente.` });
-    if (writing < 60)  items.push({ type:'warn', icon:'alert-triangle',
+    if (writing < 60)  items.push({ type:'warn', icon:'ph-fill ph-warning',
         text:`Writing por trabajar (${writing}%) — Completa los ejercicios de escritura.` });
 
     // Mensaje global si todo está en rango medio
     if (!items.length) {
-        items.push({ type:'info', icon:'trending-up',
+        items.push({ type:'info', icon:'ph-fill ph-trend-up',
             text:`Progreso general: ${overall}% — Continúa practicando para consolidar cada habilidad.` });
     }
 
     // Máximo 3 mensajes para no saturar
     el.innerHTML = items.slice(0, 3).map(({ type, icon, text }) => `
         <div class="fb-item fb-${type}">
-            <i data-lucide="${icon}"></i>
+            <i class="${icon}"></i>
             <span>${escapeHtml(text)}</span>
         </div>`).join('');
-
-    if (window.lucide) lucide.createIcons({ nodes: [el] });
 }
 
 // ── BUG-FIX 1: renderLeaderboard — antes no existía, causaba ReferenceError en cada carga ──
@@ -1837,6 +1834,7 @@ function renderLeaderboard() {
 
     const medals = ['🥇', '🥈', '🥉'];
 
+    // Render leaderboard rows
     el.innerHTML = all.map(p => `
         <div class="leaderboard-item ${p.isMe ? 'me' : ''}"
              style="opacity:${p.isDemo ? '0.45' : '1'}">

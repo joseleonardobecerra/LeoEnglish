@@ -501,55 +501,50 @@
                 </div>
 
 
-                <!-- DASHBOARD GRID — FIX: skills-card y right-column-grid dentro de dashboard-grid -->
-                <div class="dashboard-grid" style="margin-bottom:16px;">
+                <!-- DASHBOARD GRID 3 columnas simétricas: Habilidades | Feedback IA | Ranking -->
+                <div class="dashboard-grid">
 
-                    <!-- COLUMNA IZQUIERDA: Habilidades + Progreso + Widget adaptativo -->
+                    <!-- COL 1: Habilidades MCER -->
                     <div class="skills-card">
                         <h3>
                             <i class="ph-duotone ph-chart-bar"></i>
                             Habilidades MCER
                         </h3>
+                        <div class="card-body">
+                            <div class="skill-bars-container" id="skills-bars"></div>
 
-                        <div class="skill-bars-container" id="skills-bars"></div>
-
-                        <div class="course-progress">
-                            <div class="progress-lbl-row">
-                                <span class="progress-lbl">Progreso Total de la Ruta</span>
-                                <span class="total-pct" id="total-progress-pct">0%</span>
+                            <div class="course-progress">
+                                <div class="progress-lbl-row">
+                                    <span class="progress-lbl">Progreso Total de la Ruta</span>
+                                    <span class="total-pct" id="total-progress-pct">0%</span>
+                                </div>
+                                <div class="total-bar">
+                                    <div class="total-fill" id="total-progress-fill"></div>
+                                </div>
                             </div>
 
-                            <div class="total-bar">
-                                <div class="total-fill" id="total-progress-fill"></div>
+                            <!-- WIDGET ADAPTATIVO -->
+                            <div id="adaptive-widget" style="display:none;">
+                                <div style="height:1px;background:var(--border);margin-bottom:10px;"></div>
+                                <div style="font-size:9px;font-weight:900;letter-spacing:.10em;text-transform:uppercase;color:var(--text-4);margin-bottom:7px;">
+                                    🧠 Recomendación adaptativa
+                                </div>
+                                <div id="adaptive-content"></div>
                             </div>
-                        </div>
-
-                        <!-- WIDGET ADAPTATIVO -->
-                        <div id="adaptive-widget" style="margin-top:14px;display:none;">
-                            <div style="height:1px;background:var(--border);margin-bottom:12px;"></div>
-                            <div style="font-size:9px;font-weight:900;letter-spacing:.10em;text-transform:uppercase;color:var(--text-4);margin-bottom:8px;">
-                                🧠 Recomendación adaptativa
-                            </div>
-                            <div id="adaptive-content"></div>
                         </div>
                     </div>
 
-                    <!-- COLUMNA DERECHA: Feedback + Leaderboard -->
-                    <div class="right-column-grid">
-
-                        <!-- FEEDBACK -->
-                        <div class="feedback-card">
-                            <h3>
-                                <i data-lucide="message-circle"></i>
-                                Feedback del Profesor IA
-                            </h3>
-
+                    <!-- COL 2: Feedback del Profesor IA -->
+                    <div class="feedback-card">
+                        <h3>
+                            <i class="ph-duotone ph-chats"></i>
+                            Feedback del Profesor IA
+                        </h3>
+                        <div class="card-body">
                             <div class="feedback-content" id="teacher-feedback">
                                 <div class="fb-item fb-info">
-                                    <i data-lucide="info"></i>
-                                    <span>
-                                        Completa tu diagnóstico o tu primera actividad para recibir feedback personalizado.
-                                    </span>
+                                    <i class="ph-fill ph-info"></i>
+                                    <span>Completa tu diagnóstico o primera actividad para recibir feedback personalizado.</span>
                                 </div>
                             </div>
 
@@ -561,19 +556,19 @@
                                 <div class="cefr-badge" id="cefr-badge">A1</div>
                             </div>
                         </div>
+                    </div>
 
-                        <!-- LEADERBOARD -->
-                        <div class="leaderboard-card animate-pop">
-                            <h3>
-                                <i data-lucide="trophy" style="color:#D99A2B;"></i>
-                                Ranking Familiar
-                            </h3>
-
+                    <!-- COL 3: Ranking Familiar -->
+                    <div class="leaderboard-card">
+                        <h3>
+                            <i class="ph-fill ph-trophy" style="color:var(--yellow-deep);"></i>
+                            Ranking Familiar
+                        </h3>
+                        <div class="card-body">
                             <div class="leaderboard-list" id="leaderboard-list">
                                 <div class="activity-empty">Cargando posiciones...</div>
                             </div>
                         </div>
-
                     </div>
 
                 </div>

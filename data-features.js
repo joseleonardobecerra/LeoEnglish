@@ -124,10 +124,10 @@
 
     _activityColor(type) {
       const colors = {
-        grammar: '#1C3F7A', vocab: '#22C55E',
-        reading: '#3B82F6', writing: '#CF2B2B', listening: '#0891B2'
+        grammar: 'var(--navy)', vocab: 'var(--green)',
+        reading: 'var(--sky-deep)', writing: 'var(--red)', listening: 'var(--sky-deep)'
       };
-      return colors[type] || '#1C3F7A';
+      return colors[type] || 'var(--navy)';
     }
   };
 

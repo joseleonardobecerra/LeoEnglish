@@ -50,7 +50,7 @@
         <div style="text-align:center; color:#94a3b8; font-family:sans-serif;">
             <div style="width:40px;height:40px;border:3px solid #334155;border-top-color:#6366f1;
                         border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 12px;"></div>
-            <span style="font-size:13px;">Cargando LeoEnglish…</span>
+            <span class="loader-text">Cargando LeoEnglish…</span>
         </div>
     </div>
     <style>@keyframes spin{to{transform:rotate(360deg)}}.hidden{display:none!important}</style>
@@ -165,12 +165,12 @@
                     Entrar
                 </button>
 
-                <p style="text-align:center;margin-top:15px;font-size:13px;color:#6B5F58;">
+                <p style="text-align:center;margin-top:15px;font-size:13px;color:var(--text-3);">
                     ¿No tienes cuenta?
                     <a 
                         href="#" 
                         onclick="toggleAuthView('register'); return false;" 
-                        style="color:#D7262E;font-weight:900;text-decoration:none;"
+                        style="color:var(--red);font-weight:900;text-decoration:none;"
                     >
                         Regístrate aquí
                     </a>
@@ -207,12 +207,12 @@
                     Crear mi cuenta
                 </button>
 
-                <p style="text-align:center;margin-top:15px;font-size:13px;color:#6B5F58;">
+                <p style="text-align:center;margin-top:15px;font-size:13px;color:var(--text-3);">
                     ¿Ya tienes cuenta?
                     <a 
                         href="#" 
                         onclick="toggleAuthView('login'); return false;" 
-                        style="color:#D7262E;font-weight:900;text-decoration:none;"
+                        style="color:var(--red);font-weight:900;text-decoration:none;"
                     >
                         Inicia sesión
                     </a>
@@ -526,7 +526,7 @@
                             <!-- WIDGET ADAPTATIVO -->
                             <div id="adaptive-widget" style="display:none;">
                                 <div style="height:1px;background:var(--border);margin-bottom:10px;"></div>
-                                <div style="font-size:9px;font-weight:900;letter-spacing:.10em;text-transform:uppercase;color:var(--text-4);margin-bottom:7px;">
+                                <div class="order-zone-label">
                                     🧠 Recomendación adaptativa
                                 </div>
                                 <div id="adaptive-content"></div>
@@ -635,18 +635,18 @@
                         </p>
 
                         <div class="theory-grid">
-                            <div class="t-box" style="border-color:#12375A;background:#EAF0F7">
-                                <strong style="color:#12375A">Diagnosticar</strong>
+                            <div class="t-box" style="border-color:rgba(28,63,122,0.28);background:var(--navy-pale)">
+                                <strong>Diagnosticar</strong>
                                 <small>Identifica tu nivel probable según tu desempeño.</small>
                             </div>
 
-                            <div class="t-box" style="border-color:#1D9E75;background:#EAF3DE">
-                                <strong style="color:#276749">Homologar</strong>
+                            <div class="t-box" style="border-color:rgba(42,146,85,0.28);background:var(--green-pale)">
+                                <strong>Homologar</strong>
                                 <small>Marca como dominado lo que ya sabes hacer bien.</small>
                             </div>
 
-                            <div class="t-box" style="border-color:#D7262E;background:#FFE7E4">
-                                <strong style="color:#9B2C2C">Reforzar</strong>
+                            <div class="t-box" style="border-color:rgba(207,43,43,0.28);background:var(--red-pale)">
+                                <strong>Reforzar</strong>
                                 <small>Te muestra los temas que aún debes completar.</small>
                             </div>
                         </div>
@@ -865,7 +865,7 @@
 
                         <button 
                             class="btn-secondary" 
-                            style="width:100%;justify-content:center;margin-top:10px;background:#4A5568;" 
+                            style="width:100%;justify-content:center;margin-top:10px;background:var(--text-2);" 
                             onclick="handleLogout()"
                         >
                             Cerrar sesión
@@ -880,7 +880,7 @@
                             Progreso
                         </h3>
 
-                        <p style="color:#6B5F58;font-size:14px;margin-bottom:16px;line-height:1.6;">
+                        <p style="font-size:13.5px;color:var(--text-3);margin-bottom:16px;line-height:1.6;">
                             Reinicia tu progreso para empezar desde cero. Esta acción no se puede deshacer.
                         </p>
 
@@ -892,9 +892,9 @@
                         <!-- ZONA ADMIN -->
                         <div 
                             id="admin-zone" 
-                            style="display:none;margin-top:30px;border-top:1px dashed #E6BFA6;padding-top:20px;"
+                            style="display:none;margin-top:28px;border-top:1.5px dashed var(--border-md);padding-top:20px;"
                         >
-                            <h4 style="font-size:14px;color:#243447;margin-bottom:8px;">
+                            <h4 style="font-size:13px;font-weight:800;color:var(--navy);margin-bottom:10px;font-family:var(--font-display);">
                                 <i 
                                     data-lucide="shield-alert" 
                                     style="width:14px;height:14px;display:inline-block;vertical-align:middle;"
@@ -904,7 +904,6 @@
 
                             <button 
                                 class="btn-primary-full" 
-                                style="background:#12375A;" 
                                 onclick="toggleAdminView()"
                             >
                                 Activar/Desactivar Candados
@@ -968,28 +967,28 @@
                         </div>
                     </div>
                     <div id="speaking-level-picker" class="speaking-level-grid">
-                        <div class="speaking-level-btn" onclick="window.SpeakingEngine.start('speak_a1_intro','A1')" style="border-color:#22C55E;">
-                            <span class="slb-level" style="background:#22C55E">A1</span>
+                        <div class="speaking-level-btn" onclick="window.SpeakingEngine.start('speak_a1_intro','A1')" style="border-color:var(--green);">
+                            <span class="slb-level" style="background:var(--green)">A1</span>
                             <div class="slb-title">Presentarse</div>
                             <div class="slb-desc">Introduce yourself in English</div>
                         </div>
-                        <div class="speaking-level-btn" onclick="window.SpeakingEngine.start('speak_a2_past','A2')" style="border-color:#3B82F6;">
-                            <span class="slb-level" style="background:#3B82F6">A2</span>
+                        <div class="speaking-level-btn" onclick="window.SpeakingEngine.start('speak_a2_past','A2')" style="border-color:var(--sky-deep);">
+                            <span class="slb-level" style="background:var(--sky-deep)">A2</span>
                             <div class="slb-title">Fin de semana</div>
                             <div class="slb-desc">Talk about last weekend</div>
                         </div>
-                        <div class="speaking-level-btn" onclick="window.SpeakingEngine.start('speak_b1_opinion','B1')" style="border-color:#F59E0B;">
-                            <span class="slb-level" style="background:#F59E0B">B1</span>
+                        <div class="speaking-level-btn" onclick="window.SpeakingEngine.start('speak_b1_opinion','B1')" style="border-color:var(--amber);">
+                            <span class="slb-level" style="background:var(--amber)">B1</span>
                             <div class="slb-title">Tu opinión</div>
                             <div class="slb-desc">Give opinion on social media</div>
                         </div>
-                        <div class="speaking-level-btn" onclick="window.SpeakingEngine.start('speak_b2_discuss','B2')" style="border-color:#CF2B2B;">
-                            <span class="slb-level" style="background:#CF2B2B">B2</span>
+                        <div class="speaking-level-btn" onclick="window.SpeakingEngine.start('speak_b2_discuss','B2')" style="border-color:var(--red);">
+                            <span class="slb-level" style="background:var(--red)">B2</span>
                             <div class="slb-title">Debate</div>
                             <div class="slb-desc">Pros and cons of remote work</div>
                         </div>
-                        <div class="speaking-level-btn" onclick="window.SpeakingEngine.start('speak_c1_argue','C1')" style="border-color:#8B5CF6;">
-                            <span class="slb-level" style="background:#8B5CF6">C1</span>
+                        <div class="speaking-level-btn" onclick="window.SpeakingEngine.start('speak_c1_argue','C1')" style="border-color:var(--purple);">
+                            <span class="slb-level" style="background:var(--purple)">C1</span>
                             <div class="slb-title">Argumentación</div>
                             <div class="slb-desc">Argue a complex position</div>
                         </div>
@@ -1014,22 +1013,13 @@
     <!-- BUG-FIX 9: tenia display:none y display:flex en el mismo style.
          El segundo valor (flex) ganaba, haciendo el overlay visible al cargar.
          Se elimina el segundo display:none redundante y se deja solo el primero. -->
-    <div id="levelup-overlay" style="display:none;position:fixed;inset:0;z-index:9700;
-        background:rgba(26,24,20,0.80);backdrop-filter:blur(10px);
-        align-items:center;justify-content:center;flex-direction:column;gap:16px;">
-        <div id="levelup-box" style="
-            background:var(--bg-2);border:2px solid var(--border-md);
-            border-radius:var(--r-2xl);padding:40px 48px;text-align:center;
-            box-shadow:var(--shadow-lg);animation:popIn 0.35s var(--ease-spring) both;max-width:360px;width:90%;">
-            <div style="font-size:56px;margin-bottom:10px;animation:bounceIn 0.5s var(--ease-spring) 0.1s both;">🏆</div>
-            <div style="font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--brand);margin-bottom:8px;">¡NIVEL SUBIDO!</div>
-            <div id="levelup-num" style="font-family:var(--font-display);font-size:52px;font-weight:800;letter-spacing:-.06em;color:var(--text-1);line-height:1;margin-bottom:8px;"></div>
+    <div id="levelup-overlay" class="modal-overlay" style="display:none;flex-direction:column;">
+        <div id="levelup-box" class="modal-box" style="text-align:center;border-top:4px solid var(--red);">
+            <div style="font-size:52px;margin-bottom:10px;animation:bounceIn 0.5s var(--ease-spring) 0.1s both;">🏆</div>
+            <div style="font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--yellow-deep);margin-bottom:8px;">¡NIVEL SUBIDO!</div>
+            <div id="levelup-num" style="font-family:var(--font-display);font-size:52px;font-weight:800;letter-spacing:-.06em;color:var(--navy);line-height:1;margin-bottom:8px;"></div>
             <div id="levelup-cefr" style="font-size:14px;color:var(--text-2);margin-bottom:20px;line-height:1.5;"></div>
-            <button onclick="closeLevelUp()" style="
-                background:var(--red);
-                color:#fff;border:none;border-radius:var(--r-sm);
-                padding:12px 28px;font-size:14px;font-weight:700;cursor:pointer;
-                font-family:var(--font);box-shadow:var(--shadow-brand);width:100%;">
+            <button class="btn-primary-full" style="width:100%;" onclick="closeLevelUp()">
                 ¡Seguir aprendiendo! 🚀
             </button>
         </div>

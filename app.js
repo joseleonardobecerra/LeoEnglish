@@ -37,31 +37,31 @@ const TYPE_META = {
     grammar: {
         label: 'Grammar',
         icon: 'book-open',
-        color: '#12375A',
+        color: 'var(--navy)',
         scoreKey: 'scores'
     },
     vocab: {
         label: 'Vocabulary',
         icon: 'layers',
-        color: '#1D9E75',
+        color: 'var(--green)',
         scoreKey: 'vocabScores'
     },
     reading: {
         label: 'Reading',
         icon: 'book-marked',
-        color: '#3182CE',
+        color: 'var(--sky-deep)',
         scoreKey: 'readingScores'
     },
     writing: {
         label: 'Writing',
         icon: 'pen-line',
-        color: '#D85A30',
+        color: 'var(--red)',
         scoreKey: 'writingDone'
     },
     listening: {
         label: 'Listening',
         icon: 'headphones',
-        color: '#0891B2',
+        color: 'var(--sky-deep)',
         scoreKey: 'listeningScores'
     }
 };
@@ -374,7 +374,7 @@ function getSourceTitle(type, source) {
 }
 
 function getSourceColor(type, source) {
-    return source?.color || source?.levelColor || source?.typeColor || TYPE_META[type]?.color || '#12375A';
+    return source?.color || source?.levelColor || source?.typeColor || TYPE_META[type]?.color || 'var(--navy)';
 }
 
 function getWeaknessDisplayName(sourceId) {
@@ -713,7 +713,7 @@ function ensureRouteLevel(map, level) {
             level: safeLevel,
             title: `${safeLevel} · Ruta integrada`,
             description: `Actividades integradas de gramática, vocabulario, reading y writing para ${safeLevel}.`,
-            color: safeLevel === 'A1' ? '#1D9E75' : safeLevel === 'A2' ? '#3182CE' : '#805AD5',
+            color: safeLevel === 'A1' ? 'var(--green)' : safeLevel === 'A2' ? 'var(--sky-deep)' : 'var(--purple)',
             activities: []
         });
     }
@@ -1297,9 +1297,9 @@ function showSRSFeedback(ok, ex, modelAnswer) {
     fb.innerHTML = `
         <div class="ex-feedback ${ok ? 'success' : 'error'}" style="margin-top:10px;">
             <div><strong>${ok ? '✓ Correcto' : '✗ Incorrecto'}</strong></div>
-            ${modelAnswer ? `<div style="font-size:12px;margin-top:3px;font-style:italic;">${escapeHtml(modelAnswer)}</div>` : ''}
-            ${ex.example ? `<div style="font-size:11.5px;margin-top:4px;opacity:0.80;">${escapeHtml(ex.example)}</div>` : ''}
-            <div style="font-size:10px;margin-top:5px;opacity:0.65;">
+            ${modelAnswer ? `<div class="fb-detail-answer">${escapeHtml(modelAnswer)}</div>` : ''}
+            ${ex.example ? `<div class="fb-detail-example">${escapeHtml(ex.example)}</div>` : ''}
+            <div class="fb-detail-next">
                 🔁 Próxima revisión: en ${daysUntil} día${daysUntil !== 1 ? 's' : ''}
             </div>
         </div>`;
@@ -1319,14 +1319,11 @@ function finishSRS() {
             <p style="color:var(--text-3);font-size:13px;margin-bottom:16px;">
                 ${ss.correct} de ${ss.exercises.length} correctas
             </p>
-            <div style="background:var(--navy-pale);border:1.5px solid rgba(28,63,122,0.20);
-                border-radius:var(--r-md);padding:10px 14px;font-size:12px;color:var(--navy);margin-bottom:14px;">
-                🔁 Las palabras falladas vuelven mañana.<br>Las correctas en 3-7 días.
+            <div class="tip-callout" style="margin-bottom:14px;">
+                🔁 Las palabras falladas vuelven mañana. Las correctas en 3-7 días.
             </div>
             <button onclick="window._srsSession=null;setVocabMode('flash', document.getElementById('vtab-flash'))"
-                style="width:100%;padding:11px;background:var(--navy);border:2px solid var(--navy-deep);
-                border-radius:var(--r-md);color:#fff;font-size:13px;font-weight:800;
-                cursor:pointer;font-family:inherit;">
+                class="btn-primary-full" style="width:100%;margin-top:6px;">
                 Volver a las tarjetas
             </button>
         </div>`;
@@ -1378,7 +1375,7 @@ function renderSpeakingHub() {
     // Check WebSpeech support and show warning if not available
     if (!window.SpeakingEngine?.supported) {
         const warn = document.createElement('div');
-        warn.style.cssText = 'background:var(--yellow-pale);border:2px solid var(--yellow);border-radius:var(--r-md);padding:14px 18px;margin-bottom:16px;font-size:13px;color:var(--yellow-deep);font-weight:600;';
+        warn.className = 'tip-callout';
         warn.innerHTML = '⚠️ Tu navegador no soporta reconocimiento de voz nativo. Prueba con Chrome o Edge en desktop para activar Speaking.';
         const screen = document.getElementById('screen-speaking');
         const inner  = screen?.querySelector('.screen-inner');
@@ -1499,7 +1496,7 @@ function renderAdaptiveWidget() {
 
     const typeColors = {
         grammar: 'var(--navy)', vocab: 'var(--green)',
-        reading: 'var(--blue, #3B82F6)', writing: 'var(--red)'
+        reading: 'var(--blue, var(--sky-deep))', writing: 'var(--red)'
     };
     const typeLabels = {
         grammar: 'Gramática', vocab: 'Vocabulario',
@@ -1512,19 +1509,15 @@ function renderAdaptiveWidget() {
     if (weaknesses.length) {
         const top = weaknesses[0];
         html += `
-        <div style="background:var(--red-pale);border:1.5px solid rgba(207,43,43,0.22);
-            border-radius:var(--r-sm);padding:10px 13px;margin-bottom:8px;cursor:pointer;"
+        <div class="adaptive-alert"
             onclick="window.openRouteActivity && window.openRouteActivity('${top.type}:${top.id}')"
             title="Ir a refuerzo">
-            <div style="font-size:10px;font-weight:800;color:var(--red);margin-bottom:3px;
-                letter-spacing:.04em;text-transform:uppercase;">⚠ Necesita refuerzo</div>
-            <div style="font-size:12.5px;font-weight:700;color:var(--text-1);">
-                ${typeLabels[top.type] || top.type}: ${top.id.replace(/_/g,' ')}
-            </div>
-            <div style="height:4px;background:var(--bg-4);border-radius:99px;overflow:hidden;margin-top:6px;">
+            <div class="adaptive-label" style="color:var(--red)">⚠ Necesita refuerzo</div>
+            <div class="adaptive-title">${typeLabels[top.type] || top.type}: ${top.id.replace(/_/g,' ')}</div>
+            <div style="height:4px;background:var(--bg-4);border-radius:99px;overflow:hidden;margin-top:4px;">
                 <div style="height:100%;width:${top.score}%;background:var(--red);border-radius:99px;"></div>
             </div>
-            <div style="font-size:10px;color:var(--red);margin-top:3px;font-weight:700;">${top.score}% · Toca para reforzar</div>
+            <div class="adaptive-sub" style="color:var(--red);font-weight:700;margin-top:2px;">${top.score}% · Toca para reforzar</div>
         </div>`;
     }
 
@@ -1532,48 +1525,32 @@ function renderAdaptiveWidget() {
     if (next) {
         const typeColor = typeColors[next.type] || 'var(--navy)';
         html += `
-        <div style="background:var(--navy-pale);border:1.5px solid rgba(28,63,122,0.20);
-            border-radius:var(--r-sm);padding:10px 13px;cursor:pointer;"
+        <div class="adaptive-next"
             onclick="window.openRouteActivity && window.openRouteActivity('${next.id}')"
             title="Iniciar actividad recomendada">
-            <div style="font-size:10px;font-weight:800;color:var(--navy);margin-bottom:3px;
-                letter-spacing:.04em;text-transform:uppercase;">▶ Siguiente recomendada</div>
-            <div style="font-size:12.5px;font-weight:700;color:var(--text-1);">${escapeHtml(next.title || next.id)}</div>
-            <div style="font-size:10px;color:var(--text-4);margin-top:2px;">
-                ${typeLabels[next.type] || next.type} · ${escapeHtml(next.level || '')}
-            </div>
+            <div class="adaptive-label" style="color:var(--navy)">▶ Siguiente recomendada</div>
+            <div class="adaptive-title">${escapeHtml(next.title || next.id)}</div>
+            <div class="adaptive-sub">${typeLabels[next.type] || next.type} · ${escapeHtml(next.level || '')}</div>
         </div>`;
     }
 
     // ── Progreso hacia siguiente nivel CEFR ──
     if (levelReadiness.readiness < 100) {
         html += `
-        <div style="margin-top:8px;padding:8px 0;border-top:1px solid var(--border);">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-                <span style="font-size:10px;font-weight:700;color:var(--text-4);">
-                    Listo para ${levelReadiness.level} → siguiente nivel
-                </span>
-                <span style="font-size:11px;font-weight:900;color:var(--navy);">${levelReadiness.readiness}%</span>
+        <div class="readiness-section">
+            <div class="readiness-header">
+                <span class="readiness-label">Listo para ${levelReadiness.level} → siguiente nivel</span>
+                <span class="readiness-pct">${levelReadiness.readiness}%</span>
             </div>
-            <div style="height:4px;background:var(--bg-4);border-radius:99px;overflow:hidden;">
-                <div style="height:100%;width:${levelReadiness.readiness}%;
-                    background:linear-gradient(90deg,var(--navy),var(--red));border-radius:99px;"></div>
-            </div>
-            <div style="font-size:10px;color:var(--text-4);margin-top:3px;">
-                ${levelReadiness.completedChecks}/${levelReadiness.total} evidencias completadas
-            </div>
+            <div class="readiness-bar"><div class="readiness-fill" style="width:${levelReadiness.readiness}%"></div></div>
+            <div class="readiness-note">${levelReadiness.completedChecks}/${levelReadiness.total} evidencias completadas</div>
         </div>`;
     } else {
         html += `
-        <div style="margin-top:8px;padding:8px 12px;background:var(--green-pale);
-            border:1.5px solid var(--green);border-radius:var(--r-sm);text-align:center;">
-            <div style="font-size:12px;font-weight:800;color:var(--green);">
-                ✅ ¡Listo para certificar ${levelReadiness.level}!
-            </div>
-            <button onclick="window.PortfolioGenerator?.generateCertificate('${levelReadiness.level}')"
-                style="margin-top:7px;padding:7px 16px;background:var(--green);
-                    border:none;border-radius:var(--r-sm);color:#fff;font-size:11px;
-                    font-weight:800;cursor:pointer;font-family:inherit;">
+        <div class="cert-ready-banner">
+            <div class="cert-ready-text">✅ ¡Listo para certificar ${levelReadiness.level}!</div>
+            <button class="btn-cert btn-cert-navy" style="font-size:11px;padding:6px 14px;margin-top:6px;"
+                onclick="window.PortfolioGenerator?.generateCertificate('${levelReadiness.level}')">
                 📜 Descargar Certificado
             </button>
         </div>`;
@@ -1594,27 +1571,16 @@ function renderSkillBars(grammar, vocab, reading, writing) {
         { name: 'Writing',     val: writing, color: 'var(--amber)',      icon: '✏️' }
     ];
 
-    el.innerHTML = skills.map(skill => {
-        const level = skill.val >= 80 ? 'high' : skill.val >= 50 ? 'mid' : 'low';
-        return `
-        <div style="display:flex;flex-direction:column;gap:5px;">
-            <div style="display:flex;align-items:center;justify-content:space-between;">
-                <span style="font-size:12px;font-weight:700;color:var(--text-2);
-                             display:flex;align-items:center;gap:5px;">
-                    <span>${skill.icon}</span>${skill.name}
-                </span>
-                <span style="font-size:12px;font-weight:900;color:${skill.color};
-                             font-family:var(--font-display);letter-spacing:-.02em;">
-                    ${skill.val}%
-                </span>
+    el.innerHTML = skills.map(skill => `
+        <div class="s-bar-item">
+            <div class="skill-info">
+                <span><span style="margin-right:4px">${skill.icon}</span>${skill.name}</span>
+                <span style="color:${skill.color};font-family:var(--font-display);font-weight:900">${skill.val}%</span>
             </div>
-            <div style="height:7px;background:var(--bg-4);border-radius:var(--r-full);
-                        overflow:hidden;border:1px solid var(--border);">
-                <div style="height:100%;width:${skill.val}%;background:${skill.color};
-                            border-radius:var(--r-full);
-                            transition:width .7s var(--ease);"></div>
+            <div class="s-bar">
+                <div class="s-fill" style="width:${skill.val}%;background:${skill.color}"></div>
             </div>
-        </div>`}).join('');
+        </div>`).join('');
 }
 
 function renderUnifiedRoute() {
@@ -1632,7 +1598,7 @@ function renderUnifiedRoute() {
     // Level colors (clean, no red/yellow stripe)
     const levelMeta = {
         A1: { color:'#22C55E', bg:'rgba(34,197,94,0.08)',  border:'rgba(34,197,94,0.22)'  },
-        A2: { color:'#3B82F6', bg:'rgba(59,130,246,0.08)', border:'rgba(59,130,246,0.22)' },
+        A2: { color:'var(--sky-deep)', bg:'rgba(59,130,246,0.08)', border:'rgba(59,130,246,0.22)' },
         B1: { color:'#F59E0B', bg:'rgba(245,158,11,0.08)', border:'rgba(245,158,11,0.22)' },
         B2: { color:'#CF2B2B', bg:'rgba(207,43,43,0.08)',  border:'rgba(207,43,43,0.22)'  },
         C1: { color:'#8B5CF6', bg:'rgba(139,92,246,0.08)', border:'rgba(139,92,246,0.22)' },
@@ -1737,7 +1703,7 @@ function renderActivity() {
 
     el.innerHTML = state.activityLog.slice(0, 8).map(item => `
         <div class="activity-item">
-            <div class="activity-dot" style="background:${item.color || '#12375A'}"></div>
+            <div class="activity-dot" style="background:${item.color || 'var(--navy)'}"></div>
             <div class="activity-text">${escapeHtml(item.text)}</div>
             <div class="activity-xp">+${item.xp} XP</div>
             <div class="activity-time">${item.time}</div>
@@ -1841,7 +1807,7 @@ function renderLeaderboard() {
             <div class="leaderboard-pos">${medals[p.pos - 1] || p.pos}</div>
             <div style="flex:1;min-width:0;">
                 <div class="leaderboard-name">
-                    ${escapeHtml(p.name)}${p.isMe ? ' <span style="color:var(--yellow-deep);font-size:10px;font-weight:800;">(tú)</span>' : ''}
+                    ${escapeHtml(p.name)}${p.isMe ? ' <span class="leaderboard-me-tag">(tú)</span>' : ''}
                 </div>
                 <div class="leaderboard-sub">
                     ${p.isDemo ? 'Posición disponible' : 'Nivel ' + escapeHtml(p.level) + ' · ' + p.streak + ' día' + (p.streak !== 1 ? 's' : '') + ' 🔥'}
@@ -1878,7 +1844,7 @@ window.openModule = function(moduleId) {
 
     // Level → color mapping
     const levelColors = {
-        A1:'#22C55E', A2:'#3B82F6', B1:'#F59E0B',
+        A1:'#22C55E', A2:'var(--sky-deep)', B1:'#F59E0B',
         B2:'#CF2B2B', C1:'#8B5CF6'
     };
     const modColor = mod.color || levelColors[mod.level] || '#1C3F7A';
@@ -2134,7 +2100,7 @@ function drawOrderUI() {
     container.innerHTML = `
         <div class="order-zone" id="order-zone">
             ${window.orderSel.length === 0
-                ? '<span style="color:#A0AEC0;font-size:13px">Toca las palabras para construir la frase...</span>'
+                ? '<span style="color:var(--text-4);font-size:13px">Toca las palabras para construir la frase...</span>'
                 : ''}
 
             <div class="order-words-pool" style="justify-content:center">
@@ -2426,7 +2392,7 @@ window.renderReadingHub = function() {
 
                         <div class="reading-card-footer">
                             <span>${total} preguntas</span>
-                            <span style="font-weight:700;color:${done ? '#1D9E75' : '#A0AEC0'}">
+                            <span style="font-weight:700;color:${done ? 'var(--green)' : 'var(--text-4)'}">
                                 ${done ? `✓ ${score}%` : 'Sin completar'}
                             </span>
                         </div>
@@ -2558,12 +2524,12 @@ function renderReadingQuestion(text) {
         <div class="ex-progress-strip" style="border-radius:var(--r-md) var(--r-md) 0 0;overflow:hidden;">
             ${questions.map((_, i) => `
                 <div class="ex-strip-dot ${i < currentReadingQIdx ? 'done' : i === currentReadingQIdx ? 'current' : ''}"
-                     style="${i === currentReadingQIdx ? 'background:#3B82F6;flex:2' : ''}">
+                     class="ex-strip-dot ${i === currentReadingQIdx ? 'current' : ''}${i < currentReadingQIdx ? ' done' : ''}">
                 </div>`).join('')}
         </div>
         <div class="ex-type-banner" style="background:rgba(59,130,246,0.08);border-bottom:1px solid rgba(59,130,246,0.14);">
             <span class="ex-type-emoji">📖</span>
-            <span class="ex-type-label" style="color:#3B82F6">Reading</span>
+            <span class="ex-type-label" style="color:var(--sky-deep)">Reading</span>
             <span class="ex-counter">${currentReadingQIdx + 1} / ${questions.length}</span>
             ${isInference ? '<span class="inference-badge" style="margin-left:auto">🔍 Inferencia</span>' : '<span class="neuro-badge" style="margin-left:auto">Comprensión</span>'}
         </div>
@@ -2902,7 +2868,7 @@ function renderWritingOrder() {
     window.woCurrent = task.answer;
 
     ui.innerHTML = `
-        <div style="margin-bottom:10px;font-size:12px;color:#A0AEC0;font-weight:700">
+        <div style="margin-bottom:10px;font-size:12px;color:var(--text-4);font-weight:700">
             Ejercicio ${window.wOrderIdx + 1} de ${window.wOrderTasks.length}
         </div>
 
@@ -2941,7 +2907,7 @@ function refreshWritingOrder() {
                     ${escapeHtml(word)}
                 </div>
             `).join('')
-            : '<span style="color:#A0AEC0;font-size:13px">Selecciona palabras...</span>';
+            : '<span style="color:var(--text-4);font-size:13px">Selecciona palabras...</span>';
     }
 
     if (availableEl) {
@@ -3023,7 +2989,7 @@ function renderWritingTransform() {
     window.currentTransformTask = task;
 
     ui.innerHTML = `
-        <div style="margin-bottom:10px;font-size:12px;color:#A0AEC0;font-weight:700">
+        <div style="margin-bottom:10px;font-size:12px;color:var(--text-4);font-weight:700">
             Ejercicio ${window.wTransIdx + 1} de ${window.wTransTasks.length}
         </div>
 
@@ -3120,7 +3086,7 @@ function renderWritingFree() {
     }
 
     ui.innerHTML = `
-        <div style="margin-bottom:10px;font-size:12px;color:#A0AEC0;font-weight:700">
+        <div style="margin-bottom:10px;font-size:12px;color:var(--text-4);font-weight:700">
             Ejercicio ${window.wFreeIdx + 1} de ${window.wFreeTasks.length}
         </div>
 
@@ -3130,7 +3096,7 @@ function renderWritingFree() {
 
         ${task.hint ? `<div class="tip-callout" style="margin-bottom:12px"><i data-lucide="lightbulb"></i><strong>Guía:</strong> ${escapeHtml(task.hint)}</div>` : ''}
 
-        ${task.example ? `<div style="background:#F7FAFC;border:1px dashed #CBD5E0;border-radius:10px;padding:12px;margin-bottom:12px;font-size:13px;color:#718096"><strong>Ejemplo:</strong> ${escapeHtml(task.example)}</div>` : ''}
+        ${task.example ? `<div style="background:var(--bg-2);border:1px dashed var(--border-md);border-radius:10px;padding:12px;margin-bottom:12px;font-size:13px;color:var(--text-3)"><strong>Ejemplo:</strong> ${escapeHtml(task.example)}</div>` : ''}
 
         <textarea id="wf-area" class="writing-textarea" placeholder="Escribe aquí tu respuesta en inglés..."></textarea>
 
@@ -3209,11 +3175,11 @@ function renderWritingError() {
     window.currentErrorTask = task;
 
     ui.innerHTML = `
-        <div style="margin-bottom:10px;font-size:12px;color:#A0AEC0;font-weight:700">
+        <div style="margin-bottom:10px;font-size:12px;color:var(--text-4);font-weight:700">
             Ejercicio ${window.wErrIdx + 1} de ${window.wErrTasks.length}
         </div>
 
-        <div class="ex-q" style="text-align:left;color:#D7262E;text-decoration:line-through;font-size:18px">
+        <div class="ex-q" style="text-align:left;color:var(--red);text-decoration:line-through;font-size:18px">
             ${escapeHtml(task.wrong)}
         </div>
 
@@ -3310,7 +3276,7 @@ function renderWritingDictation() {
     window.currentDictationTask = task;
 
     ui.innerHTML = `
-        <div style="margin-bottom:10px;font-size:12px;color:#A0AEC0;font-weight:700">
+        <div style="margin-bottom:10px;font-size:12px;color:var(--text-4);font-weight:700">
             Dictado ${window.wDicIdx + 1} de ${window.wDicTasks.length}
         </div>
 
@@ -3319,12 +3285,12 @@ function renderWritingDictation() {
         </div>
 
         <div class="btn-row" style="margin-bottom:14px">
-            <button class="btn-check" onclick="playCurrentDictation()" style="background:#805AD5">
+            <button class="btn-check" style="background:var(--purple);border-color:var(--purple)" onclick="playCurrentDictation()">
                 <i data-lucide="volume-2"></i>
                 Escuchar
             </button>
 
-            <button class="btn-check" onclick="playCurrentDictationSlow()" style="background:#718096">
+            <button class="btn-secondary" onclick="playCurrentDictationSlow()">
                 <i data-lucide="snail"></i>
                 Lento
             </button>
@@ -3502,7 +3468,7 @@ window.renderVocabHub = function() {
                         <div class="vocab-topic-title">${escapeHtml(topic.title)}</div>
                         <div class="vocab-topic-count">${topic.count || topic.words?.length || 0} palabras</div>
                         ${score != null
-                            ? `<div style="margin-top:6px;font-size:12px;font-weight:700;color:#1D9E75">✓ ${score}%</div>`
+                            ? `<div style="margin-top:6px;font-size:12px;font-weight:700;color:var(--green)">✓ ${score}%</div>`
                             : ''}
                     </div>
                 `;
@@ -3569,7 +3535,7 @@ function renderVocabFlash() {
     const words = vocabCurrentTopic.words || [];
 
     el.innerHTML = `
-        <p style="font-size:13px;color:#718096;margin-bottom:14px">
+        <p style="font-size:13px;color:var(--text-3);margin-bottom:14px">
             Toca el ícono para escuchar, o toca la tarjeta para ver la traducción.
         </p>
 
@@ -3627,7 +3593,7 @@ function renderVocabMatch() {
     };
 
     el.innerHTML = `
-        <p style="font-size:13px;color:#718096;margin-bottom:14px">
+        <p style="font-size:13px;color:var(--text-3);margin-bottom:14px">
             Conecta cada palabra con su traducción.
         </p>
 
@@ -3780,7 +3746,7 @@ function renderVocabQuestion() {
     isChecking = false;
 
     el.innerHTML = `
-        <div style="margin-bottom:10px;font-size:12px;color:#A0AEC0;font-weight:700">
+        <div style="margin-bottom:10px;font-size:12px;color:var(--text-4);font-weight:700">
             Pregunta ${window.vqIdx + 1} de ${window.vqTasks.length}
         </div>
 
@@ -3813,8 +3779,7 @@ function renderVocabProduction() {
                 <p style="color:var(--text-3);font-size:13px;">Los ejercicios de producción para este tópico llegarán pronto.<br>
                 Practica con el Quiz mientras tanto.</p>
                 <button onclick="setVocabMode('quiz', document.getElementById('vtab-quiz'))"
-                    style="margin-top:14px;padding:10px 20px;background:var(--navy);border:none;
-                    border-radius:var(--r-sm);color:#fff;font-size:13px;font-weight:700;
+                    class="btn-primary-full" style="margin-top:14px;
                     cursor:pointer;font-family:inherit;">
                     Ir al Quiz →
                 </button>
@@ -3844,8 +3809,7 @@ function renderVocabProduction() {
                     ${ps.correct} de ${ps.total} ejercicios correctos
                 </p>
                 <button onclick="window._prodState=null;renderVocabProduction();"
-                    style="width:100%;padding:12px;background:var(--navy);border:2px solid var(--navy-deep);
-                    border-radius:var(--r-md);color:#fff;font-size:14px;font-weight:800;
+                    class="btn-primary-full" style="width:100%;
                     cursor:pointer;font-family:inherit;">
                     Repetir ejercicios
                 </button>
@@ -3890,10 +3854,7 @@ function renderVocabProduction() {
             </div>
             <textarea id="prod-write-input"
                 placeholder="Escribe tu respuesta..."
-                style="width:100%;min-height:80px;background:var(--bg-2);
-                border:2px solid var(--border-md);border-radius:var(--r-md);
-                padding:12px 15px;font-size:14px;font-family:inherit;
-                color:var(--text-1);outline:none;resize:vertical;line-height:1.7;"
+                class="free-writing-area" style="min-height:80px;"
                 onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();checkProdWrite();}">
             </textarea>`;
     }
@@ -3991,8 +3952,8 @@ window.checkProdWrite = function() {
         fb.innerHTML = `
             <div class="ex-feedback ${ok ? 'success' : 'error'}" style="margin-top:10px;">
                 <strong>${ok ? '✓ Correcto' : '✗ Respuesta modelo:'}</strong>
-                ${!ok ? `<div style="margin-top:4px;font-style:italic;">${escapeHtml(q.a)}</div>` : ''}
-                <div style="margin-top:4px;font-size:12px;opacity:0.85;">${escapeHtml(q.exp || '')}</div>
+                ${!ok ? `<div class="fb-detail-answer">${escapeHtml(q.a)}</div>` : ''}
+                <div class="fb-detail-example">${escapeHtml(q.exp || '')}</div>
             </div>`;
     }
     setTimeout(() => { ps.idx++; renderVocabProduction(); }, 2800);
@@ -4004,7 +3965,7 @@ function showProdFeedback(ok, exp) {
     fb.innerHTML = `
         <div class="ex-feedback ${ok ? 'success' : 'error'}" style="margin-top:10px;">
             <span>${ok ? '✓ Correcto' : '✗ Incorrecto'}</span>
-            ${exp ? `<div style="margin-top:3px;font-size:12px;opacity:0.85;">${escapeHtml(exp)}</div>` : ''}
+            ${exp ? `<div class="fb-detail-example">${escapeHtml(exp)}</div>` : ''}
         </div>`;
 }
 
@@ -4193,18 +4154,18 @@ window.renderDiagnostic = function() {
             </p>
 
             <div class="theory-grid">
-                <div class="t-box" style="border-color:#12375A;background:#EAF0F7">
-                    <strong style="color:#12375A">Nivel actual</strong>
+                <div class="t-box" style="border-color:var(--navy);background:var(--navy-pale)">
+                    <strong style="color:var(--navy)">Nivel actual</strong>
                     <small>${escapeHtml(state.routeProgress.placedBand || state.routeProgress.placedLevel || 'Sin diagnóstico')}</small>
                 </div>
 
-                <div class="t-box" style="border-color:#1D9E75;background:#EAF3DE">
-                    <strong style="color:#276749">Homologación</strong>
+                <div class="t-box" style="border-color:var(--green);background:var(--green-pale)">
+                    <strong style="color:var(--green)">Homologación</strong>
                     <small>${homologatedCount} actividades homologadas.</small>
                 </div>
 
-                <div class="t-box" style="border-color:#D7262E;background:#FFE7E4">
-                    <strong style="color:#9B2C2C">Refuerzos</strong>
+                <div class="t-box" style="border-color:var(--red);background:var(--red-pale)">
+                    <strong style="color:var(--red-deep)">Refuerzos</strong>
                     <small>${reinforcements.length} ítems pendientes.</small>
                 </div>
             </div>
@@ -4506,7 +4467,7 @@ function applyDiagnosticResult(result) {
     const xpBonus = result.pct >= 80 ? 80 : result.pct >= 60 ? 50 : 25;
 
     addXP(xpBonus, false);
-    logActivity(`Diagnóstico completado: ${result.placedBand}`, xpBonus, '#D7262E');
+    logActivity(`Diagnóstico completado: ${result.placedBand}`, xpBonus, 'var(--red)');
 
     saveState();
 }
@@ -4546,7 +4507,7 @@ function renderDiagnosticResult(result) {
                 <span class="results-pill pill-xp">${result.correct}/${result.total}</span>
             </div>
 
-            <div class="card-theory" style="box-shadow:none;border:1px dashed #E6BFA6;text-align:left;margin-top:18px">
+            <div class="card-theory" style="box-shadow:none;border:1.5px dashed var(--border-md);text-align:left;margin-top:18px">
                 <h3>Refuerzos sugeridos</h3>
 
                 ${uniqueReinforcements.length
@@ -4620,32 +4581,18 @@ window.saveSettings = function() {
 
 window.confirmReset = function() {
     window.openModal(`
-        <div style="text-align:center">
+        <div style="text-align:center;padding:8px 0">
             <div style="font-size:40px;margin-bottom:16px">⚠️</div>
-
-            <h3 style="font-size:18px;font-weight:700;margin-bottom:8px">
+            <h3 style="font-family:var(--font-display);font-size:18px;font-weight:800;letter-spacing:-.03em;color:var(--navy);margin-bottom:10px">
                 ¿Reiniciar progreso?
             </h3>
-
-            <p style="color:#718096;font-size:14px;margin-bottom:24px">
+            <p style="color:var(--text-3);font-size:13.5px;margin-bottom:24px;line-height:1.6">
                 Se eliminarán tus XP, puntuaciones, diagnóstico, homologaciones, refuerzos y actividad.
                 No se puede deshacer.
             </p>
-
-            <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
-                <button 
-                    onclick="closeModal()" 
-                    style="padding:10px 24px;border:1.5px solid #E2E8F0;border-radius:10px;background:white;cursor:pointer;font-weight:600"
-                >
-                    Cancelar
-                </button>
-
-                <button 
-                    onclick="doReset()" 
-                    style="padding:10px 24px;background:#D7262E;color:white;border:none;border-radius:10px;cursor:pointer;font-weight:700"
-                >
-                    Sí, reiniciar
-                </button>
+            <div class="btn-row" style="justify-content:center">
+                <button class="btn-secondary" onclick="closeModal()">Cancelar</button>
+                <button class="btn-danger-full" onclick="doReset()">Sí, reiniciar</button>
             </div>
         </div>
     `);
@@ -4801,7 +4748,7 @@ function launchConfetti() {
     canvas.style.display = 'block';
     canvas.width  = window.innerWidth;
     canvas.height = window.innerHeight;
-    const COLORS = ['#CF2B2B','#22C55E','#1C3F7A','#F5C842','#8B5CF6','#fff'];
+    const COLORS = ['#CF2B2B','#22C55E','#1C3F7A','var(--yellow)','#8B5CF6','#fff'];
     confettiParticles = Array.from({length: 110}, () => ({
         x: Math.random() * canvas.width,
         y: Math.random() * -canvas.height * 0.5,
@@ -4890,7 +4837,7 @@ function logActivity(text, xp, color) {
     state.activityLog.unshift({
         text,
         xp,
-        color: color || '#12375A',
+        color: color || 'var(--navy)',
         time: getNowTime()
     });
 
@@ -4925,7 +4872,7 @@ function renderResultCard(config) {
             </div>
 
             <div class="btn-row">
-                <button class="btn-check" onclick="${config.retryAction}" style="background:#718096">
+                <button class="btn-check" onclick="${config.retryAction}" style="background:var(--text-3)">
                     <i data-lucide="refresh-cw"></i>
                     ${escapeHtml(config.retryLabel || 'Repetir')}
                 </button>
@@ -5090,7 +5037,7 @@ function renderCefrPortfolio() {
   const skillData = [
     { id:'grammar',  label:'Gramática',   icon:'book-open',  avg: p.grammarAvg,  done: p.grammar.done,  total: p.grammar.total,  cefrSkill:'grammar',  color:'#6366F1' },
     { id:'vocab',    label:'Vocabulario', icon:'layers',     avg: p.vocabAvg,     done: p.vocab.done,    total: p.vocab.total,    cefrSkill:'vocabulary', color:'#059669' },
-    { id:'reading',  label:'Reading',     icon:'file-text',  avg: p.readingAvg,  done: p.reading.done,  total: p.reading.total,  cefrSkill:'reading',   color:'#0891B2' },
+    { id:'reading',  label:'Reading',     icon:'file-text',  avg: p.readingAvg,  done: p.reading.done,  total: p.reading.total,  cefrSkill:'reading',   color:'var(--sky-deep)' },
     { id:'writing',  label:'Writing',     icon:'edit',       avg: p.writingAvg,  done: p.writing.done,  total: p.writing.total,  cefrSkill:'writing',   color:'#D97706' }
   ];
 
@@ -5226,7 +5173,7 @@ function renderCefrPortfolio() {
     <div class="cefr-evidence-grid">
       ${[
         { label:'Módulos de gramática', done: p.grammar.done, req: req.grammar?.modules || 0, score: p.grammarAvg, minScore: req.grammar?.minScore || 0, icon:'book-open', color:'#6366F1' },
-        { label:'Textos de reading', done: p.reading.done, req: req.reading?.texts || 0, score: p.readingAvg, minScore: req.reading?.minScore || 0, icon:'file-text', color:'#0891B2' },
+        { label:'Textos de reading', done: p.reading.done, req: req.reading?.texts || 0, score: p.readingAvg, minScore: req.reading?.minScore || 0, icon:'file-text', color:'var(--sky-deep)' },
         { label:'Ejercicios de writing', done: p.writing.done, req: req.writing?.exercises || 0, score: p.writingAvg, minScore: req.writing?.minScore || 0, icon:'edit', color:'#D97706' },
         { label:'Tópicos de vocabulario', done: p.vocab.done, req: req.vocab?.topics || 0, score: p.vocabAvg, minScore: req.vocab?.minScore || 0, icon:'layers', color:'#059669' },
         { label:'XP acumulados', done: p.xp, req: req.totalXP || 0, score: Math.min(100,Math.round((p.xp/(req.totalXP||1))*100)), minScore: 100, icon:'zap', color:'#F59E0B', isXP: true }
